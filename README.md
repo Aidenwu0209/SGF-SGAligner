@@ -4,6 +4,8 @@
 ![Stage](https://img.shields.io/badge/stage-research%20preview-f59e0b)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)
 
+![SGF-SGAligner v0.1.0 pipeline](docs/assets/sgf-sgaligner-pipeline-v0.1.0.svg)
+
 SGF-SGAligner is a research product for scene-graph-driven multi-scan
 alignment, robust point-cloud registration and safety-gated 3D fusion.
 
