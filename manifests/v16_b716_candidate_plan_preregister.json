@@ -1,0 +1,34 @@
+{
+  "schema": "v16-b716-candidate-plan-preregister-v1",
+  "frozen": true,
+  "disabled": true,
+  "base_commit": "87e62ba9bf4191494f60d0e489fd82907a68b396",
+  "official_release_checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+  "official_release_domain_matched_required": true,
+  "candidate_config": {
+    "cross_graph_k": 5,
+    "require_mutual": true,
+    "max_candidates_per_pair": 48
+  },
+  "fixed4_short_ids": [
+    "09582205_1883",
+    "68bae76c_5364",
+    "f38169cf_56fe",
+    "6a36052f_c2b5"
+  ],
+  "expected_candidate_counts": [48, 48, 48, 47],
+  "expected_hypothesis_counts": [12, 8, 2, 12],
+  "expected_existing_geot_counts": [46, 27, 27, 19],
+  "expected_missing_geot_counts": [2, 21, 21, 28],
+  "new_geot_execution_allowed": false,
+  "official92_allowed": false,
+  "downstream_colorpcr_authorized": false,
+  "forbidden_inputs": [
+    "GT transforms",
+    "selection/evaluation labels",
+    "pair_cache combos/node_metrics",
+    "posthoc",
+    "official92",
+    "fallbacks"
+  ]
+}

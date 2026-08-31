@@ -1,0 +1,86 @@
+{
+  "schema": "v16-safe-matched-region-execution-preregister-v2-b716",
+  "base_commit": "d9d93ffabd0ff22442dc00670309878a80b71c3b",
+  "stage": "closed-b716-design-and-unit-test-only",
+  "frozen": true,
+  "disabled": true,
+  "execution_allowed": false,
+  "colorpcr_allowed": false,
+  "builder_input_authorized": false,
+  "reviewed_builder_manifest_path": null,
+  "reviewed_builder_manifest_sha256": null,
+  "official_release_checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+  "candidate_manifest_schema": "v16-b716-candidate-plan-manifest-v1",
+  "exact191_manifest_schema": "v16-b716-exact191-merged-manifest-v1",
+  "prepared_builder_manifest_schema": "v16-b716-matched-region-prepared-builder-v1",
+  "legacy_B_ep20_or_89ed_allowed": false,
+  "official92_allowed": false,
+  "gt_allowed": false,
+  "selection_labels_allowed": false,
+  "posthoc_allowed": false,
+  "fallbacks": [],
+  "fixed_pair_order": [
+    "09582205-e2c2-2de1-9475-1cdac7639e60_to_0958220d-e2c2-2de1-9710-c37018da1883",
+    "68bae76c-3567-2f7c-827d-373035a2d942_to_68bae76e-3567-2f7c-82bd-a09641695364",
+    "f38169cf-378c-2a65-855f-05d491a3f26e_to_f38169c7-378c-2a65-8543-3c7481e856fe",
+    "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5"
+  ],
+  "known_bad_pair_id": "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5",
+  "primary_arm": "sgf_selected_union",
+  "control_arm": "fullscan",
+  "control_can_rescue": false,
+  "expected_primary_hypothesis_counts": {
+    "09582205-e2c2-2de1-9475-1cdac7639e60_to_0958220d-e2c2-2de1-9710-c37018da1883": 12,
+    "68bae76c-3567-2f7c-827d-373035a2d942_to_68bae76e-3567-2f7c-82bd-a09641695364": 8,
+    "f38169cf-378c-2a65-855f-05d491a3f26e_to_f38169c7-378c-2a65-8543-3c7481e856fe": 2,
+    "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5": 12
+  },
+  "expected_future_execution_counts": {
+    "primary_hypotheses": 34,
+    "directions_per_hypothesis": 2,
+    "sentinel_workers_per_direction": 2,
+    "official_colorpcr_worker_processes": 136,
+    "sentinel_invariant_direction_caches": 68,
+    "exact_three_direction_caches": 68,
+    "candidate_sets": 34,
+    "v13_solver_workers_per_candidate": 20,
+    "maximum_candidates_per_hypothesis": 8,
+    "maximum_v13_solver_workers": 5440
+  },
+  "unchanged_thresholds": {
+    "v14_min_input_correspondences": 40,
+    "v14_residual_threshold_m": 0.1,
+    "candidate_pose_rotation_deg_inclusive_max": 5.0,
+    "candidate_pose_translation_m_inclusive_max": 0.1,
+    "hypothesis_pose_rotation_deg_inclusive_max": 5.0,
+    "hypothesis_pose_translation_m_inclusive_max": 0.1,
+    "rule_b": "unchanged V13 authority",
+    "icp": "unchanged fixed-trace V13 authority"
+  },
+  "selection_rules": {
+    "all_hypotheses_must_be_replayed": true,
+    "majority_forbidden": true,
+    "largest_cluster_selection_forbidden": true,
+    "score_or_fitness_selection_forbidden": true,
+    "result_based_selection_forbidden": true,
+    "control_can_rescue": false,
+    "known_bad_unconditional_veto": true
+  },
+  "future_execution_chain": [
+    "verify exact191 and reviewed prepared builder manifests and SHA closures",
+    "launch independent forward/reverse two-sentinel ColorPCR jobs per hypothesis",
+    "discard model estimated_transform and seal exact-three correspondence caches",
+    "run unchanged V14 candidates and V13 2x2x5 strict gate",
+    "run V15 candidate complete-linkage and V16 hypothesis complete-linkage",
+    "apply known-bad veto and primary-only fixed4 aggregate"
+  ],
+  "stop_conditions": [
+    "any worker execution while disabled=true",
+    "missing reviewed builder or exact191 manifest SHA",
+    "hypothesis count/order/identity/path mismatch",
+    "any legacy B_ep20 or 89ed path/value",
+    "any GT, label, posthoc, fallback or official92 access",
+    "any result, score, majority or largest-cluster selection",
+    "any accepted known-bad row"
+  ]
+}

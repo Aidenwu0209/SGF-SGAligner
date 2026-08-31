@@ -1,0 +1,12 @@
+seed: 42
+modules: ['pct', 'gat', 'rel', 'attr']
+registration: True
+scan_type: 'scan'
+data:
+  root_dir: /home/aidenwu/Documents/SceneGraphFusion/data/3RScan_full/
+model:
+  rel_dim: 41
+  attr_dim: 164
+snapshot: checkpoints/release/sgaligner_pct_gat_rel_attr.pth.tar
+reg_snapshot: checkpoints/geotransformer/geotransformer-3dmatch.pth.tar
+gt_access: evaluation_only

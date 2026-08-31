@@ -1,0 +1,119 @@
+{
+  "schema": "v16-b716-fixed4-execution-pilot-preregister-v5",
+  "frozen": true,
+  "disabled": true,
+  "execution_authorized": false,
+  "gpu_allowed": false,
+  "model_execution_allowed": false,
+  "solver_execution_allowed": false,
+  "reconstruction_authorized": false,
+  "gt_allowed": false,
+  "official92_allowed": false,
+  "threshold_change_allowed": false,
+  "result_selection_allowed": false,
+  "default_checkpoint_replacement_allowed": false,
+  "official_release_checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+  "fixed_hypothesis_distribution": [
+    12,
+    8,
+    2,
+    12
+  ],
+  "operational_stage_counts": {
+    "colorpcr_direction": 68,
+    "bidirectional_multi_solver_pilot": 34,
+    "v16_pair_hypothesis_cluster": 4,
+    "fixed4_aggregate": 1
+  },
+  "sentinel_workers_per_direction": [
+    "identity",
+    "proper_nonzero"
+  ],
+  "max_authorization_ttl_seconds": 3600,
+  "evidence_mapping_required": true,
+  "detached_exact72_lineage_required": true,
+  "stage_runner_registry": {
+    "execution_mode": "hash_bound_independent_subprocess",
+    "runner_path": "scripts/v16_b716_fixed4_disabled_stage_runner.sh",
+    "runner_sha256": "096ee122db71f08af9612840c42fb15f1135fc645912bd289f8355e42fe13f3e",
+    "sealed_executor_path": "scripts/v16_b716_fixed4_sealed_executor.py",
+    "sealed_executor_sha256": "6b6b3b3165e9a521af226b12d4c002f888de3da80c9fef1977b5846025019f19",
+    "stages": [
+      "colorpcr_direction",
+      "bidirectional_multi_solver_pilot",
+      "v16_pair_hypothesis_cluster",
+      "fixed4_aggregate"
+    ],
+    "caller_runner_injection_allowed": false,
+    "in_process_callable_allowed": false,
+    "runner_reported_failure_type_trusted": false,
+    "checked_in_runner_disabled": true
+  },
+  "solver_matrix": {
+    "solvers": [
+      "pointdsc",
+      "pygcransac"
+    ],
+    "directions": [
+      "forward",
+      "reverse"
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "repeats": 5,
+    "quorum": 4,
+    "maximum_candidates_per_hypothesis": 8,
+    "exact_solver_rows_per_pilot": 20,
+    "preregistered_solver_nodes_per_hypothesis": 160,
+    "rotation_max_deg": 5.0,
+    "translation_max_m": 0.1
+  },
+  "replay_policy": {
+    "all_34_hypotheses_required": true,
+    "typed_failures_explicit_never_filtered": true,
+    "all_members_ok_filter_allowed": false,
+    "best_score_allowed": false,
+    "majority_allowed": false,
+    "known_bad_all_12_replayed": true,
+    "known_bad_permanent_veto": true,
+    "typed_failure_safe_pose_vote_allowed": false,
+    "typed_failure_selector_allowed": false,
+    "typed_failure_quorum_allowed": false,
+    "typed_failure_cluster_contribution_allowed": false,
+    "typed_failure_transform_allowed": false,
+    "selector_eligible_required_false": true,
+    "normal_pair_rule": "one_unique_complete_linkage_safe_pose_cluster_per_normal_pair"
+  },
+  "registration_defense": {
+    "commit": "d57ad09c1816920f8547f64eae76745a0c258f4c",
+    "schema": "registration-multirun-guard-v3",
+    "independent_audit_status": "NOT_RUN",
+    "pipeline_solver_families": [
+      "pointdsc",
+      "pygcransac"
+    ],
+    "draft_guard_solver_families": [
+      "colorpcr",
+      "pointdsc"
+    ],
+    "solver_family_contract_aligned": false,
+    "authorized": false
+  },
+  "unresolved_p0": [
+    "detached exact72 lineage clone and manifest are not yet independently reviewed and bound",
+    "prepared 12/8/2/12 real input closure is not yet supplied",
+    "clean isolated ColorPCR GPU receipt is not yet supplied",
+    "PointDSC dependency/checkpoint receipt is not yet supplied",
+    "registration-defense d57ad09 fix3 has no independent audit",
+    "registration-defense d57ad09 solver families are not aligned to the frozen V13 dual-solver contract",
+    "fixed independent external trust anchor SHA is intentionally unprovisioned; no production authorization can pass",
+    "signer private-key authority material remains on the execution host under the same aidenwu UID; it must be removed and independently attested before authorization",
+    "fresh independent fixed4 authorization must bind exact191, detached exact72 lineage, prepared34, post-change HEAD/tree, source closure, task manifest, and all 107 task IDs"
+  ],
+  "payload_sha256": "77fba92a3875e7b42c5eb634bccc221d48fea1758457a741e1ca6a4b2c61f83a"
+}

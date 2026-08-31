@@ -1,0 +1,104 @@
+{
+  "schema": "v16-matched-region-colorpcr-preregister-v1",
+  "base_commit": "f377eeae7ee6976ab41f5747a7a5fd1707cdc3e5",
+  "stage": "builder-only-pre-registration",
+  "frozen": true,
+  "disabled": true,
+  "independent_evidence": false,
+  "real_pilot_allowed": false,
+  "colorpcr_consumption_allowed": false,
+  "rank_hypotheses_authoritative_for_release": false,
+  "checkpoint_domains_match": false,
+  "checkpoint_domain_blocker": "V10/V11 ranks use research checkpoint B (89eddb50...); downstream official release uses b716c7d8...; rerank V10/V11 from b716 is required before any ColorPCR authorization",
+  "official92_allowed": false,
+  "gt_allowed": false,
+  "semantic_gt_selection_posthoc_labels_allowed": false,
+  "raw_inseg_instance_membership_key_allowed": true,
+  "raw_instance_membership_scope": "(scan_id, side, object_id) -> raw row set only; never cross-scan identity, semantic feature, candidate ranking or solver feature",
+  "posthoc_allowed": false,
+  "fallbacks": [],
+  "forbidden_fields": [
+    "gt_transform",
+    "ground_truth",
+    "selection_label",
+    "oracle",
+    "scene_id_label",
+    "fallback",
+    "identity_fallback",
+    "official92",
+    "posthoc"
+  ],
+  "label_authority_definition": "semantic/GT/selection/evaluation/posthoc labels are prohibited; the raw InSeg instance-id column is consumed only to recover same-scan object row membership and its SHA is recorded",
+  "frozen_inputs": {
+    "v10_manifest": {
+      "path": "/home/aidenwu/Documents/sgaligner-sgf-v10-crossgraph-candidates/outputs/v10_crossgraph_gtfree_20260830/v10_manifest.json",
+      "sha256": "59212aa646c94a16ece40084b6c88882ac477d2ba016696e0a42c02a4b2f8963",
+      "pair_count": 89,
+      "candidate_cache_closure_sha256": "9bfb06af1fa089647cc3654e621ed4b68e25da29daabbd64e60591f7c2b7b8e2"
+    },
+    "v11_structural_manifest": {
+      "path": "/home/aidenwu/Documents/sgaligner-sgf-v11-matched-region-multiobject/outputs/v11_matched_region_pilot_20260830/structural_manifest.json",
+      "sha256": "212212de7bb02684f2a5632101ed4d8a7a223777b9fd9ca7d3c68f09de30585a",
+      "pair_count": 89,
+      "structural_plan_closure_sha256": "0af331aa6b70b3d17d796290c3b295fab37272b0bec4318c1b8677bc2190dd88"
+    },
+    "rank_source_checkpoint": {
+      "checkpoint_id": "B",
+      "sha256": "89eddb50b19fd44a24778877a445b4ad72488936711eea317675d338bf6c4200",
+      "authority": "V10 candidate ranks and V11 structural hypotheses only",
+      "release_authority": false
+    },
+    "downstream_official_release_checkpoint": {
+      "path": "checkpoints/release/sgaligner_pct_gat_rel_attr.pth.tar",
+      "sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+      "authority": "target official SGAligner release runtime; not the source of current V10/V11 ranks"
+    },
+    "canonical_builder": {
+      "path": "scripts/canonical_inputs.py",
+      "sha256": "05b376829886fb9d1d6260c531a387c1bbe65524d9a35a999e8fc93d12c34d4c"
+    },
+    "v13_preprocessing_sources": {
+      "src/safety/v13_colorpcr_pointdsc_shadow.py": "fffe350a300ae7be331846770a2e64983ce715416a81968e90dad9d51c822436",
+      "scripts/v13_colorpcr_official_worker.py": "120ddab52a5665548677c542667a14bd5dec9c81d4d5222ab1f40d993026dbf3",
+      "scripts/v14_fixed4_input_builder.py": "2d3b562aaaedaca78c2128520a8ff65c6de2f4033d2d0dc478ca54f81b26f900"
+    }
+  },
+  "deterministic_contract": {
+    "rank_records": "V10 rank records and object identities only",
+    "multi_object_hypotheses": "V11 structural JSON only; exact stored order is authenticated then canonicalized by stable keys",
+    "surface_mapping": "node index/object id to a unique raw InSeg object row set plus RGB; fail closed on zero or multiple mappings",
+    "units": "metres only",
+    "preprocessing": "filter matched members before world-origin 0.10 m voxel aggregation; builder saves raw and voxel10 prepared arrays only",
+    "coarsest_cap512": "owned by the unchanged V13 official worker after repeated multi-level grid_subsample at the final coarsest stage; never applied directly after voxel10 by this builder",
+    "solver_execution": "not part of this builder stage; current B-rank diagnostic outputs are prohibited as ColorPCR inputs; after b716 reranking, future forward and reverse ColorPCR must be independent processes"
+  },
+  "unchanged_downstream_gates": {
+    "rule_b": "unchanged",
+    "icp": "unchanged",
+    "residual_threshold_m": 0.1,
+    "min_support": 40,
+    "pose_cluster_rotation_deg": 5.0,
+    "pose_cluster_translation_m": 0.1
+  },
+  "required_hypothesis_evidence": [
+    "member rank records and hashes",
+    "source/reference node indices and object ids",
+    "raw surface file hashes, row offsets, row indices and per-member hashes",
+    "source/reference union arrays and hashes",
+    "full recursive provenance closure",
+    "filter-before-voxel raw unions and voxel10 prepared arrays",
+    "V10 source-cache recursive SHA/source closure and V11 canonical_input_sha256 recomputation",
+    "separate rank-source and downstream-release checkpoint identities"
+  ],
+  "stop_conditions": [
+    "any source hash mismatch",
+    "cache or structural rank order mismatch",
+    "V10 source-cache, checkpoint chain, canonical object order/src_count, registration-surface or V11 canonical_input hash mismatch",
+    "attempt to treat checkpoint-B rank hypotheses as authoritative for the b716 official release",
+    "missing or duplicate node/object/surface mapping",
+    "non-metre coordinates",
+    "GT, label, posthoc, official92 or fallback field",
+    "any builder-side direct voxel10 FPS512/cap512 output",
+    "any attempt to execute or consume ColorPCR inputs while disabled=true"
+  ]
+}

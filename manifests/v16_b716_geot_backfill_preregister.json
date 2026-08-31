@@ -1,0 +1,123 @@
+{
+  "schema": "v16-b716-geot-backfill-preregister-v1",
+  "frozen": true,
+  "disabled": true,
+  "base_commit": "9acef62f130298048285dc4b3d1dfb3f15c7cbef",
+  "candidate_manifest_path": "outputs/v16_b716_candidate_plan_fixed4_20260830/fixed4_manifest.json",
+  "candidate_manifest_sha256": "774d4b49624e495412fcb72d1c79716d7b1b2b2840de72ce303ee8c70fd4ca68",
+  "official_release_checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+  "official_geotransformer_checkpoint_sha256": "5c5ffe352baddd83a12a8077451650235bb68a401367d7061344cd9c4aa3595c",
+  "authoritative_v3_manifests": {
+    "artifact_manifest": {
+      "path": "/home/aidenwu/Documents/sgaligner-sgf-official/outputs/official_sgaligner_v3_pct_parity_baseline_20260827/artifact_manifest.json",
+      "bytes": 233703,
+      "sha256": "5479c0c9f5ef4b16799ee0d39ed055e5a0539dcaed6ce981eafb34ec916a3f82"
+    },
+    "cache_manifest": {
+      "path": "/home/aidenwu/Documents/sgaligner-sgf-official/outputs/official_sgaligner_v3_pct_parity_baseline_20260827/cache_manifest.json",
+      "bytes": 176003,
+      "sha256": "ce227ea52e9d3b91a6396b36d7091c30cf8f39cdb7b614903718b2a026835dcb"
+    }
+  },
+  "formal_v13_fixed4_preregister": {
+    "path": "/home/aidenwu/Documents/sgaligner-sgf-v16-matched-region-colorpcr-pilot/manifests/v13_colorpcr_pointdsc_fixed4_preregister.json",
+    "bytes": 3259,
+    "sha256": "16a8a4165e68c3fceddb9bf0a07e6e2571a7ac587c4941221900071ee4452538",
+    "full_pair_ids": [
+      "09582205-e2c2-2de1-9475-1cdac7639e60_to_0958220d-e2c2-2de1-9710-c37018da1883",
+      "68bae76c-3567-2f7c-827d-373035a2d942_to_68bae76e-3567-2f7c-82bd-a09641695364",
+      "f38169cf-378c-2a65-855f-05d491a3f26e_to_f38169c7-378c-2a65-8543-3c7481e856fe",
+      "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5"
+    ]
+  },
+  "selection89_readonly_audit": {
+    "row_count": 89,
+    "unique_tag_count": 89,
+    "unique_pair_id_count": 89,
+    "stable_rows_sha256": "a9c279927a9ac290e79a2a28d6617778dd1390ed325ea2cdf507f99f7c50a7e9",
+    "checkpoint_epoch": 6,
+    "checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+    "sampling_mode": "official_mt19937",
+    "model_config_sha256": "614d386b71e038911f87c85fde6951003e514b18f910f2a010678c8e9fd570d3",
+    "code_head": "98df603c53849da4028c4bc86d22b34194c31961"
+  },
+  "expected_missing_key_count": 72,
+  "expected_missing_key_closure_sha256": "883ab42539e9c438addfcd8e5d1bc37bc0bc5bd03a6a7df4d45b94a2ae7c82bd",
+  "expected_missing_node_pairs_by_short_id": {
+    "09582205_1883": [[29, 66], [5, 70]],
+    "68bae76c_5364": [[9, 24], [10, 40], [4, 23], [7, 40], [14, 30], [19, 24], [4, 22], [2, 44], [13, 35], [8, 39], [20, 21], [3, 23], [13, 36], [14, 29], [2, 22], [16, 39], [15, 27], [5, 45], [14, 40], [16, 30], [10, 24]],
+    "f38169cf_56fe": [[3, 48], [18, 82], [27, 88], [31, 93], [20, 89], [22, 86], [33, 93], [35, 50], [10, 83], [12, 90], [30, 91], [0, 52], [16, 70], [17, 65], [18, 73], [27, 89], [12, 88], [15, 66], [29, 93], [1, 48], [3, 44]],
+    "6a36052f_c2b5": [[9, 18], [4, 21], [6, 16], [0, 19], [5, 21], [7, 12], [10, 14], [2, 24], [6, 22], [4, 16], [5, 25], [0, 12], [3, 14], [4, 22], [6, 21], [8, 18], [1, 29], [2, 25], [7, 13], [10, 20], [4, 25], [9, 13], [10, 15], [9, 17], [3, 29], [6, 25], [5, 16], [2, 28]]
+  },
+  "execution_contract": {
+    "default_mode": "dry-run",
+    "real_execution_allowed": false,
+    "key_selection_allowed": false,
+    "exact_batch_only": true,
+    "independent_per_key_outputs": true,
+    "atomic_outputs": true,
+    "resume_requires_full_hash_validation": true,
+    "result_based_selection_allowed": false,
+    "authorization_derivation_contract": {
+      "planned_task_state": "planned_disabled",
+      "planned_execution_authorized": false,
+      "authorized_view_schema": "v16-b716-geot-authorized-task-view-v1",
+      "authorized_state": "authorized_pending",
+      "requires_disabled_false": true,
+      "requires_real_execution_allowed_true": true,
+      "planned_task_is_immutable": true
+    }
+  },
+  "cuda_hard_gate": {
+    "authorization_receipt_required": true,
+    "authorization_sha256_required": true,
+    "clean_service_receipt_required": true,
+    "clean_service_environment_sentinel": "V16_B716_CLEAN_SERVICE=1",
+    "isolated_gpu_environment_sentinel": "V16_B716_ISOLATED_GPU=1",
+    "single_cuda_visible_device_required": true,
+    "max_memory_used_mib": 256,
+    "max_utilization_percent": 5,
+    "compute_process_count": 0,
+    "recheck_before_every_key": true,
+    "runtime_max_memory_used_mib": 8192,
+    "runtime_max_utilization_percent": 100,
+    "runtime_only_current_process_allowed": true,
+    "clean_service_receipt_max_age_seconds": 300,
+    "required_services_checked": [
+      "nvidia_compute_process_table",
+      "sgaligner_python_workers",
+      "geotransformer_workers"
+    ]
+  },
+  "official92_allowed": false,
+  "gt_allowed": false,
+  "pair_combos_allowed": false,
+  "outcome_or_result_selection_allowed": false,
+  "future_merge_contract": {
+    "schema": "v16-b716-geot-merge-contract-v1",
+    "existing_official_entry_count": 119,
+    "required_backfill_entry_count": 72,
+    "total_candidate_entry_count": 191,
+    "exact_candidate_key_coverage_required": true,
+    "result_based_selection_allowed": false,
+    "downstream_authorized": false
+  },
+  "forbidden_inputs": [
+    "GT transforms",
+    "selection/evaluation labels",
+    "pair_cache combos/node_metrics",
+    "posthoc",
+    "official92",
+    "fallbacks",
+    "result-based key selection"
+  ],
+  "forbidden_field_declarations": {
+    "pair_cache_top_level_fields_lexically_skipped": ["combos"],
+    "nested_fields_never_decoded": ["node_metrics"],
+    "canonical_builder_with_labels": false,
+    "gt_or_label_inputs_allowed": false,
+    "posthoc_inputs_allowed": false,
+    "official92_inputs_allowed": false,
+    "result_or_outcome_selection_allowed": false
+  }
+}

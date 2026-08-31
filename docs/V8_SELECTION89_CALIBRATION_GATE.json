@@ -1,0 +1,48 @@
+{
+  "schema": "v8-selection89-calibration-gate-spec-v1",
+  "status": "PREREGISTERED_BEFORE_CURRENT_LABEL_LOADING",
+  "scope": "selection89_development_only",
+  "confirmatory_claim_allowed": false,
+  "automatic_calibration_authorized": false,
+  "known_bad_pair_id": "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5",
+  "mechanical_thresholds": {
+    "workers_complete": 1780,
+    "worker_exceptions_max": 0,
+    "worker_nonfinite_max": 0,
+    "worker_cache_or_hash_mismatch_max": 0,
+    "pair_count": 89,
+    "outer_repeats": 2,
+    "pair_verdict_repeatability_fraction_min": 1.0,
+    "known_bad_pair_veto_required_each_outer": true,
+    "accepted_error_max_each_outer": 0,
+    "accepted_correct_min_each_outer": 9,
+    "accepted_correct_ge_10_min_outer_count": 1,
+    "raw_strict_min_each_outer": 11
+  },
+  "frozen_historical_baseline": {
+    "checkpoint_arm": "V6_B_F",
+    "repeat_counts": [
+      {"repeat": 0, "accepted_correct": 10, "accepted_error": 0, "raw_strict": 12,
+       "sha256": "97dab7f5158113d92a2810a2b0cfd9fa4599662ac7d7fb9126bfa3a1b004d589"},
+      {"repeat": 1, "accepted_correct": 9, "accepted_error": 1, "raw_strict": 12,
+       "sha256": "d445e810f6c0785abc105e920fba52277631a646077cfc2b6b153792bb3129e3"},
+      {"repeat": 2, "accepted_correct": 10, "accepted_error": 0, "raw_strict": 11,
+       "sha256": "1dc077a81c45eb8130cfbde90a92fb64a8e6e8c512e38bd5ebf8df6d24fe88ae"}
+    ],
+    "known_bad_source": {
+      "repeat": 1,
+      "accepted_error": true,
+      "pair_id": "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5"
+    }
+  },
+  "stage_order": [
+    "freeze and independently validate the GT-free 1780-worker batch",
+    "freeze and independently validate the GT-free V8 replay receipt",
+    "run the GT-free repeatability and known-bad veto gate; stop before labels on any failure",
+    "on prelabel failure freeze GT-free mismatch and pooled/leave-one-out diagnostics only",
+    "run the separate posthoc label process exactly once",
+    "evaluate this immutable mechanical gate without loading GT in the gate process",
+    "do not enter calibration if any check fails"
+  ],
+  "forbidden_in_this_stage": ["calibration90", "fixed12", "official92", "threshold_relaxation"]
+}

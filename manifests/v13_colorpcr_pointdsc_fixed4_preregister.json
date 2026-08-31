@@ -1,0 +1,66 @@
+{
+  "schema": "v13-colorpcr-pointdsc-preregister-v1",
+  "base_commit": "4848eec8b425188ebeec1e2b1e585918755f1dc6",
+  "pilot_positions": [0, 44, 88],
+  "append_known_bad": true,
+  "normal_pair_ids": [
+    "09582205-e2c2-2de1-9475-1cdac7639e60_to_0958220d-e2c2-2de1-9710-c37018da1883",
+    "68bae76c-3567-2f7c-827d-373035a2d942_to_68bae76e-3567-2f7c-82bd-a09641695364",
+    "f38169cf-378c-2a65-855f-05d491a3f26e_to_f38169c7-378c-2a65-8543-3c7481e856fe"
+  ],
+  "known_bad_pair_id": "6a36052f-fa53-2915-9400-831b60c63077_to_6a36052d-fa53-2915-9764-30d81b2cc2b5",
+  "arms": ["sgf_selected_union", "fullscan"],
+  "primary_arm": "sgf_selected_union",
+  "control_arm": "fullscan",
+  "control_can_rescue": false,
+  "strict_gate_runtime_pins": {
+    "v7_registration_pilot.py": "aeecad81374a65cb4a128e646c1d5c85ec0c8df591d454df76ade1a2b8ad3a5f",
+    "decision_features.py": "3795af00ba7c494f10bc949e35c104a2f67e37876e309fa923945ad248a393eb",
+    "v8_stage_order_consensus.py": "38617c61b0ce2faebceb31673b01db0158a28251f034f91b570d9d9909784d1c"
+  },
+  "sgf_selected_union": {
+    "source": "sealed_v11_3_shadow_source_and_reference_points",
+    "membership_grid_m": 0.001,
+    "mapping": "unique_shadow_grid_key_to_raw_inseg_row",
+    "required_mapping_coverage": 1.0,
+    "missing_or_ambiguous": "fail_closed",
+    "gt_or_pair_labels": "forbidden"
+  },
+  "solvers": ["pointdsc", "pygcransac"],
+  "directions": ["forward", "reverse"],
+  "repeats": 5,
+  "quorum": 4,
+  "max_rotation_deg": 5.0,
+  "max_translation_m": 0.1,
+  "colorpcr_input": {
+    "filter_arm_before_voxel": true,
+    "voxel_size_m": 0.10,
+    "voxel_origin": [0.0, 0.0, 0.0],
+    "xyz_aggregation": "float64_mean_then_float32",
+    "rgb_aggregation": "float64_mean_then_float32_0_255",
+    "label_aggregation": "forbidden",
+    "source_provenance": "csr_flat_source_rows_plus_offsets",
+    "coarsest_cap": 512,
+    "coarsest_cap_method": "deterministic_per_scan_proportional_fps_start_index_0",
+    "freeze_basis": "pre-result 8GB resource preflight: raw and voxel0.05_cap850 OOM; voxel0.10_cap512 f381 bidirectional succeeded",
+    "no_further_resource_tuning": true
+  },
+  "sentinel_gate": {
+    "sentinels": ["identity", "proper_nonzero_90deg_z_plus_xyz_translation"],
+    "required_invariant_outputs": ["ref_corr_points", "src_corr_points", "corr_scores", "estimated_transform"],
+    "fail_closed": true
+  },
+  "colorpcr_runtime_pins": {
+    "commit": "d579a80d71c3d6ae37ee58ba5a3943fe81e8427d",
+    "weight_sha256": "b4900863c86629c24386189094691f159c1ff437b5623510a11c9468bc8cb814",
+    "python_tree_sha256": "26f732740d70433324f7e3a2368b9f7bf1670fb3e7a95945f80d7af6ae50958d",
+    "runtime_repo": "/home/aidenwu/Documents/colorpcr-clean-d579a80-audit",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "extension_sha256": "33160b284931483c570b32fd73513ceb5603cce3d30d4e0903937ce30c8b594f",
+    "clean_build_receipt_sha256": "08616d4257a6528844366c4b30a3a998541a084d108ac220447e4cc096447642"
+  },
+  "resource_ceiling_workers": 160,
+  "decision": "both solvers q4 plus bidirectional plus solver agreement plus unchanged Rule-B plus known-bad veto",
+  "dependency_status": "PHASE1_ISOLATED_RUNTIME_AUDITED_PILOT_NOT_RUN",
+  "gpu_authorized": false
+}

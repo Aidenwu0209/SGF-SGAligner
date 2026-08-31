@@ -1,0 +1,30 @@
+{
+  "schema": "v13-colorpcr-runtime-audit-requirements-v1",
+  "official_repo": "/home/aidenwu/Documents/colorpcr-clean-d579a80-audit",
+  "superseded_dirty_audit_checkout": "/home/aidenwu/Documents/jojo_pipeline_eval_20260830/third_party/ColorPCR",
+  "official_commit": "d579a80d71c3d6ae37ee58ba5a3943fe81e8427d",
+  "official_weight": "weights/weights.pth.tar",
+  "official_weight_sha256": "b4900863c86629c24386189094691f159c1ff437b5623510a11c9468bc8cb814",
+  "runtime_python_tree_sha256": "26f732740d70433324f7e3a2368b9f7bf1670fb3e7a95945f80d7af6ae50958d",
+  "tracked_build_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "compiled_extension_sha256": "33160b284931483c570b32fd73513ceb5603cce3d30d4e0903937ce30c8b594f",
+  "clean_build_receipt_sha256": "08616d4257a6528844366c4b30a3a998541a084d108ac220447e4cc096447642",
+  "clean_build_artifact_manifest_sha256": "25e97b90cf74a95883c91f8a3feb4e462c2d61f23f4485d2cca20ffcba174504",
+  "required_environment": {"name": "jojo2026", "python": "3.10", "torch": "1.13", "open3d": "0.17"},
+  "required_before_gpu": [
+    "official license and source commit independently recorded",
+    "all local build patches and compiled extension SHA recorded",
+    "checkpoint strict-load with zero missing/unexpected keys",
+    "four positive audited neighbor limits frozen with provenance",
+    "identity and fixed nonzero proper-SE3 sentinel outputs invariant",
+    "0.10m color-preserving arm-first voxelization with source-row provenance",
+    "coarsest total points capped at 512 by deterministic per-scan FPS",
+    "output contains no GT node correspondence or input transform",
+    "PointDSC source/checkpoint/license independently sealed",
+    "unchanged Rule-B and q4 source SHA recorded"
+  ],
+  "current_status": "PHASE1_ISOLATED_RUNTIME_AUDITED_FIXED4_RESOURCE_SAFE_REPLAY_NOT_RUN",
+  "gpu_authorized": false,
+  "gpu_authorized_for": "isolated_fixed4_shadow_only_after_manifest_and_sentinel_gate",
+  "shared_sgaligner_torch27_import": "forbidden"
+}

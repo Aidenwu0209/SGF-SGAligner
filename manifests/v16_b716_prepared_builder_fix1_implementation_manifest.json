@@ -1,0 +1,29 @@
+{
+  "schema": "v16-b716-prepared-builder-fix1-implementation-v1",
+  "base_commit": "fa76c18e8a489e83eb27c8a052789eb9bd55155e",
+  "exact191_merger_commit": "86b2077e06db5a5b1b8e7a2e856ac84c2a89383e",
+  "exact191_merger_implementation_manifest_sha256": "eacfa89630cb82726b1c80d486bf23387348a860d042f50d504b02aeba29a432",
+  "official_release_checkpoint_sha256": "b716c7d81b70274f98c7b4bd894c40534bac007ab71050713e39a67c5964a17e",
+  "fixed_hypothesis_distribution": [12, 8, 2, 12],
+  "hypothesis_count": 34,
+  "typed_failure_existing_count": 16,
+  "hypotheses_with_typed_failure_members": 8,
+  "typed_failures_visible_and_never_filtered": true,
+  "v14_lineage_precheck_invoked_unchanged": true,
+  "create_only_no_replace_publication": true,
+  "gpu_or_worker_execution_performed": false,
+  "gt_consumed": false,
+  "official92_executed": false,
+  "tests": {
+    "normal": "8 passed, 4 subtests passed",
+    "clean_shell": "8 passed, 4 subtests passed",
+    "deterministic_replay_outputs": 34
+  },
+  "source_sha256": {
+    "src/safety/v16_b716_prepared_builder.py": "8b4e329004d43b18e595ad1df73bf6502d2f433003689669ada5ba759e977247",
+    "scripts/v16_b716_synthetic_exact191_fixture.py": "0135bcac736ec8d690c3e59e298becc2cab399aad167c7fc561564de05262598",
+    "tests/test_v16_b716_prepared_builder.py": "73cbccc968fd09f1039306df7fa27c64b1774b3ba91311c17bfb8af389a9c1c9",
+    "scripts/v14_fixed4_input_builder.py": "2d3b562aaaedaca78c2128520a8ff65c6de2f4033d2d0dc478ca54f81b26f900",
+    "manifests/v16_b716_prepared_builder_preregister.json": "12acff740cb25414a87ab0563efc90824dd8768233d88853370daa714b9d11a0"
+  }
+}
