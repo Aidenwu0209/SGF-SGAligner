@@ -1,0 +1,254 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="650" viewBox="0 0 1800 650" role="img" aria-labelledby="title desc">
+  <title id="title">SGF-SGAligner method overview</title>
+  <desc id="desc">Publication-style pipeline from prepared scene graphs and local point clouds through graph adaptation, cross-scan matching, geometric registration and a fail-closed safety decision to an accepted fused PLY or rejection.</desc>
+  <defs>
+    <style>
+      .label{font-family:Arial,Helvetica,sans-serif;fill:#15191d}
+      .panel{font-size:24px;font-weight:700}
+      .section{font-size:18px;font-weight:700}
+      .head{font-size:22px;font-weight:700}
+      .body{font-size:17px}
+      .small{font-size:14px}
+      .tiny{font-size:12px}
+      .box{stroke:#28323c;stroke-width:2;fill:#ffffff}
+      .subbox{stroke:#56616c;stroke-width:1.6;fill:#ffffff}
+      .guide{stroke:#aab2ba;stroke-width:1.2;fill:none}
+      .arrow{stroke:#26323c;stroke-width:2.4;fill:none;marker-end:url(#arrow)}
+      .thin-arrow{stroke:#4e5964;stroke-width:1.6;fill:none;marker-end:url(#arrow-small)}
+      .dash{stroke-dasharray:7 5}
+      .blue{fill:#dceef8;stroke:#0072b2}
+      .sky{fill:#e4f4fa;stroke:#56b4e9}
+      .green{fill:#dff3ec;stroke:#009e73}
+      .orange{fill:#fff1d4;stroke:#e69f00}
+      .verm{fill:#fae6df;stroke:#d55e00}
+      .purple{fill:#f4e5f0;stroke:#cc79a7}
+      .gray{fill:#f4f5f6;stroke:#6c7680}
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#26323c"/>
+    </marker>
+    <marker id="arrow-small" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10Z" fill="#4e5964"/>
+    </marker>
+    <clipPath id="scanA"><rect x="46" y="140" width="162" height="114"/></clipPath>
+    <clipPath id="scanB"><rect x="46" y="302" width="162" height="114"/></clipPath>
+  </defs>
+
+  <rect width="1800" height="650" fill="#ffffff"/>
+
+  <!-- (a) Prepared SGF inputs -->
+  <g id="panel-a">
+    <text class="label panel" x="34" y="48">(a)</text>
+    <text class="label section" x="74" y="48">Prepared SGF inputs</text>
+    <rect class="box" x="30" y="72" width="225" height="395" rx="3"/>
+
+    <text class="label small" x="46" y="118">reference scan</text>
+    <rect class="subbox sky" x="46" y="140" width="162" height="114"/>
+    <g clip-path="url(#scanA)">
+      <path d="M38 238L76 203L111 215L151 178L215 199" fill="none" stroke="#98a6b2" stroke-width="1.5"/>
+      <path d="M59 226L84 191L124 205L164 167L202 182" fill="none" stroke="#c3ccd3" stroke-width="1.2"/>
+      <g fill="#0072b2">
+        <circle cx="66" cy="214" r="3"/><circle cx="76" cy="205" r="2.5"/><circle cx="87" cy="218" r="3"/><circle cx="96" cy="195" r="2.5"/>
+        <circle cx="109" cy="207" r="3"/><circle cx="121" cy="216" r="2.3"/><circle cx="134" cy="192" r="3"/><circle cx="148" cy="181" r="2.5"/>
+        <circle cx="160" cy="174" r="3"/><circle cx="171" cy="188" r="2.5"/><circle cx="185" cy="181" r="3"/><circle cx="197" cy="200" r="2.5"/>
+      </g>
+      <g stroke="#26323c" stroke-width="1.2" fill="#ffffff">
+        <circle cx="83" cy="175" r="10"/><circle cx="131" cy="160" r="10"/><circle cx="176" cy="218" r="10"/>
+        <path d="M93 172L121 163M139 167L168 210M92 181L167 216"/>
+      </g>
+    </g>
+    <text class="label small" x="46" y="280">source scan</text>
+    <rect class="subbox green" x="46" y="302" width="162" height="114"/>
+    <g clip-path="url(#scanB)">
+      <path d="M39 403L78 371L112 384L154 348L214 364" fill="none" stroke="#98a6b2" stroke-width="1.5"/>
+      <path d="M58 390L87 358L126 370L165 339L205 350" fill="none" stroke="#c3ccd3" stroke-width="1.2"/>
+      <g fill="#009e73">
+        <circle cx="65" cy="380" r="3"/><circle cx="78" cy="371" r="2.5"/><circle cx="89" cy="384" r="3"/><circle cx="101" cy="360" r="2.5"/>
+        <circle cx="112" cy="372" r="3"/><circle cx="126" cy="383" r="2.3"/><circle cx="138" cy="359" r="3"/><circle cx="151" cy="347" r="2.5"/>
+        <circle cx="164" cy="341" r="3"/><circle cx="176" cy="355" r="2.5"/><circle cx="188" cy="348" r="3"/><circle cx="199" cy="367" r="2.5"/>
+      </g>
+      <g stroke="#26323c" stroke-width="1.2" fill="#ffffff">
+        <circle cx="86" cy="337" r="10"/><circle cx="134" cy="324" r="10"/><circle cx="177" cy="385" r="10"/>
+        <path d="M96 334L124 326M142 331L169 377M95 343L168 383"/>
+      </g>
+    </g>
+    <text class="label small" x="46" y="444">local point cloud + scene graph</text>
+  </g>
+
+  <path class="arrow" d="M255 270H292"/>
+
+  <!-- (b) Canonical adapter and encoder -->
+  <g id="panel-b">
+    <text class="label panel" x="292" y="48">(b)</text>
+    <text class="label section" x="332" y="48">Canonical graph adapter</text>
+    <rect class="box" x="285" y="72" width="320" height="395" rx="3"/>
+    <rect class="subbox gray" x="308" y="101" width="274" height="58" rx="3"/>
+    <text class="label body" x="445" y="127" text-anchor="middle">IDs · units · edges · regions</text>
+    <text class="label small" x="445" y="148" text-anchor="middle">deterministic tensor contract</text>
+    <path class="thin-arrow" d="M445 159V188"/>
+
+    <rect class="subbox blue" x="308" y="190" width="83" height="97" rx="3"/>
+    <text class="label head" x="350" y="224" text-anchor="middle">PCT</text>
+    <text class="label small" x="350" y="248" text-anchor="middle">geometry</text>
+    <text class="label small" x="350" y="268" text-anchor="middle">embedding</text>
+
+    <rect class="subbox green" x="404" y="190" width="83" height="97" rx="3"/>
+    <text class="label head" x="446" y="224" text-anchor="middle">REL</text>
+    <text class="label small" x="446" y="248" text-anchor="middle">relation</text>
+    <text class="label small" x="446" y="268" text-anchor="middle">context</text>
+
+    <rect class="subbox purple" x="500" y="190" width="82" height="97" rx="3"/>
+    <text class="label head" x="541" y="224" text-anchor="middle">GAT</text>
+    <text class="label small" x="541" y="248" text-anchor="middle">graph</text>
+    <text class="label small" x="541" y="268" text-anchor="middle">context</text>
+
+    <path class="thin-arrow" d="M350 287V322H416"/>
+    <path class="thin-arrow" d="M446 287V322"/>
+    <path class="thin-arrow" d="M541 287V322H475"/>
+    <rect class="subbox orange" x="357" y="324" width="177" height="70" rx="3"/>
+    <text class="label head" x="446" y="353" text-anchor="middle">multimodal fusion</text>
+    <text class="label small" x="446" y="377" text-anchor="middle">normalized node descriptors</text>
+    <path class="thin-arrow" d="M446 394V426"/>
+    <text class="label small" x="446" y="449" text-anchor="middle">reference / source embeddings</text>
+  </g>
+
+  <path class="arrow" d="M605 270H642"/>
+
+  <!-- (c) Cross-scan matching -->
+  <g id="panel-c">
+    <text class="label panel" x="642" y="48">(c)</text>
+    <text class="label section" x="682" y="48">Cross-scan node matching</text>
+    <rect class="box" x="635" y="72" width="300" height="395" rx="3"/>
+    <text class="label small" x="685" y="111" text-anchor="middle">reference</text>
+    <text class="label small" x="885" y="111" text-anchor="middle">source</text>
+    <g stroke="#26323c" stroke-width="1.6">
+      <line x1="704" y1="150" x2="866" y2="150" stroke="#0072b2" stroke-width="3"/>
+      <line x1="704" y1="205" x2="866" y2="260" stroke="#009e73" stroke-width="3"/>
+      <line x1="704" y1="260" x2="866" y2="205" stroke="#e69f00" stroke-width="3"/>
+      <line x1="704" y1="315" x2="866" y2="370" stroke="#cc79a7" stroke-width="3"/>
+      <line x1="704" y1="370" x2="866" y2="315" stroke="#d55e00" stroke-width="3"/>
+      <line x1="704" y1="205" x2="866" y2="315" stroke="#7d8790" stroke-dasharray="7 5"/>
+      <line x1="704" y1="315" x2="866" y2="260" stroke="#7d8790" stroke-dasharray="7 5"/>
+    </g>
+    <g class="subbox">
+      <circle class="blue" cx="685" cy="150" r="19"/><circle class="green" cx="685" cy="205" r="19"/>
+      <circle class="orange" cx="685" cy="260" r="19"/><circle class="purple" cx="685" cy="315" r="19"/>
+      <circle class="verm" cx="685" cy="370" r="19"/>
+      <circle class="blue" cx="885" cy="150" r="19"/><circle class="orange" cx="885" cy="205" r="19"/>
+      <circle class="green" cx="885" cy="260" r="19"/><circle class="verm" cx="885" cy="315" r="19"/>
+      <circle class="purple" cx="885" cy="370" r="19"/>
+    </g>
+    <rect class="subbox gray" x="669" y="405" width="232" height="39" rx="3"/>
+    <text class="label small" x="785" y="430" text-anchor="middle">ranked matches + ambiguity mask</text>
+  </g>
+
+  <path class="arrow" d="M935 270H972"/>
+
+  <!-- (d) Multi-hypothesis registration -->
+  <g id="panel-d">
+    <text class="label panel" x="972" y="48">(d)</text>
+    <text class="label section" x="1012" y="48">Multi-hypothesis registration</text>
+    <rect class="box" x="965" y="72" width="350" height="395" rx="3"/>
+    <text class="label small" x="1007" y="112">matched regions</text>
+    <g>
+      <rect class="subbox blue" x="991" y="133" width="84" height="44" rx="3"/>
+      <rect class="subbox green" x="991" y="198" width="84" height="44" rx="3"/>
+      <rect class="subbox orange" x="991" y="263" width="84" height="44" rx="3"/>
+      <text class="label small" x="1033" y="160" text-anchor="middle">hypothesis 1</text>
+      <text class="label small" x="1033" y="225" text-anchor="middle">hypothesis 2</text>
+      <text class="label small" x="1033" y="290" text-anchor="middle">hypothesis 3</text>
+    </g>
+    <path class="thin-arrow" d="M1075 155H1108V220H1134"/>
+    <path class="thin-arrow" d="M1075 220H1134"/>
+    <path class="thin-arrow" d="M1075 285H1108V220"/>
+    <rect class="subbox sky" x="1136" y="187" width="145" height="66" rx="3"/>
+    <text class="label body" x="1208" y="214" text-anchor="middle">GeoTransformer</text>
+    <text class="label small" x="1208" y="237" text-anchor="middle">point correspondences</text>
+    <path class="thin-arrow" d="M1208 253V281"/>
+    <rect class="subbox orange" x="1136" y="283" width="145" height="50" rx="3"/>
+    <text class="label body" x="1208" y="314" text-anchor="middle">weighted RANSAC</text>
+    <path class="thin-arrow" d="M1208 333V359"/>
+    <rect class="subbox green" x="1136" y="361" width="145" height="50" rx="3"/>
+    <text class="label body" x="1208" y="392" text-anchor="middle">bidirectional ICP</text>
+    <text class="label small" x="995" y="392">candidate transforms</text>
+    <path class="thin-arrow" d="M1107 386H1134"/>
+    <text class="label tiny" x="995" y="418">T₁, T₂, T₃</text>
+    <text class="label small" x="1140" y="446" text-anchor="middle">rigid transform + geometric evidence</text>
+  </g>
+
+  <path class="arrow" d="M1315 270H1352"/>
+
+  <!-- (e) Fail-closed decision -->
+  <g id="panel-e">
+    <text class="label panel" x="1352" y="48">(e)</text>
+    <text class="label section" x="1392" y="48">Safety decision</text>
+    <rect class="box" x="1345" y="72" width="245" height="395" rx="3"/>
+    <rect class="subbox gray" x="1370" y="111" width="195" height="141" rx="3"/>
+    <text class="label body" x="1468" y="141" text-anchor="middle">RegistrationDecision</text>
+    <line x1="1388" y1="158" x2="1548" y2="158" stroke="#aab2ba" stroke-width="1"/>
+    <text class="label small" x="1390" y="184">forward / reverse agreement</text>
+    <text class="label small" x="1390" y="207">surface overlap and residual</text>
+    <text class="label small" x="1390" y="230">ICP fitness and motion bounds</text>
+    <path class="thin-arrow" d="M1468 252V282"/>
+    <path d="M1468 281L1530 325L1468 369L1406 325Z" fill="#fff1d4" stroke="#28323c" stroke-width="2"/>
+    <text class="label head" x="1468" y="318" text-anchor="middle">all gates</text>
+    <text class="label head" x="1468" y="343" text-anchor="middle">pass?</text>
+    <path class="thin-arrow dash" d="M1468 369V420"/>
+    <text class="label small" x="1480" y="397">no</text>
+    <rect class="subbox verm" x="1391" y="421" width="154" height="30" rx="3"/>
+    <text class="label small" x="1468" y="441" text-anchor="middle">reject · no transform</text>
+  </g>
+
+  <path class="arrow" d="M1530 325H1621"/>
+  <text class="label small" x="1568" y="313">yes</text>
+
+  <!-- (f) Accepted fused output -->
+  <g id="panel-f">
+    <text class="label panel" x="1620" y="48">(f)</text>
+    <text class="label section" x="1660" y="48">Output</text>
+    <rect class="box" x="1613" y="72" width="157" height="395" rx="3"/>
+    <text class="label body" x="1692" y="112" text-anchor="middle">accepted fusion</text>
+    <g transform="translate(1628 139)">
+      <path d="M9 190L34 137L54 148L75 95L100 116L129 62" fill="none" stroke="#a8b3bb" stroke-width="1.4"/>
+      <g fill="#0072b2">
+        <circle cx="22" cy="171" r="3"/><circle cx="31" cy="151" r="2.7"/><circle cx="42" cy="142" r="3"/><circle cx="53" cy="151" r="2.4"/>
+        <circle cx="63" cy="131" r="3"/><circle cx="74" cy="108" r="2.8"/><circle cx="84" cy="99" r="2.4"/><circle cx="95" cy="113" r="3"/>
+        <circle cx="108" cy="90" r="2.7"/><circle cx="118" cy="76" r="3"/><circle cx="128" cy="65" r="2.5"/>
+      </g>
+      <g fill="#009e73">
+        <circle cx="18" cy="181" r="2.7"/><circle cx="28" cy="162" r="3"/><circle cx="40" cy="153" r="2.3"/><circle cx="49" cy="160" r="3"/>
+        <circle cx="61" cy="142" r="2.6"/><circle cx="72" cy="119" r="3"/><circle cx="82" cy="111" r="2.7"/><circle cx="92" cy="122" r="2.5"/>
+        <circle cx="104" cy="100" r="3"/><circle cx="115" cy="86" r="2.7"/><circle cx="126" cy="74" r="3"/>
+      </g>
+      <g fill="#e69f00">
+        <circle cx="45" cy="190" r="2.7"/><circle cx="58" cy="177" r="3"/><circle cx="70" cy="162" r="2.5"/><circle cx="81" cy="149" r="3"/>
+        <circle cx="93" cy="139" r="2.5"/><circle cx="105" cy="128" r="3"/><circle cx="117" cy="114" r="2.7"/><circle cx="130" cy="102" r="3"/>
+      </g>
+    </g>
+    <rect class="subbox green" x="1635" y="366" width="113" height="52" rx="3"/>
+    <text class="label head" x="1692" y="389" text-anchor="middle">fused PLY</text>
+    <text class="label small" x="1692" y="408" text-anchor="middle">+ audit receipt</text>
+    <text class="label tiny" x="1692" y="444" text-anchor="middle">released only after validation</text>
+  </g>
+
+  <!-- Reproducibility and scope boundary -->
+  <line x1="30" y1="505" x2="1770" y2="505" stroke="#aab2ba" stroke-width="1.2"/>
+  <g transform="translate(30 529)">
+    <rect x="0" y="0" width="1740" height="55" fill="#f4f5f6" stroke="#c5cbd0" stroke-width="1"/>
+    <text class="label body" x="28" y="24">Reproducibility layer</text>
+    <text class="label small" x="205" y="24">preregistered protocol</text>
+    <circle cx="374" cy="19" r="3" fill="#6c7680"/>
+    <text class="label small" x="390" y="24">sealed runtime inputs</text>
+    <circle cx="563" cy="19" r="3" fill="#6c7680"/>
+    <text class="label small" x="579" y="24">checkpoint and code hashes</text>
+    <circle cx="790" cy="19" r="3" fill="#6c7680"/>
+    <text class="label small" x="806" y="24">deterministic cache</text>
+    <circle cx="948" cy="19" r="3" fill="#6c7680"/>
+    <text class="label small" x="964" y="24">fail-closed execution</text>
+    <circle cx="1139" cy="19" r="3" fill="#6c7680"/>
+    <text class="label small" x="1155" y="24">SHA-256 manifest and receipts</text>
+    <text class="label tiny" x="28" y="44">Current scope: prepared scene graph and local point-cloud inputs. Pose/SLAM and raw RGB-D replay are deferred.</text>
+  </g>
+
+  <text class="label tiny" x="1770" y="626" text-anchor="end">SGF-SGAligner · method overview · v0.1.0 research preview</text>
+</svg>

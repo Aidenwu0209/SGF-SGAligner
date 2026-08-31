@@ -4,7 +4,15 @@
 ![Stage](https://img.shields.io/badge/stage-research%20preview-f59e0b)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)
 
-![SGF-SGAligner v0.1.0 pipeline](docs/assets/sgf-sgaligner-pipeline-v0.1.0.svg)
+![SGF-SGAligner method overview](docs/assets/sgf-sgaligner-method-overview-v0.1.0.svg)
+
+*Figure 1. Current SGF-SGAligner research pipeline. Prepared scene graphs and
+local point clouds are aligned through multimodal node matching,
+multi-hypothesis geometric registration and a fail-closed release gate.*
+
+Paper-ready figure: [editable SVG](docs/assets/sgf-sgaligner-method-overview-v0.1.0.svg) ·
+[vector PDF](docs/assets/sgf-sgaligner-method-overview-v0.1.0.pdf) ·
+[300 dpi PNG](docs/assets/sgf-sgaligner-method-overview-v0.1.0.png)
 
 SGF-SGAligner is a research product for scene-graph-driven multi-scan
 alignment, robust point-cloud registration and safety-gated 3D fusion.
