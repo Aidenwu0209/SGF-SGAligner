@@ -1,13 +1,14 @@
-# SGF-SGAligner integration status
+# SGF-SGAligner v0.1.0 research status
 
 Snapshot date: 2026-08-31
+Product version: `v0.1.0-research-preview`
 Source commit: `2bd1bbf7f280bd65edcad427fd0840e09c39f6dc`
 
 ## Current backend scope
 
 ```text
 prepared SGF/InSeg graph + local point cloud
-  -> official SGAligner embeddings and node matching
+  -> multimodal graph embeddings and node matching
   -> GeoTransformer / RANSAC / ICP registration
   -> fail-closed RegistrationDecision
   -> fused PLY candidate
@@ -19,8 +20,8 @@ application.
 
 ## Verified in the source environment
 
-- The official SGAligner adapter and registration worker execute successfully
-  for the current authorized single-node pilot.
+- The graph-alignment adapter and registration worker execute successfully for
+  the current authorized single-node pilot.
 - `production_attempt.json` reports `succeeded`.
 - `adapter_validation.json` reports `PASS`.
 - The full V16 fixed4 test suite passed before this snapshot (`156 passed`).
