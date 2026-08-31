@@ -1,0 +1,49 @@
+{
+  "schema": "sgpgm-inspired-fixed4-ab-v1",
+  "date": "2026-09-01",
+  "input_policy": "same code, same prepared graph/cloud inputs, GT evaluation only",
+  "calibration_id": "selection89-dev85-fixed4-excluded-20260831",
+  "default_config": {
+    "matching_policy": "official_top3",
+    "geometry_fusion_alpha": 0.0,
+    "graph_rescore_beta": 0.0
+  },
+  "experimental_config": {
+    "matching_policy": "sinkhorn_partial",
+    "geometry_fusion_alpha": 0.35,
+    "graph_rescore_beta": 1.0
+  },
+  "pairs": [
+    {
+      "short_id": "09582205_1883",
+      "default": {"node_f1": 0.1794871794871795, "rre_deg": 3.4779346215232914, "rte_m": 0.10277686106258375, "accepted": true},
+      "experimental": {"node_f1": 0.24, "rre_deg": 29.09659706370026, "rte_m": 0.6417780491221149, "accepted": false}
+    },
+    {
+      "short_id": "68bae76c_5364",
+      "default": {"node_f1": 0.07407407407407407, "rre_deg": 7.61573598589464, "rte_m": 0.6793994881790154, "accepted": false},
+      "experimental": {"node_f1": 0.6, "rre_deg": 98.2847228972337, "rte_m": 0.8514447773347625, "accepted": false}
+    },
+    {
+      "short_id": "6a36052f_c2b5",
+      "default": {"node_f1": 0.14285714285714285, "rre_deg": 88.03208307069295, "rte_m": 3.214560956655581, "accepted": false},
+      "experimental": {"node_f1": 0.5, "rre_deg": 27.30678725800288, "rte_m": 1.1651223918880935, "accepted": false}
+    },
+    {
+      "short_id": "f38169cf_56fe",
+      "default": {"node_f1": 0.0, "rre_deg": 74.22537459018342, "rte_m": 0.9505398840680916, "accepted": false},
+      "experimental": {"node_f1": 0.0, "rre_deg": 73.68330081088891, "rte_m": 0.9295404992907731, "accepted": false}
+    }
+  ],
+  "aggregate_decision": {
+    "default_accepted": 1,
+    "experimental_accepted": 0,
+    "promote_to_default": false,
+    "reason": "node matching improved on selected pairs, but no end-to-end rescue and one accepted default pair regressed"
+  },
+  "tests": {
+    "focused_enhancement_and_candidate_tests": 12,
+    "related_pytest_first_pass": {"passed": 67, "environment_blocked": 1, "blocked_dependency": "plyfile"},
+    "adapter_tests_in_sgaligner_runtime": {"passed": 16, "failed": 0}
+  }
+}

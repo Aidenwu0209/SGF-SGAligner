@@ -12,3 +12,14 @@ snapshot: checkpoints/release/sgaligner_pct_gat_rel_attr.pth.tar
 reg_snapshot: checkpoints/geotransformer/geotransformer-3dmatch.pth.tar
 attribute_available: false
 gt_access: evaluation_only
+matching_enhancements:
+  # Production default remains the historical official matcher.
+  matching_policy: official_top3
+  geometry_fusion_alpha: 0.0
+  graph_rescore_beta: 0.0
+  adaptive_k_min_matches: 1
+  experimental_preset:
+    matching_policy: sinkhorn_partial
+    geometry_fusion_alpha: 0.35
+    graph_rescore_beta: 1.0
+    calibration: selection89-dev85-fixed4-excluded-20260831
