@@ -47,6 +47,11 @@ from safety.registration_decision import (
     spatial_support, write_decision_files,
 )
 from safety import decision_features as dfx
+from matching.sgpgm_enhancements import (
+    SGPGMEnhancementConfig,
+    enhance_node_matching,
+    rescore_point_correspondences,
+)
 
 OFFICIAL_SNAPSHOT = (
     "/home/aidenwu/Documents/sgaligner-sgf-official/checkpoints/release/"
@@ -393,7 +398,8 @@ class NodePairFailure(Exception):
 
 
 def official_registration(
-    data_dict, node_corrs, mode, device="cuda", pair_id=""
+    data_dict, node_corrs, mode, device="cuda", pair_id="",
+    node_scores=None, graph_rescore_beta=0.0,
 ):
     """Aligner-style registration on FULL world-frame object points.
 
@@ -464,7 +470,10 @@ def official_registration(
                 "reason": "geotransformer returned zero correspondences",
             })
             continue
-        if len(scores) > max(NUM_P2P // max(len(node_corrs), 1), 1):
+        if (
+            graph_rescore_beta <= 0
+            and len(scores) > max(NUM_P2P // max(len(node_corrs), 1), 1)
+        ):
             keep = np.argsort(-scores)[
                 : NUM_P2P // max(len(node_corrs), 1)
             ]
@@ -477,8 +486,27 @@ def official_registration(
         per_pair_used.append((int(src_idx), int(ref_idx)))
     if not point_corrs["src"]:
         return None, per_pair_used, node_pair_failures
+    geot_successful_pair_count = len(per_pair_used)
     src_all = np.concatenate(point_corrs["src"])
     ref_all = np.concatenate(point_corrs["ref"])
+    if graph_rescore_beta > 0:
+        guided_chunks = rescore_point_correspondences(
+            point_corrs["scores"], per_pair_used, node_scores or {},
+            graph_rescore_beta,
+        )
+        guided_all = np.concatenate(guided_chunks)
+        labels = np.concatenate([
+            np.full(len(chunk), index, dtype=np.int64)
+            for index, chunk in enumerate(guided_chunks)
+        ])
+        keep = np.argsort(-guided_all)[:min(NUM_P2P, len(guided_all))]
+        selected_labels = set(int(value) for value in labels[keep])
+        per_pair_used = [
+            pair for index, pair in enumerate(per_pair_used)
+            if index in selected_labels
+        ]
+        src_all = src_all[keep]
+        ref_all = ref_all[keep]
     corrs = np.concatenate([src_all, ref_all], axis=1).astype(np.float64)
     shifted = corrs - corrs.min(axis=0)
     try:
@@ -537,6 +565,7 @@ def official_registration(
         "src_corr_points": src_all,
         "ref_corr_points": ref_all,
         "node_pairs_used": per_pair_used,
+        "geot_successful_pair_count": geot_successful_pair_count,
         "node_pair_failures": node_pair_failures,
     }, per_pair_used, node_pair_failures
 
@@ -556,7 +585,9 @@ def decision_features_full(
 
     objects = data_dict["registration_pts"]
     used = registration["node_pairs_used"]
-    successful_pairs = len(used)
+    successful_pairs = int(registration.get(
+        "geot_successful_pair_count", len(used)
+    ))
     failed_pairs = len(registration.get("node_pair_failures", []))
     total_pairs = successful_pairs + failed_pairs
     success_ratio = (
@@ -660,11 +691,18 @@ def decision_features_full(
 
 
 def run_pair(pair_id: str, mode: str, output_dir: Path,
-             device: str = "cuda", decision_rule: str = "C") -> dict:
+             device: str = "cuda", decision_rule: str = "C",
+             enhancement_config: SGPGMEnhancementConfig | None = None) -> dict:
     import logging
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    status = {"pair_id": pair_id, "mode": mode}
+    enhancement_config = enhancement_config or SGPGMEnhancementConfig()
+    enhancement_config.validate()
+    status = {
+        "pair_id": pair_id,
+        "mode": mode,
+        "matching_enhancements": enhancement_config.provenance(),
+    }
     try:
         if mode == "legacy_geometry_baseline":
             return run_legacy_baseline(pair_id, output_dir)
@@ -682,17 +720,37 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
             output_dir / "official_embeddings.npz", embedding=embedding
         )
         src_count = data_dict["src_count"]
-        node_corrs, rank_list, sim = official_matching(
-            embedding, src_count
-        )
+        node_corrs, rank_list, sim = official_matching(embedding, src_count)
+        matching_diagnostics = {
+            "policy": "official_top3",
+            "candidate_count": len(node_corrs),
+        }
+        node_scores = {
+            (int(a), int(b)): 1.0 - float(sim[int(a), int(b)])
+            for a, b in node_corrs
+        }
+        if enhancement_config.matching_policy == "sinkhorn_partial":
+            enhanced = enhance_node_matching(
+                embedding,
+                data_dict["tot_obj_pts"],
+                src_count,
+                enhancement_config,
+            )
+            node_corrs = enhanced.node_corrs
+            node_scores = enhanced.node_scores
+            matching_diagnostics = enhanced.diagnostics
         (output_dir / "node_matches.json").write_text(json.dumps({
             "node_corrs": [
                 [int(a), int(b)] for a, b in node_corrs
             ],
+            "diagnostics": matching_diagnostics,
+            "enhancement_config": enhancement_config.provenance(),
         }, indent=2) + "\n")
 
         registration, used_pairs, node_failures = official_registration(
-            data_dict, node_corrs, mode, device=device, pair_id=pair_id
+            data_dict, node_corrs, mode, device=device, pair_id=pair_id,
+            node_scores=node_scores,
+            graph_rescore_beta=enhancement_config.graph_rescore_beta,
         )
         if mode == "official_oracle":
             src_scan, ref_scan = pair_id.split("_to_")
@@ -766,6 +824,8 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
                     "pcl_center": data_dict["pcl_center"].tolist(),
                     "pcl_center_definition":
                         data_dict["pcl_center_definition"],
+                    "matching_enhancements":
+                        enhancement_config.provenance(),
                 }, indent=2) + "\n"
             )
             status.update({
@@ -884,7 +944,35 @@ def main() -> None:
     parser.add_argument("--pair-id", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--device", default="cuda")
+    parser.add_argument(
+        "--sgpgm-experimental-preset", action="store_true",
+        help=("Enable experimental preset: Sinkhorn partial "
+              "assignment, P2SG-lite alpha=0.35, graph rescore beta=1"),
+    )
+    parser.add_argument(
+        "--matching-policy",
+        choices=("official_top3", "sinkhorn_partial"),
+        default="official_top3",
+    )
+    parser.add_argument("--geometry-fusion-alpha", type=float, default=0.0)
+    parser.add_argument("--graph-rescore-beta", type=float, default=0.0)
+    parser.add_argument("--adaptive-k-min-matches", type=int, default=1)
     args = parser.parse_args()
+
+    if args.sgpgm_experimental_preset:
+        enhancement_config = SGPGMEnhancementConfig(
+            matching_policy="sinkhorn_partial",
+            geometry_fusion_alpha=0.35,
+            graph_rescore_beta=1.0,
+            min_matches=args.adaptive_k_min_matches,
+        )
+    else:
+        enhancement_config = SGPGMEnhancementConfig(
+            matching_policy=args.matching_policy,
+            geometry_fusion_alpha=args.geometry_fusion_alpha,
+            graph_rescore_beta=args.graph_rescore_beta,
+            min_matches=args.adaptive_k_min_matches,
+        )
 
     if args.mode == "official_sgf_predicted":
         audit = GTAccessAudit(str(Path(__file__)))
@@ -899,7 +987,8 @@ def main() -> None:
             )
             sys.exit(2)
     status = run_pair(
-        args.pair_id, args.mode, Path(args.output), args.device
+        args.pair_id, args.mode, Path(args.output), args.device,
+        enhancement_config=enhancement_config,
     )
     (Path(args.output) / "status.json").write_text(
         json.dumps(status, indent=2) + "\n"

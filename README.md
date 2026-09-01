@@ -77,6 +77,26 @@ Current scope exclusions:
 - production-wide batch qualification;
 - bundled datasets, generated outputs and binary checkpoints.
 
+## Experimental SG-PGM-inspired matching
+
+Three inference-only matching extensions are available behind explicit flags:
+
+- Sinkhorn partial one-to-one node assignment with a development-calibrated
+  correspondence budget;
+- `P2SG-lite` rigid-invariant object geometry fused with graph similarity;
+- scene-graph-guided global re-ranking of GeoTransformer point
+  correspondences.
+
+They are **disabled by default** and do not change the historical official
+top-3 path. Enable the combined research preset with
+`--sgpgm-experimental-preset`, or control the three arms independently with
+`--matching-policy`, `--geometry-fusion-alpha`, and
+`--graph-rescore-beta`. The combined preset improved held-out node matching in
+the shadow ablation, but did not pass the first end-to-end Fixed4 registration
+gate; it remains an experimental candidate and rejected results stay
+fail-closed. See
+[docs/SGPGM_INSPIRED_MATCHING.md](docs/SGPGM_INSPIRED_MATCHING.md).
+
 ## Repository layout
 
 ```text
@@ -87,6 +107,7 @@ preprocessing/  graph and scan preparation utilities
 scripts/        training, evaluation and sealed-execution entry points
 src/adapters/   SGF/InSeg input adapters
 src/aligner/    multimodal graph-alignment model
+src/matching/   opt-in node/point matching extensions
 src/safety/     registration decisions and fail-closed contracts
 tests/          unit, integration and security tests
 ```
