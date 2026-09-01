@@ -20,7 +20,13 @@ from .geometry_backend import (
     GeometryBootstrapConfig,
     register_submaps_bidirectional,
 )
-from .pose_graph import PoseGraphEdge, optimize_pose_graph, propagate_anchor_corrections
+from .pose_graph import (
+    LoopWeightConfig,
+    PoseGraphEdge,
+    loop_edge_weight,
+    optimize_pose_graph,
+    propagate_anchor_corrections,
+)
 from .robust_backend import RobustPoseConfig
 from .submaps import (
     LoopProposalConfig,
@@ -79,6 +85,7 @@ def run_sequence(
     proposal_config: LoopProposalConfig = LoopProposalConfig(),
     robust_config: RobustPoseConfig = RobustPoseConfig(),
     geometry_config: GeometryBootstrapConfig = GeometryBootstrapConfig(),
+    loop_weight_config: LoopWeightConfig = LoopWeightConfig(),
 ) -> dict[str, Any]:
     if arm not in {"baseline", "candidate"}:
         raise ValueError("arm must be baseline or candidate")
@@ -121,6 +128,7 @@ def run_sequence(
             "proposal_config": asdict(proposal_config),
             "robust_config": asdict(robust_config),
             "geometry_config": asdict(geometry_config),
+            "loop_weight_config": asdict(loop_weight_config),
             "anchors": [],
             "evidence": [],
             "rejection_reason": "fewer_than_two_valid_frontend_poses",
@@ -170,6 +178,7 @@ def run_sequence(
                 "proposal_config": asdict(proposal_config),
                 "robust_config": asdict(robust_config),
                 "geometry_config": asdict(geometry_config),
+                "loop_weight_config": asdict(loop_weight_config),
                 "anchors": anchor_rows,
                 "evidence": [],
                 "rejection_reason": "submap_construction_failed",
@@ -228,7 +237,10 @@ def run_sequence(
                 target=target_index,
                 source_to_target=np.asarray(registration["transform"], dtype=np.float64),
                 kind="robust_submap_loop",
-                weight=float(np.clip(overlap / 0.35, 0.7, 1.5)),
+                weight=loop_edge_weight(
+                    overlap, source_index, target_index, len(anchors),
+                    loop_weight_config,
+                ),
                 provenance="geometry_bootstrap_fpfh+pagor+pygcransac+teaser_witness",
             ))
     _write_json(output_dir / "loop_evidence.json", {
@@ -241,6 +253,7 @@ def run_sequence(
         "proposal_config": asdict(proposal_config),
         "robust_config": asdict(robust_config),
         "geometry_config": asdict(geometry_config),
+        "loop_weight_config": asdict(loop_weight_config),
         "anchors": anchor_rows,
         "evidence": evidence,
         "gt_consumed": False,

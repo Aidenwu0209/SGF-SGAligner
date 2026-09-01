@@ -30,6 +30,17 @@ class LoopProposalConfig:
     maximum_initial_distance_m: float = 2.25
     maximum_pairs: int = 36
 
+    def __post_init__(self) -> None:
+        if self.minimum_anchor_gap < 1:
+            raise ValueError("minimum anchor gap must be positive")
+        if (
+            not np.isfinite(self.maximum_initial_distance_m)
+            or self.maximum_initial_distance_m <= 0.0
+        ):
+            raise ValueError("maximum initial distance must be finite and positive")
+        if self.maximum_pairs < 1:
+            raise ValueError("maximum loop pairs must be positive")
+
 
 @dataclass(frozen=True)
 class Submap:

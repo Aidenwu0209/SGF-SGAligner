@@ -15,6 +15,14 @@ coverage from 238 to 2277 frames and produced one safe loop. See
 retained as a historical result of its recorded configuration, not as a fair
 demo-versus-backend comparison.
 
+A development-only follow-up raised the proposal budget and conservatively
+capped the full-span loop weight. On `scene0030_00`, the retained opt-in
+setting passed no-GT safety while improving translation ATE by 61.0% and
+layer conflict by 19.23%. See
+[`PARAMETER_SWEEP_SCENE0030.md`](PARAMETER_SWEEP_SCENE0030.md). This scene is
+now tuning data and is excluded from future held-out claims; the safe default
+remains unchanged pending independent ScanNet, 3RScan, and Orbbec validation.
+
 Implementation commit: `481707fdb5ba31f79247449ca011244d99d39d46`  
 Base commit: `84434efbbd19ea3c0914b7cf57c62a6f4e02000b`  
 Frozen config SHA-256: `1040a4fa32174922fa66d2d6761214624811192c59ec1c46611f88f42bb6d641`

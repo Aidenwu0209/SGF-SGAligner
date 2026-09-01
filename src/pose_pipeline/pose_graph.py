@@ -24,6 +24,65 @@ class PoseGraphEdge:
     provenance: str = ""
 
 
+@dataclass(frozen=True)
+class LoopWeightConfig:
+    """Map verified overlap to a pose-graph weight without changing acceptance."""
+
+    overlap_reference: float = 0.35
+    minimum_weight: float = 0.7
+    maximum_weight: float = 1.5
+    high_leverage_min_span_fraction: float | None = None
+    high_leverage_weight_cap: float = 1.5
+
+    def __post_init__(self) -> None:
+        values = (
+            self.overlap_reference,
+            self.minimum_weight,
+            self.maximum_weight,
+            self.high_leverage_weight_cap,
+        )
+        if not all(np.isfinite(value) for value in values):
+            raise ValueError("loop weight config must be finite")
+        if self.overlap_reference <= 0.0:
+            raise ValueError("overlap reference must be positive")
+        if self.minimum_weight <= 0.0 or self.maximum_weight < self.minimum_weight:
+            raise ValueError("loop weight bounds are invalid")
+        if self.high_leverage_weight_cap <= 0.0:
+            raise ValueError("high-leverage loop weight cap must be positive")
+        threshold = self.high_leverage_min_span_fraction
+        if threshold is not None and (
+            not np.isfinite(threshold) or not 0.0 < threshold <= 1.0
+        ):
+            raise ValueError("high-leverage span fraction must be in (0, 1]")
+
+
+def loop_edge_weight(
+    overlap: float,
+    source: int,
+    target: int,
+    anchor_count: int,
+    config: LoopWeightConfig = LoopWeightConfig(),
+) -> float:
+    """Return a deterministic weight; an opt-in cap protects full-span loops."""
+
+    if not np.isfinite(overlap) or overlap < 0.0:
+        raise ValueError("loop overlap must be finite and non-negative")
+    if anchor_count < 2:
+        raise ValueError("at least two anchors are required to weight a loop")
+    if not (0 <= source < anchor_count and 0 <= target < anchor_count):
+        raise ValueError("loop endpoint is outside the anchor range")
+    threshold = config.high_leverage_min_span_fraction
+    weight = float(np.clip(
+        overlap / config.overlap_reference,
+        config.minimum_weight,
+        config.maximum_weight,
+    ))
+    span_fraction = abs(target - source) / float(anchor_count - 1)
+    if threshold is not None and span_fraction >= threshold:
+        weight = min(weight, config.high_leverage_weight_cap)
+    return float(weight)
+
+
 def _rotation_tools():
     from scipy.spatial.transform import Rotation, Slerp
     return Rotation, Slerp

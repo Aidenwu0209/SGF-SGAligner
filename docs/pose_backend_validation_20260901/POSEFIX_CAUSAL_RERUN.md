@@ -81,3 +81,9 @@ The metric-config pass-through is retained as a reproducibility fix. The
 robust backend remains opt-in because this is one favorable ScanNet scene and
 the full 3RScan/Orbbec matrices have not been rerun with the corrected front
 end.
+
+A follow-up no-GT parameter sweep identified proposal budget and full-span
+loop leverage as separate controls. See
+[`PARAMETER_SWEEP_SCENE0030.md`](PARAMETER_SWEEP_SCENE0030.md). Because the
+setting was selected on this sequence, `scene0030_00` is now development data
+and must be excluded from future held-out conclusions.

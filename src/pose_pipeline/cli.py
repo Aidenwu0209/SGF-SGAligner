@@ -11,8 +11,10 @@ from .contracts import (
     load_legacy_tcw_mm, load_manifest, write_manifest, write_trajectory,
 )
 from .evaluation import evaluate_trajectory_files
+from .pose_graph import LoopWeightConfig
 from .replay import replay_manifest
 from .runner import run_sequence
+from .submaps import LoopProposalConfig
 
 
 def _manifest(args: argparse.Namespace) -> None:
@@ -41,6 +43,13 @@ def _run(args: argparse.Namespace) -> None:
         manifest_path=args.manifest,
         trajectory_path=args.trajectory,
         output_dir=args.output,
+        proposal_config=LoopProposalConfig(maximum_pairs=args.maximum_loop_pairs),
+        loop_weight_config=LoopWeightConfig(
+            high_leverage_min_span_fraction=(
+                args.high_leverage_loop_min_span_fraction
+            ),
+            high_leverage_weight_cap=args.high_leverage_loop_weight_cap,
+        ),
     ), indent=2))
 
 
@@ -112,6 +121,14 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--manifest", type=Path, required=True)
     run.add_argument("--trajectory", type=Path, required=True)
     run.add_argument("--output", type=Path, required=True)
+    run.add_argument("--maximum-loop-pairs", type=int, default=36)
+    run.add_argument(
+        "--high-leverage-loop-min-span-fraction", type=float,
+        help="opt-in span fraction at which loop weights are capped",
+    )
+    run.add_argument(
+        "--high-leverage-loop-weight-cap", type=float, default=1.5,
+    )
     run.set_defaults(handler=_run)
     import_trajectory = commands.add_parser("import-trajectory")
     import_trajectory.add_argument("--input", type=Path, required=True)

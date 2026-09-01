@@ -16,7 +16,9 @@ from pose_pipeline.contracts import (
 from pose_pipeline.geometry_metrics import (
     compare_no_gt_geometry, ply_geometry_metrics, render_fixed_comparison_views,
 )
+from pose_pipeline.pose_graph import LoopWeightConfig
 from pose_pipeline.runner import run_sequence
+from pose_pipeline.submaps import LoopProposalConfig
 from reconstruction.rgbd_refusion import FullRefusionRequest, run_full_rgbd_refusion
 
 
@@ -27,7 +29,16 @@ def write_json(path: Path, value: object) -> None:
         stream.write("\n")
 
 
-def run_scene(scene_id: str, journal: Path, legacy_trajectory: Path, output: Path) -> dict:
+def run_scene(
+    scene_id: str,
+    journal: Path,
+    legacy_trajectory: Path,
+    output: Path,
+    *,
+    maximum_loop_pairs: int = 36,
+    high_leverage_loop_min_span_fraction: float | None = None,
+    high_leverage_loop_weight_cap: float = 1.5,
+) -> dict:
     output.mkdir(parents=True, exist_ok=False)
     manifest = orbbec_manifest(journal)
     manifest_path = output / "manifest.json"
@@ -55,6 +66,13 @@ def run_scene(scene_id: str, journal: Path, legacy_trajectory: Path, output: Pat
     candidate = run_sequence(
         arm="candidate", manifest_path=manifest_path,
         trajectory_path=trajectory_path, output_dir=output / "candidate",
+        proposal_config=LoopProposalConfig(maximum_pairs=maximum_loop_pairs),
+        loop_weight_config=LoopWeightConfig(
+            high_leverage_min_span_fraction=(
+                high_leverage_loop_min_span_fraction
+            ),
+            high_leverage_weight_cap=high_leverage_loop_weight_cap,
+        ),
     )
     if not candidate.get("corrected_trajectory_written"):
         return {
@@ -95,6 +113,14 @@ def run_scene(scene_id: str, journal: Path, legacy_trajectory: Path, output: Pat
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--maximum-loop-pairs", type=int, default=36)
+    parser.add_argument(
+        "--high-leverage-loop-min-span-fraction", type=float,
+        help="opt-in anchor-span fraction at which loop weights are capped",
+    )
+    parser.add_argument(
+        "--high-leverage-loop-weight-cap", type=float, default=1.5,
+    )
     parser.add_argument(
         "--scene", action="append", nargs=3,
         metavar=("ID", "JOURNAL", "TRAJECTORY"), required=True,
@@ -107,6 +133,13 @@ def main() -> None:
             rows.append(run_scene(
                 scene_id, Path(journal), Path(trajectory),
                 args.output / scene_id,
+                maximum_loop_pairs=args.maximum_loop_pairs,
+                high_leverage_loop_min_span_fraction=(
+                    args.high_leverage_loop_min_span_fraction
+                ),
+                high_leverage_loop_weight_cap=(
+                    args.high_leverage_loop_weight_cap
+                ),
             ))
         except Exception as exc:  # retain failed outputs for diagnosis
             rows.append({

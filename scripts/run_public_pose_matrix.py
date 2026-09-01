@@ -45,7 +45,9 @@ from pose_pipeline.geometry_metrics import (
 )
 from pose_pipeline.replay import replay_manifest
 from pose_pipeline.robust_backend import transform_distance
+from pose_pipeline.pose_graph import LoopWeightConfig
 from pose_pipeline.runner import run_sequence
+from pose_pipeline.submaps import LoopProposalConfig
 from reconstruction.rgbd_refusion import FullRefusionRequest, run_full_rgbd_refusion
 
 
@@ -260,6 +262,11 @@ def run_scene(
         ),
         "worker_command": frontend["worker_command"],
         "seed": args.seed,
+        "maximum_loop_pairs": args.maximum_loop_pairs,
+        "high_leverage_loop_min_span_fraction": (
+            args.high_leverage_loop_min_span_fraction
+        ),
+        "high_leverage_loop_weight_cap": args.high_leverage_loop_weight_cap,
         "gt_consumed": False,
     }
     try:
@@ -278,6 +285,15 @@ def run_scene(
     candidate = run_sequence(
         arm="candidate", manifest_path=tracked_manifest,
         trajectory_path=frontend_trajectory, output_dir=output / "candidate",
+        proposal_config=LoopProposalConfig(
+            maximum_pairs=args.maximum_loop_pairs,
+        ),
+        loop_weight_config=LoopWeightConfig(
+            high_leverage_min_span_fraction=(
+                args.high_leverage_loop_min_span_fraction
+            ),
+            high_leverage_weight_cap=args.high_leverage_loop_weight_cap,
+        ),
     )
 
     # Evaluation phase starts here; no code above this line opens pose files.
@@ -462,9 +478,21 @@ def main() -> None:
     )
     parser.add_argument("--seed", type=int, default=20260819)
     parser.add_argument("--frame-timeout", type=float, default=30.0)
+    parser.add_argument("--maximum-loop-pairs", type=int, default=36)
+    parser.add_argument(
+        "--high-leverage-loop-min-span-fraction", type=float,
+        help="opt-in anchor-span fraction at which loop weights are capped",
+    )
+    parser.add_argument(
+        "--high-leverage-loop-weight-cap", type=float, default=1.5,
+    )
     parser.add_argument("--refuse", action="store_true")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--only", action="append", help="exact sequence id to run")
+    parser.add_argument(
+        "--development-sequence", action="append", default=[],
+        help="sequence used for tuning; exclude it from held-out aggregation",
+    )
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     selection = None
@@ -477,6 +505,18 @@ def main() -> None:
             args.data_root, args.scan3r_selection,
         )
         write_json(args.output / "selection_audit.json", selection)
+    development_sequences = set(args.development_sequence)
+    unknown_development = sorted(
+        development_sequences - {name for name, _, _ in sequences}
+    )
+    if unknown_development:
+        raise ValueError(
+            f"development sequences not selected/present: {unknown_development}"
+        )
+    sequences = [
+        (name, path, "development" if name in development_sequences else split)
+        for name, path, split in sequences
+    ]
     if args.only:
         wanted = set(args.only)
         sequences = [row for row in sequences if row[0] in wanted]

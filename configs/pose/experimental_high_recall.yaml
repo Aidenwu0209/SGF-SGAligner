@@ -1,0 +1,21 @@
+schema: pose_backend_experimental_preset.v1
+enabled: false
+development_only: true
+safe_default_changed: false
+selection_basis: no_gt_refusion_safety
+validated_sequences:
+  - dataset: scannet
+    sequence_id: scene0030_00
+    role: development_after_parameter_selection
+loop_proposals:
+  minimum_anchor_gap: 4
+  maximum_initial_distance_m: 2.25
+  maximum_pairs: 120
+pose_graph:
+  high_leverage_min_span_fraction: 1.0
+  high_leverage_weight_cap: 0.3
+  maximum_loop_degree: 2
+notes:
+  - Solver consensus and dense registration gates are unchanged.
+  - The cap affects only a loop spanning the complete anchor range.
+  - Do not promote before independent ScanNet, 3RScan, and Orbbec validation.

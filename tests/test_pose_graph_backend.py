@@ -7,17 +7,42 @@ import numpy as np
 
 from pose_pipeline.contracts import PoseRecord
 from pose_pipeline.pose_graph import (
+    LoopWeightConfig,
     PoseGraphEdge,
+    loop_edge_weight,
     optimize_pose_graph,
     propagate_anchor_corrections,
     sparsify_loop_edges,
 )
+from pose_pipeline.submaps import LoopProposalConfig
 
 
 def pose(x: float) -> np.ndarray:
     value = np.eye(4)
     value[0, 3] = x
     return value
+
+
+class LoopWeightTests(unittest.TestCase):
+    def test_default_weighting_is_unchanged(self):
+        self.assertEqual(loop_edge_weight(0.70, 0, 29, 30), 1.5)
+        self.assertEqual(loop_edge_weight(0.10, 0, 4, 30), 0.7)
+
+    def test_opt_in_cap_only_affects_high_leverage_loop(self):
+        config = LoopWeightConfig(
+            high_leverage_min_span_fraction=1.0,
+            high_leverage_weight_cap=0.3,
+        )
+        self.assertEqual(loop_edge_weight(0.70, 0, 29, 30, config), 0.3)
+        self.assertEqual(loop_edge_weight(0.70, 0, 28, 30, config), 1.5)
+
+    def test_invalid_high_leverage_threshold_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "span fraction"):
+            LoopWeightConfig(high_leverage_min_span_fraction=1.1)
+
+    def test_invalid_loop_budget_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "maximum loop pairs"):
+            LoopProposalConfig(maximum_pairs=0)
 
 
 @unittest.skipUnless(importlib.util.find_spec("scipy"), "SciPy runtime required")

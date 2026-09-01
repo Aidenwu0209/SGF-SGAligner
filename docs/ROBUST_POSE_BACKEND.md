@@ -68,6 +68,25 @@ python -m pose_pipeline refuse \
   --output /results/scene0000_00_candidate_refusion
 ```
 
+An experimental high-recall preset can be reproduced without changing the
+default solver gates:
+
+```bash
+python -m pose_pipeline run --arm candidate \
+  --manifest /results/scene0000_00_dpv/tracked_manifest.json \
+  --trajectory /results/scene0000_00_dpv/trajectory.json \
+  --output /results/scene0000_00_candidate_high_recall \
+  --maximum-loop-pairs 120 \
+  --high-leverage-loop-min-span-fraction 1.0 \
+  --high-leverage-loop-weight-cap 0.3
+```
+
+This preset is development-only and remains opt-in. It was selected on one
+ScanNet scene using no-GT refusion safety; it is not a promoted default. The
+loop evidence records both proposal and weighting configs. Public-matrix runs
+with this setting must pass `--development-sequence scene0030_00` to keep the
+parameter-selection scene out of held-out aggregation.
+
 The sequence runner labels FPFH correspondences as `geometry_bootstrap_fpfh`.
 It must not be reported as SGAligner evidence. SGAligner inference feeds its
 GeoTransformer correspondences directly into the same robust hypothesis
