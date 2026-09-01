@@ -1,0 +1,154 @@
+{
+  "chamfer_bootstrap": {
+    "ci95_fraction": [
+      0.00024268222245693797,
+      0.03892148893596947
+    ],
+    "observed_fraction": 0.015106001835079905,
+    "passes_10pct_and_positive_ci": false,
+    "samples": 10000,
+    "seed": 42
+  },
+  "completed_count": 15,
+  "fscore_error_bootstrap": {
+    "ci95_fraction": [
+      0.002379922248049977,
+      0.04630264409891416
+    ],
+    "observed_fraction": 0.02233293119679244,
+    "passes_10pct_and_positive_ci": false,
+    "samples": 10000,
+    "seed": 42
+  },
+  "gt_role": "evaluation_only",
+  "missing_mesh_count": 1,
+  "rows": [
+    {
+      "mesh": "/home/aidenwu/Documents/Scannet/Original_files_from_scannet_dataset/scene0000_00/scene0000_00_vh_clean_2.ply",
+      "scene_id": "scene0000_00",
+      "status": "missing_reference_mesh"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.5925605307815337,
+      "baseline_fscore": 0.20845197569065826,
+      "candidate_chamfer_rmse_m": 0.5143809659791868,
+      "candidate_fscore": 0.3059663435064138,
+      "scene_id": "scene0011_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.731880026159236,
+      "baseline_fscore": 0.18018142913498228,
+      "candidate_chamfer_rmse_m": 0.731880026159236,
+      "candidate_fscore": 0.18018142913498228,
+      "scene_id": "scene0011_01",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.4275738991308931,
+      "baseline_fscore": 0.1725203414180354,
+      "candidate_chamfer_rmse_m": 0.37469865284605064,
+      "candidate_fscore": 0.27324116737476695,
+      "scene_id": "scene0015_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.5511453941515013,
+      "baseline_fscore": 0.2502322850931674,
+      "candidate_chamfer_rmse_m": 0.5511453941515013,
+      "candidate_fscore": 0.2502322850931674,
+      "scene_id": "scene0019_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 1.0031014585169986,
+      "baseline_fscore": 0.20949917470170337,
+      "candidate_chamfer_rmse_m": 1.0031014585169986,
+      "candidate_fscore": 0.20949917470170337,
+      "scene_id": "scene0019_01",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.253258318409203,
+      "baseline_fscore": 0.2593686803812302,
+      "candidate_chamfer_rmse_m": 0.253258318409203,
+      "candidate_fscore": 0.2593686803812302,
+      "scene_id": "scene0025_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.33481923318966766,
+      "baseline_fscore": 0.39983909344975704,
+      "candidate_chamfer_rmse_m": 0.33481923318966766,
+      "candidate_fscore": 0.39983909344975704,
+      "scene_id": "scene0025_01",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.22406583465162655,
+      "baseline_fscore": 0.35377772844491945,
+      "candidate_chamfer_rmse_m": 0.22406583465162655,
+      "candidate_fscore": 0.35377772844491945,
+      "scene_id": "scene0025_02",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 1.3260806675900272,
+      "baseline_fscore": 0.24920152435325324,
+      "candidate_chamfer_rmse_m": 1.3260806675900272,
+      "candidate_fscore": 0.24920152435325324,
+      "scene_id": "scene0030_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 1.5275820089389804,
+      "baseline_fscore": 0.1338952128624022,
+      "candidate_chamfer_rmse_m": 1.5275820089389804,
+      "candidate_fscore": 0.1338952128624022,
+      "scene_id": "scene0030_01",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 1.411191470540743,
+      "baseline_fscore": 0.3001220342621137,
+      "candidate_chamfer_rmse_m": 1.411191470540743,
+      "candidate_fscore": 0.3001220342621137,
+      "scene_id": "scene0030_02",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.44022163659366953,
+      "baseline_fscore": 0.21661141887396557,
+      "candidate_chamfer_rmse_m": 0.44022163659366953,
+      "candidate_fscore": 0.21661141887396557,
+      "scene_id": "scene0046_00",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.24684434848831094,
+      "baseline_fscore": 0.2118686586131038,
+      "candidate_chamfer_rmse_m": 0.2316528286860873,
+      "candidate_fscore": 0.23850980965309282,
+      "scene_id": "scene0046_01",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.2672344403154229,
+      "baseline_fscore": 0.3221149345284567,
+      "candidate_chamfer_rmse_m": 0.2657754071727042,
+      "candidate_fscore": 0.34822291478324785,
+      "scene_id": "scene0046_02",
+      "status": "completed"
+    },
+    {
+      "baseline_chamfer_rmse_m": 0.44036646330193896,
+      "baseline_fscore": 0.2940090424780033,
+      "candidate_chamfer_rmse_m": 0.44036646330193896,
+      "candidate_fscore": 0.2940090424780033,
+      "scene_id": "scene0050_00",
+      "status": "completed"
+    }
+  ],
+  "scene_count": 16,
+  "schema": "scannet_reconstruction_evaluation_matrix.v1"
+}

@@ -1,0 +1,6 @@
+scene_id,status,frames,accepted_loops,passes_scene_safety,passes_scene_improvement,layer_conflict_improvement_fraction,dominant_plane_thickness_improvement_fraction,ground_tilt_delta_deg,point_count_ratio,error
+slow_table_loop,completed,908,1,False,False,-0.28642618387352414,0.0858849166079605,-0.4948257639261344,1.0545184882115277,
+fast_turn,completed,800,0,True,False,0.0,0.0,0.0,1.0,
+small_motion,completed,437,1,True,False,0.003547230587086378,-0.06524230865037914,0.10783988967203317,0.9987442957336682,
+leave_and_return,completed,1380,2,False,False,0.24394659848142994,0.04087585432390451,1.9979162522622511,0.7132397934999009,
+sgf_parameter_control,completed,601,0,True,False,0.0,0.0,0.0,1.0,

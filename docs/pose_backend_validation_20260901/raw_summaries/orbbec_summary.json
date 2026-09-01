@@ -1,0 +1,146 @@
+{
+  "completed_count": 5,
+  "gt_consumed": false,
+  "improved_count": 0,
+  "passes_4_of_5_improvement": false,
+  "rows": [
+    {
+      "accepted_loops": 1,
+      "bbox_axis_ratios": [
+        1.0172442729241027,
+        1.1015624985448085,
+        0.9859801205721769
+      ],
+      "dominant_plane_thickness_improvement_fraction": 0.0858849166079605,
+      "frames": 908,
+      "gates": {
+        "every_bbox_axis_at_least_80pct": true,
+        "ground_tilt_regression_at_most_2deg": true,
+        "layer_conflict_improves_10pct": false,
+        "layer_conflict_not_worse_10pct": false,
+        "point_count_at_least_80pct": true
+      },
+      "ground_tilt_delta_deg": -0.4948257639261344,
+      "gt_consumed": false,
+      "input_records_sha256": "a5acbfc67d79ef8c7445349888d860b771bbb499dff1d18973bd84d2c5a68795",
+      "layer_conflict_improvement_fraction": -0.28642618387352414,
+      "passes_scene_improvement": false,
+      "passes_scene_safety": false,
+      "point_count_ratio": 1.0545184882115277,
+      "scene_id": "slow_table_loop",
+      "schema": "no_gt_geometry_comparison.v1",
+      "status": "completed"
+    },
+    {
+      "accepted_loops": 0,
+      "bbox_axis_ratios": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "dominant_plane_thickness_improvement_fraction": 0.0,
+      "frames": 800,
+      "gates": {
+        "every_bbox_axis_at_least_80pct": true,
+        "ground_tilt_regression_at_most_2deg": true,
+        "layer_conflict_improves_10pct": false,
+        "layer_conflict_not_worse_10pct": true,
+        "point_count_at_least_80pct": true
+      },
+      "ground_tilt_delta_deg": 0.0,
+      "gt_consumed": false,
+      "input_records_sha256": "2ee6daa8f481729435b5d6f4deac83386d8c36195b762d16c4a014f53714bf2e",
+      "layer_conflict_improvement_fraction": 0.0,
+      "passes_scene_improvement": false,
+      "passes_scene_safety": true,
+      "point_count_ratio": 1.0,
+      "scene_id": "fast_turn",
+      "schema": "no_gt_geometry_comparison.v1",
+      "status": "completed"
+    },
+    {
+      "accepted_loops": 1,
+      "bbox_axis_ratios": [
+        0.9844876395331489,
+        0.9987168671668885,
+        0.994755912960383
+      ],
+      "dominant_plane_thickness_improvement_fraction": -0.06524230865037914,
+      "frames": 437,
+      "gates": {
+        "every_bbox_axis_at_least_80pct": true,
+        "ground_tilt_regression_at_most_2deg": true,
+        "layer_conflict_improves_10pct": false,
+        "layer_conflict_not_worse_10pct": true,
+        "point_count_at_least_80pct": true
+      },
+      "ground_tilt_delta_deg": 0.10783988967203317,
+      "gt_consumed": false,
+      "input_records_sha256": "6cf09e12a876af4c8baad533b17fa80a92e9bf11cea62fb6cd0ed5daf8fea629",
+      "layer_conflict_improvement_fraction": 0.003547230587086378,
+      "passes_scene_improvement": false,
+      "passes_scene_safety": true,
+      "point_count_ratio": 0.9987442957336682,
+      "scene_id": "small_motion",
+      "schema": "no_gt_geometry_comparison.v1",
+      "status": "completed"
+    },
+    {
+      "accepted_loops": 2,
+      "bbox_axis_ratios": [
+        0.9321220792432727,
+        1.0,
+        0.9413199834898381
+      ],
+      "dominant_plane_thickness_improvement_fraction": 0.04087585432390451,
+      "frames": 1380,
+      "gates": {
+        "every_bbox_axis_at_least_80pct": true,
+        "ground_tilt_regression_at_most_2deg": true,
+        "layer_conflict_improves_10pct": true,
+        "layer_conflict_not_worse_10pct": true,
+        "point_count_at_least_80pct": false
+      },
+      "ground_tilt_delta_deg": 1.9979162522622511,
+      "gt_consumed": false,
+      "input_records_sha256": "cc81e9a233f8cf25a9006e0ff46fab6c7374a51631c82d8e4964219157d862f2",
+      "layer_conflict_improvement_fraction": 0.24394659848142994,
+      "passes_scene_improvement": false,
+      "passes_scene_safety": false,
+      "point_count_ratio": 0.7132397934999009,
+      "scene_id": "leave_and_return",
+      "schema": "no_gt_geometry_comparison.v1",
+      "status": "completed"
+    },
+    {
+      "accepted_loops": 0,
+      "bbox_axis_ratios": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "dominant_plane_thickness_improvement_fraction": 0.0,
+      "frames": 601,
+      "gates": {
+        "every_bbox_axis_at_least_80pct": true,
+        "ground_tilt_regression_at_most_2deg": true,
+        "layer_conflict_improves_10pct": false,
+        "layer_conflict_not_worse_10pct": true,
+        "point_count_at_least_80pct": true
+      },
+      "ground_tilt_delta_deg": 0.0,
+      "gt_consumed": false,
+      "input_records_sha256": "0084f17c02105f669b6c8c6a88d7f73b7952bff3beb4f328d437fa587119545d",
+      "layer_conflict_improvement_fraction": 0.0,
+      "passes_scene_improvement": false,
+      "passes_scene_safety": true,
+      "point_count_ratio": 1.0,
+      "scene_id": "sgf_parameter_control",
+      "schema": "no_gt_geometry_comparison.v1",
+      "status": "completed"
+    }
+  ],
+  "safe_count": 3,
+  "scene_count": 5,
+  "schema": "orbbec_pose_matrix.v1"
+}

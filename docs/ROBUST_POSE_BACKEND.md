@@ -128,3 +128,18 @@ The five-sequence Orbbec runner treats a rejected sparse loop as a verified
 no-op: it retains the complete DPV trajectory, never creates missing poses,
 and still refuses every admitted frame. A no-op is not an identity-pose
 fallback.
+
+3RScan portrait frames are padded on the right and bottom to the next multiple
+of 16 before DPV replay. The padding operation and dimensions are recorded in
+the replay audit; no image resize, crop, or hidden principal-point shift is
+performed. Fewer than two valid DPV poses and sparse-submap construction
+failures produce an explicit fail-closed no-op rather than an exception or an
+identity trajectory.
+
+## 2026-09-01 validation outcome
+
+The full ScanNet, 3RScan, and five-sequence Orbbec validation did not meet the
+promotion gates. The backend remains opt-in and the safe default is unchanged.
+Compact summaries, hashes, fixed-view comparisons, and the failure index are
+in `pose_backend_validation_20260901/`. Large PLYs and raw logs remain in the
+create-only result roots on the authoritative server.

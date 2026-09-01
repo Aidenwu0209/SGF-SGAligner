@@ -1,0 +1,180 @@
+sequence_id,split,status,input_frames,valid_poses,coverage,evaluation_coverage,candidate_backend_correction,candidate_reason,accepted_loops,baseline_ate_translation_rmse_m,candidate_ate_translation_rmse_m,baseline_ate_rotation_rmse_deg,candidate_ate_rotation_rmse_deg,catastrophic_edges,unevaluable_edges,geometry_safety,geometry_improvement,error
+f4f31600-8408-2255-971c-b8c20605563a,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d2f851a-d757-207c-8faa-3625b6dda1e5,development,completed,352,1,0.002840909090909091,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.440892098500626e-16,4.440892098500626e-16,0.0,0.0,0,0,False,False,
+10b1796b-3938-2467-88bc-c224c21bc91c,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+422885af-192d-25fc-8651-420062adb475,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+422885c1-192d-25fc-8798-e8a7aab48121,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+77361fce-d054-2a22-8bb2-a870ab051854,development,completed,100,1,0.01,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.8163916471489756e-17,3.8163916471489756e-17,0.0,0.0,0,0,False,False,
+77361fcc-d054-2a22-89ce-6bc2aa429596,development,completed,80,1,0.0125,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.0589719593475845e-17,1.0589719593475845e-17,0.0,0.0,0,0,False,False,
+6bde609b-9162-246f-8f90-c3d2444a5ab8,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde6097-9162-246f-8d95-70c71505f2e3,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde6099-9162-246f-8d20-43caaaf32911,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+a0906006-66f7-2272-9e46-51000ffe6623,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c8b34d04-5ea0-2d69-9284-486dc8fab63f,development,completed,250,1,0.004,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.482534153247273e-16,2.482534153247273e-16,0.0,0.0,0,0,False,False,
+c8b34d02-5ea0-2d69-9179-be3dfe72d97b,development,completed,335,1,0.0029850746268656717,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.3306690738754696e-16,3.3306690738754696e-16,0.0,0.0,0,0,False,False,
+a0906008-66f7-2272-9e70-748b317145dd,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f86-339c-2d13-82c8-3976988cd327,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f8a-339c-2d13-82a6-bc530140d95d,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f88-339c-2d13-80f8-a904e8f2fff0,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+2a7f9476-080c-26f9-86e9-c7ce1c76fc07,development,completed,311,1,0.003215434083601286,1.0,False,insufficient_valid_poses_for_sparse_backend,0,7.152448122690996e-17,7.152448122690996e-17,0.0,0.0,0,0,False,False,
+0d7054f5-4c6e-2ab6-844f-c1328fe572bf,development,completed,284,1,0.0035211267605633804,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1102230246251565e-16,1.1102230246251565e-16,0.0,0.0,0,0,False,False,
+ee527b51-0df9-2dae-829e-a0543a6e4074,development,completed,287,1,0.003484320557491289,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.5438405243138006e-16,2.5438405243138006e-16,0.0,0.0,0,0,False,False,
+1d234002-e280-2b1a-8c8d-6aafb5b35a24,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d234000-e280-2b1a-8d5e-bd2403a8dbfa,development,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+095821f7-e2c2-2de1-9568-b9ce59920e29,validation,completed,203,2,0.009852216748768473,1.0,False,submap_construction_failed,0,0.013444521706854529,0.013444521706854529,2.914364712971076,2.914364712971076,0,0,False,False,
+2e369567-e133-204c-909a-c5da44bb58df,validation,completed,174,1,0.005747126436781609,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.482534153247273e-16,2.482534153247273e-16,0.0,0.0,0,0,False,False,
+095821f9-e2c2-2de1-9707-8f735cd1c148,validation,completed,361,1,0.002770083102493075,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.7755575615628914e-17,2.7755575615628914e-17,0.0,0.0,0,0,False,False,
+095821fb-e2c2-2de1-94df-20f2cb423bcb,validation,completed,260,1,0.0038461538461538464,1.0,False,insufficient_valid_poses_for_sparse_backend,0,6.206335383118183e-17,6.206335383118183e-17,0.0,0.0,0,0,False,False,
+0988ea72-eb32-2e61-8344-99e2283c2728,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+9766cbe5-6321-2e2f-8040-4e5b7a5d8ba1,validation,completed,848,1,0.0011792452830188679,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.7755575615628914e-17,2.7755575615628914e-17,0.0,0.0,0,0,False,False,
+9766cbf5-6321-2e2f-8131-78c4e204635d,validation,completed,1262,4,0.003169572107765452,1.0,False,submap_construction_failed,0,0.02487054097156491,0.02487054097156491,1.8019941333884202,1.8019941333884202,0,0,False,False,
+0cac7540-8d6f-2d13-8eee-36ba2a428e3f,validation,completed,299,1,0.0033444816053511705,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.704140204225353e-16,4.704140204225353e-16,0.0,0.0,0,0,False,False,
+0cac7532-8d6f-2d13-8cea-1e70d5ae4856,validation,completed,105,1,0.009523809523809525,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.3306690738754696e-16,3.3306690738754696e-16,0.0,0.0,0,0,False,False,
+0cac7534-8d6f-2d13-8de7-8a915ed90050,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac7584-8d6f-2d13-8df8-c05e4307b418,validation,completed,199,1,0.005025125628140704,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.7755575615628914e-16,2.7755575615628914e-16,0.0,0.0,0,0,False,False,
+0cac7582-8d6f-2d13-8d4b-e4041cb166c4,validation,completed,79,1,0.012658227848101266,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.3877787807814457e-17,1.3877787807814457e-17,0.0,0.0,0,0,False,False,
+0cac75dc-8d6f-2d13-8d08-9c497bd6acdc,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac75de-8d6f-2d13-8e1a-b574569c3885,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac7676-8d6f-2d13-8f3a-d7bf7f03e721,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+7272e17c-a01b-20f6-8b2f-e659331ae41a,validation,completed,141,1,0.0070921985815602835,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1102230246251565e-16,1.1102230246251565e-16,0.0,0.0,0,0,False,False,
+10b17940-3938-2467-8a7a-958300ba83d3,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c2d9933f-1947-2fbf-807f-c44bc1aed269,validation,completed,203,1,0.0049261083743842365,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.9229626863835638e-16,1.9229626863835638e-16,0.0,0.0,0,0,False,False,
+c2d9933d-1947-2fbf-81fa-c8a7f9625eea,validation,completed,136,1,0.007352941176470588,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.220446049250313e-16,2.220446049250313e-16,0.0,0.0,0,0,False,False,
+5630cfe7-12bf-2860-8710-52729dc36cc6,validation,completed,116,1,0.008620689655172414,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1857187100668868e-16,1.1857187100668868e-16,0.0,0.0,0,0,False,False,
+c2d99349-1947-2fbf-837e-a0bd5e027c52,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c2d99347-1947-2fbf-834b-f95790c125dd,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c2d99345-1947-2fbf-818d-90ea82acef29,validation,completed,148,1,0.006756756756756757,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.5700924586837752e-16,1.5700924586837752e-16,0.0,0.0,0,0,False,False,
+c2d99343-1947-2fbf-808f-92dbb7d47aa5,validation,completed,115,1,0.008695652173913044,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,True,False,
+c2d99341-1947-2fbf-817a-5aa9b44f724f,validation,completed,155,1,0.0064516129032258064,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+6e67e55f-1209-2cd0-8194-8c6278434c80,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+137a8158-1db5-2cc0-8003-31c12610471e,validation,completed,776,1,0.001288659793814433,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+5630cfd3-12bf-2860-8749-9dacb499fb14,validation,completed,143,1,0.006993006993006993,1.0,False,insufficient_valid_poses_for_sparse_backend,0,5.087681048627601e-16,5.087681048627601e-16,0.0,0.0,0,0,False,False,
+c92fb5b7-f771-2064-87a9-31c819832405,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+f2c76ff1-2239-29d0-87f5-8a0346584384,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+f2c76fed-2239-29d0-8598-9ed42cec9dc5,validation,completed,41,1,0.024390243902439025,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.5700924586837752e-16,1.5700924586837752e-16,0.0,0.0,0,0,True,False,
+f2c76feb-2239-29d0-8418-72b6051fc144,validation,completed,168,1,0.005952380952380952,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.2887833992611187e-16,2.2887833992611187e-16,0.0,0.0,0,0,False,False,
+f2c76fe9-2239-29d0-87ec-f2c7ced812c1,validation,completed,166,1,0.006024096385542169,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.1401849173675503e-16,3.1401849173675503e-16,0.0,0.0,0,0,False,False,
+f2c76fe7-2239-29d0-84f5-144c30fd7451,validation,completed,230,1,0.004347826086956522,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.237726045655905e-16,2.237726045655905e-16,0.0,0.0,0,0,False,False,
+f2c76fe5-2239-29d0-8593-1a2555125595,validation,completed,295,1,0.003389830508474576,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+d04eb40f-1d53-27ea-8a41-47892bde7017,validation,completed,121,1,0.008264462809917356,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.2412670766236366e-16,1.2412670766236366e-16,0.0,0.0,0,0,False,False,
+6e67e550-1209-2cd0-8294-7cc2564cf82c,validation,completed,132,1,0.007575757575757576,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,1.2074182697257333e-06,1.2074182697257333e-06,0,0,False,False,
+10b1792a-3938-2467-8b4e-a93da27a0985,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d233fe8-e280-2b1a-8fac-c3646a1cd64a,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d233fe6-e280-2b1a-8caf-eb0d13a59ad6,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d234022-e280-2b1a-8cec-e9787bb0d7b2,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d234026-e280-2b1a-8fe1-713e28269f4d,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+1d234024-e280-2b1a-8c28-2743fefed020,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+20c993b7-698f-29c5-847d-c8cb8a685f5a,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+20c993b3-698f-29c5-859c-dca8ddecf220,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+280d8ebb-6cc6-2788-9153-98959a2da801,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+4731976c-f9f7-2a1a-95cc-31c4d1751d0b,validation,completed,381,1,0.0026246719160104987,1.0,False,insufficient_valid_poses_for_sparse_backend,0,6.206335383118183e-17,6.206335383118183e-17,0.0,0.0,0,0,False,False,
+1d2f850c-d757-207c-8fba-60b90a7d4691,validation,completed,291,1,0.003436426116838488,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.0007415106216802e-16,1.0007415106216802e-16,0.0,0.0,0,0,False,False,
+ea318260-0a4c-2749-9389-4c16c782c4b1,validation,completed,214,1,0.004672897196261682,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1102230246251565e-16,1.1102230246251565e-16,0.0,0.0,0,0,False,False,
+10b17957-3938-2467-88a5-9e9254930dad,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+321c8680-a5a8-2a84-85c2-816a26d59516,validation,completed,210,1,0.004761904761904762,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.98609107286759e-17,3.98609107286759e-17,0.0,0.0,0,0,False,False,
+321c867e-a5a8-2a84-851a-818df115be05,validation,completed,167,1,0.005988023952095809,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.482534153247273e-16,2.482534153247273e-16,0.0,0.0,0,0,False,False,
+38770ca1-86d7-27b8-8619-ab66f67d9adf,validation,completed,844,1,0.001184834123222749,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1107649934270853e-16,1.1107649934270853e-16,0.0,0.0,0,0,False,False,
+38770ca3-86d7-27b8-85a7-7d840ffdec6a,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+38770ca5-86d7-27b8-871c-57fdbfe87905,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+4138582f-a238-2435-8332-6902542c2823,validation,completed,420,1,0.002380952380952381,1.0,False,insufficient_valid_poses_for_sparse_backend,0,5.551115123125783e-17,5.551115123125783e-17,0.0,0.0,0,0,False,False,
+5341b7a5-8a66-2cdd-8751-70b98263cb8d,validation,completed,90,8,0.08888888888888889,1.0,False,no_verified_loop,0,0.019366752545708275,0.019366752545708275,0.9610260943550504,0.9610260943550504,0,0,False,False,
+8eabc445-5af7-2f32-85ae-90deb8eb1b0b,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+422885b3-192d-25fc-84c9-9b80eea1752d,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+422885c5-192d-25fc-85e6-12a3d65c8e7b,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+4238490c-60a7-271e-9f38-3c651e3b3912,validation,completed,200,1,0.005,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.925231146709438e-17,3.925231146709438e-17,0.0,0.0,0,0,False,False,
+4238490a-60a7-271e-9c04-3846221dc354,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+42384908-60a7-271e-9c46-01e562c8974c,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+10b17963-3938-2467-8a48-0d4af350ce92,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+43b8cae1-6678-2e38-9865-c19c07c25015,validation,completed,375,1,0.0026666666666666666,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.220446049250313e-16,2.220446049250313e-16,0.0,0.0,0,0,False,False,
+43b8cadf-6678-2e38-9920-064144c99406,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+43b8cae3-6678-2e38-9b67-5905de29f6d7,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+4a9a43d2-7736-2874-874d-d0fad0570e19,validation,completed,922,3,0.0032537960954446853,1.0,False,no_verified_loop,0,0.010814981910291222,0.010814981910291222,0.44336216354864655,0.44336216354864655,0,0,False,False,
+4a9a43d4-7736-2874-87a6-0c3089281af8,validation,completed,1208,1,0.0008278145695364238,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.965068306494546e-16,4.965068306494546e-16,0.0,0.0,0,0,False,False,
+4d3d82b0-8cf4-2e04-80a8-c955ea964c2f,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+4d3d82ae-8cf4-2e04-80de-20f96c814d9c,validation,completed,266,1,0.0037593984962406013,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.482534153247273e-16,2.482534153247273e-16,0.0,0.0,0,0,False,False,
+4fbad31e-465b-2a5d-84b7-c0ddea978db4,validation,completed,855,1,0.0011695906432748538,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.710277376051325e-16,4.710277376051325e-16,0.0,0.0,0,0,False,False,
+4fbad32f-465b-2a5d-8408-146ab1d72808,validation,completed,677,1,0.0014771048744460858,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.220446049250313e-16,2.220446049250313e-16,0.0,0.0,0,0,False,False,
+4fbad331-465b-2a5d-8488-852fcda9513c,validation,completed,481,1,0.002079002079002079,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.220446049250313e-16,2.220446049250313e-16,0.0,0.0,0,0,False,False,
+9af05c68-5794-2e19-8c5a-979f448da545,validation,completed,634,1,0.0015772870662460567,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.965068306494546e-16,4.965068306494546e-16,0.0,0.0,0,0,False,False,
+5341b79f-8a66-2cdd-84d5-6dba6525dd75,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+7272e16c-a01b-20f6-8961-a0927b4a7629,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+5341b7e3-8a66-2cdd-8709-66a2159f0017,validation,completed,277,1,0.0036101083032490976,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+4138585b-a238-2435-810b-9728fc989b2f,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+5630cfcf-12bf-2860-8784-83d28a611a83,validation,completed,240,1,0.004166666666666667,1.0,False,insufficient_valid_poses_for_sparse_backend,0,6.206335383118183e-17,6.206335383118183e-17,0.0,0.0,0,0,False,False,
+5630cfd1-12bf-2860-86b2-e7a96bc32c19,validation,completed,118,1,0.00847457627118644,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.1031676915590914e-17,3.1031676915590914e-17,0.0,0.0,0,0,True,False,
+bf9a3d9e-45a5-2e80-83c6-4e427c5586a2,validation,completed,208,1,0.004807692307692308,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.2289191300059788e-16,1.2289191300059788e-16,0.0,0.0,0,0,True,False,
+10b1792e-3938-2467-8bb3-172148ae5a67,validation,completed,165,1,0.006060606060606061,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.7755575615628914e-17,2.7755575615628914e-17,0.0,0.0,0,0,False,False,
+10b17944-3938-2467-8bac-5552375e4467,validation,completed,141,1,0.0070921985815602835,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.5700924586837752e-16,1.5700924586837752e-16,0.0,0.0,0,0,True,False,
+6bde6081-9162-246f-8c4e-ffaf709d17b1,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde607b-9162-246f-8e65-76e3ef265504,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde607d-9162-246f-8f84-98cf7ac2374c,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde6083-9162-246f-8c9c-e170212059b2,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde60cb-9162-246f-8cf5-d04f7426e56f,validation,completed,127,1,0.007874015748031496,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.1401849173675503e-16,3.1401849173675503e-16,1.2074182697257333e-06,1.2074182697257333e-06,0,0,False,False,
+6bde60cd-9162-246f-8fad-fca80b4d6ad8,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+6bde60cf-9162-246f-8f98-6355d75494c2,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+742e8f15-be0a-294e-9ebb-6c72dbcb9662,validation,completed,247,1,0.004048582995951417,1.0,False,insufficient_valid_poses_for_sparse_backend,0,8.326672684688674e-17,8.326672684688674e-17,0.0,0.0,0,0,False,False,
+68bae75f-3567-2f7c-829d-7422117729f3,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+742e8f17-be0a-294e-9dd3-52492d308e2b,validation,completed,204,1,0.004901960784313725,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,1.2074182697257333e-06,1.2074182697257333e-06,0,0,False,False,
+742e8f19-be0a-294e-9eb6-50dc474b110e,validation,completed,161,1,0.006211180124223602,1.0,False,insufficient_valid_poses_for_sparse_backend,0,6.938893903907228e-17,6.938893903907228e-17,0.0,0.0,0,0,False,False,
+75c25975-9ca2-2844-9769-84677f46d4cf,validation,completed,129,1,0.007751937984496124,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.440892098500626e-16,4.440892098500626e-16,0.0,0.0,0,0,True,False,
+8eabc455-5af7-2f32-8606-a0bdbe6c537d,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+7747a50c-9431-24e8-877d-e60c3a341cc2,validation,completed,606,1,0.0016501650165016502,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.1102230246251565e-16,1.1102230246251565e-16,0.0,0.0,0,0,False,False,
+7747a4ec-9431-24e8-848f-897279a1e9fe,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+7747a510-9431-24e8-8705-907ee78be2a2,validation,completed,540,1,0.001851851851851852,1.0,False,insufficient_valid_poses_for_sparse_backend,0,8.95090418262362e-16,8.95090418262362e-16,0.0,0.0,0,0,False,False,
+8e0f1c28-9e28-2339-8584-ff06ff93c341,validation,completed,88,1,0.011363636363636364,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.6653345369377348e-16,1.6653345369377348e-16,0.0,0.0,0,0,False,False,
+20c993bd-698f-29c5-8494-5556ba7d3fe9,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+20c993bf-698f-29c5-8549-a69fd169c1e1,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+8eabc45f-5af7-2f32-8528-640861d2a135,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+75c25989-9ca2-2844-97b4-31b81f7554b8,validation,completed,143,4,0.027972027972027972,1.0,False,no_verified_loop,0,0.015757656198719106,0.015757656198719106,0.6377982263924817,0.6377982263924817,0,0,False,False,
+41385849-a238-2435-81d0-ceb0eba4541a,validation,completed,565,1,0.0017699115044247787,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+5341b7b3-8a66-2cdd-856d-9d70e194568b,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+8eabc461-5af7-2f32-8663-ce5a10fd97b3,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+a0905fd9-66f7-2272-9dfb-0483fdcc54c7,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+a0905fdb-66f7-2272-9fc5-7c0008d5e87b,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+a0905fdd-66f7-2272-9cdb-89360888ea67,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+ab835fae-54c6-29a1-995e-b06cfc555786,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+ab835faa-54c6-29a1-9b55-1a5217fcba19,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+d7dc987e-a34a-2794-85c8-f75389b27532,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+b05fdd8a-fca0-2d4f-8ac5-f6ae697787f5,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac75e8-8d6f-2d13-8fc4-acdbf00437c8,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac75ea-8d6f-2d13-8e50-c5faf0159e32,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f63-339c-2d13-81a3-0b07b1eb23b4,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+b05fdd96-fca0-2d4f-88c3-d9dfda85c00e,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac761b-8d6f-2d13-8f16-23a7d73c54fe,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+0cac7619-8d6f-2d13-8f36-ac562ec9a4de,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+b1f23308-d255-2761-94da-981d962c6bf8,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+77361fd4-d054-2a22-88c4-b5b404f904ca,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+ba6fdaaa-a4c1-2dca-8163-a52b18bf6b64,validation,completed,387,2,0.00516795865633075,1.0,False,submap_construction_failed,0,0.03819782602195562,0.03819782602195562,3.0658000454555014,3.0658000454555014,0,0,False,False,
+ba6fdaac-a4c1-2dca-8380-f16765679fd7,validation,completed,264,1,0.003787878787878788,1.0,False,insufficient_valid_poses_for_sparse_backend,0,5.551115123125783e-17,5.551115123125783e-17,0.0,0.0,0,0,False,False,
+bcb0fe06-4f39-2c70-9c24-a8dd7496c2f8,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+bcb0fe04-4f39-2c70-9f03-d0eec592de24,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+bf9a3da2-45a5-2e80-8219-1f0a216399fe,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+cdcaf5bd-ddd8-2ed6-97c3-489e105e4dde,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+10b1794e-3938-2467-89a7-ebc89e84cf88,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+bf9a3de9-45a5-2e80-8022-277108d67404,validation,completed,110,1,0.00909090909090909,1.0,False,insufficient_valid_poses_for_sparse_backend,0,9.614813431917819e-17,9.614813431917819e-17,0.0,0.0,0,0,False,False,
+bf9a3ddf-45a5-2e80-8007-8e9e7f323e52,validation,completed,120,1,0.008333333333333333,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.0385185452638061e-16,1.0385185452638061e-16,0.0,0.0,0,0,False,False,
+bf9a3ddd-45a5-2e80-80bc-647365c7ca08,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+bf9a3dd9-45a5-2e80-817c-f918e193231b,validation,completed,131,2,0.015267175572519083,1.0,False,submap_construction_failed,0,0.025726341089739684,0.025726341089739684,0.804273497913945,0.804273497913945,0,0,False,False,
+c7895f27-339c-2d13-836b-c12dca280261,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f2b-339c-2d13-8248-b0507e050314,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f29-339c-2d13-83e9-90dbe61fa8be,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f7c-339c-2d13-819f-3bb0b26c91f6,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f7a-339c-2d13-82ac-09ef1c9001ba,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f78-339c-2d13-82bb-cc990cbbc90f,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c92fb5b5-f771-2064-8570-dbe16cb33764,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+5630cfde-12bf-2860-8563-d68bdd98fab0,validation,completed,140,1,0.007142857142857143,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.3877787807814457e-17,1.3877787807814457e-17,0.0,0.0,0,0,False,False,
+10b1793e-3938-2467-8b92-f56541e7ef9e,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+d7d40d4e-7a5d-2b36-97e7-34324c52ac42,validation,completed,109,1,0.009174311926605505,1.0,False,insufficient_valid_poses_for_sparse_backend,0,3.402361335218012e-17,3.402361335218012e-17,0.0,0.0,0,0,False,False,
+d7d40d4c-7a5d-2b36-95c1-5f6c9147caf0,validation,completed,149,1,0.006711409395973154,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+d7d40d50-7a5d-2b36-9446-7d636174329f,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+ddc73797-765b-241a-9e2c-097c5989baf6,validation,completed,325,1,0.003076923076923077,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.803900036285107e-16,4.803900036285107e-16,0.0,0.0,0,0,False,False,
+2451c048-fae8-24f6-9043-f1604dbada2c,validation,completed,150,1,0.006666666666666667,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+ddc7379b-765b-241a-9f45-c37e41608726,validation,completed,147,1,0.006802721088435374,1.0,False,insufficient_valid_poses_for_sparse_backend,0,4.440892098500626e-16,4.440892098500626e-16,0.0,0.0,0,0,False,False,
+ddc73799-765b-241a-9c30-f75dcb7627d4,validation,completed,89,1,0.011235955056179775,1.0,False,insufficient_valid_poses_for_sparse_backend,0,0.0,0.0,0.0,0.0,0,0,False,False,
+0cac75b7-8d6f-2d13-8cb2-0b4e06913140,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+c7895f07-339c-2d13-8176-7418b6e8d7ce,validation,failed,,,,,,,,,,,,,,,,RuntimeError: DPV-SLAM produced no valid pose
+e61b0e04-bada-2f31-82d6-72831a602ba7,validation,completed,592,1,0.0016891891891891893,1.0,False,insufficient_valid_poses_for_sparse_backend,0,5.551115123125783e-17,5.551115123125783e-17,0.0,0.0,0,0,False,False,
+e61b0e02-bada-2f31-82d0-80fc5c70bd6f,validation,completed,582,1,0.001718213058419244,1.0,False,insufficient_valid_poses_for_sparse_backend,0,8.968100940422724e-16,8.968100940422724e-16,0.0,0.0,0,0,True,False,
+fcf66d7b-622d-291c-86b8-7db96aebcee3,validation,completed,130,1,0.007692307692307693,1.0,False,insufficient_valid_poses_for_sparse_backend,0,2.0770370905276122e-16,2.0770370905276122e-16,0.0,0.0,0,0,False,False,
+787ed58c-9d98-2c97-83b9-b48a609ace15,validation,completed,150,1,0.006666666666666667,1.0,False,insufficient_valid_poses_for_sparse_backend,0,1.2412670766236366e-16,1.2412670766236366e-16,0.0,0.0,0,0,False,False,
+4acaebcc-6c10-2a2a-858b-29c7e4fb410d,train_failure_sentinel,completed,520,2,0.0038461538461538464,1.0,False,submap_construction_failed,0,0.01602962369255623,0.01602962369255623,0.8036377303338365,0.8036377303338365,0,0,False,False,

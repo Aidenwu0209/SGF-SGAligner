@@ -1,0 +1,10 @@
+scope,metric,baseline_or_denominator,candidate_or_result,improvement_fraction,ci95_low_fraction,ci95_high_fraction,gate
+scannet_held_out,ATE_translation_RMSE,paired_12_scenes,paired_12_scenes,0.1251581514,0.0,0.2701845027,FAIL_CI_TOUCHES_ZERO
+scannet_held_out,ATE_rotation_RMSE,paired_12_scenes,paired_12_scenes,0.1561755368,0.0,0.3142585583,FAIL_CI_TOUCHES_ZERO
+scannet_geometry,Chamfer_RMSE,15_scenes,15_scenes,0.0151060018,0.0002426822,0.0389214889,FAIL_BELOW_10PCT
+scannet_geometry,Fscore_error,15_scenes,15_scenes,0.0223329312,0.0023799222,0.0463026441,FAIL_BELOW_10PCT
+scan3r_sequences,valid_pose_coverage,179_requested,84_completed_0.0068715731,,,,FAIL_FRONTEND_COVERAGE
+scan3r_official_pairs,recall_5deg_02m,109_pairs,0.0,0.0,0.0,0.0,FAIL
+scan3r_all_validation_pairs,catastrophic_candidate_accepts,266_pairs,1,,,,FAIL
+orbbec,scenes_improved_at_least_10pct,5,0,,,,FAIL_REQUIRES_4_OF_5
+orbbec,scenes_passing_safety,5,3,,,,FAIL
