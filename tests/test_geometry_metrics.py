@@ -8,7 +8,9 @@ from pose_pipeline.geometry_metrics import compare_no_gt_geometry
 def geometry(conflict, vertices=1000, bbox=(2.0, 2.0, 2.0), tilt=1.0, thickness=0.02):
     return {
         "vertices": vertices,
+        "occupied_voxels_2cm": vertices,
         "bbox_extent_m": list(bbox),
+        "robust_extent_p99_p01_m": list(bbox),
         "near_parallel_layer_conflict_ratio": conflict,
         "horizontal_planes": [{
             "points": 900,

@@ -1,0 +1,115 @@
+schema: model_replacement_validation_protocol.v1
+status: adapters_ready_models_not_yet_executed
+frozen_baseline:
+  repository: Aidenwu0209/SGF-SGAligner
+  branch: develop
+  commit: f3d1adbd14d0bdd444f7ca9436aaa5d2d23cb326
+safe_defaults:
+  continuous_frontend: DPV-SLAM
+  registration_selection: official_top3
+  changed: false
+  candidates_are_opt_in: true
+input_contract:
+  schema: rgbd_sequence_manifest.v1
+  matrix_convention: T_world_camera_m
+  gt_at_inference: false
+  forbid_identity_pose_fill: true
+output_contracts:
+  trajectory: pose_trajectory.v1
+  runtime: model_runtime_report.v1
+  revision: trajectory_revision.v1
+  sparse_proposals: sparse_constraint_proposals.v1
+  external_artifact: external_artifact_manifest.v1
+models:
+  abot_recon:
+    source_repository: https://github.com/amap-cvlab/ABot-Recon
+    inspected_commit: 195cb9240ffc6300e008d2b70e54d281dd7caf4b
+    arms:
+      - noloop_full_frame_frontend
+      - sparse_revisit_proposal_provider
+      - official_loop_separate_control
+    metric_scale_required: true
+    fine_tuning: disabled_until_official_training_code
+  slam_former:
+    source_repository: https://github.com/Tsinghua-MARS-Lab/SLAM-Former
+    inspected_commit: 0071ca9e6c53aec55572a5557c5fcf3a23cdba5d
+    variants:
+      online_candidate: V1.1-long@224
+      quality_reference: V1.1@518
+    role: keyframe_anchor_revision
+    non_keyframe_policy: propagate_correction_over_complete_DPV_trajectory
+  mapanything:
+    source_repository: https://github.com/facebookresearch/map-anything
+    inspected_commit: 3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9
+    window_sizes: [8, 16]
+    modes:
+      - independent_rgb_intrinsics_depth
+      - conditioned_on_dpv_pose
+    execution_policy: background_nonblocking
+    inconsistent_window_policy: reject
+  mipmap:
+    source: https://docs.mipmap3d.com/engine/en/
+    role: offline_geometry_control
+    eligible_for_online_pose_pipeline: false
+  fixanything:
+    source_repository: https://github.com/kvuong2711/fix-anything
+    role: presentation_only
+    required_render_frames: 61
+    may_feed_rgbd_semantic_or_geometry_pipeline: false
+development:
+  scannet:
+    - scene0011_01
+    - scene0019_01
+    - scene0030_00
+    - scene0046_01
+    - scene0050_00
+  scan3r_metric_smoke:
+    - 0988ea72-eb32-2e61-8344-99e2283c2728
+    - 2451c048-fae8-24f6-9043-f1604dbada2c
+    - 095821f9-e2c2-2de1-9707-8f735cd1c148
+    - 4acaebcc-6c10-2a2a-858b-29c7e4fb410d
+held_out:
+  scannet:
+    - scene0000_00
+    - scene0011_00
+    - scene0015_00
+    - scene0019_00
+    - scene0025_00
+    - scene0025_01
+    - scene0025_02
+    - scene0030_01
+    - scene0030_02
+    - scene0046_00
+    - scene0046_02
+  scan3r: official_109_pair_manifest
+  orbbec:
+    - slow_table_loop
+    - fast_turn
+    - small_motion
+    - leave_and_return
+    - sgf_parameter_control
+fine_tune_gate:
+  minimum_zero_shot_coverage: 0.80
+  forbid_scale_jump: true
+  forbid_catastrophic_trajectory: true
+  minimum_development_scenes_improved: 3
+  forbidden_for_training:
+    - held_out.scannet
+    - held_out.scan3r
+    - held_out.orbbec
+promotion_gate:
+  complete_refusion_required: true
+  maximum_pose_coverage_loss: 0.01
+  catastrophic_edges: 0
+  unevaluable_accepted_edges: 0
+  minimum_scannet_metric_pose_improvement: 0.10
+  minimum_scannet_geometry_improvement: 0.10
+  require_positive_joint_confidence_interval: true
+  minimum_orbbec_sequences_improved: 4
+  maximum_any_orbbec_deterioration: 0.10
+runtime_policy:
+  report_latency_memory_queue_and_drops: true
+  speed_is_an_elimination_gate: false
+decision:
+  auto_select_winner: false
+  user_reviews_fixed_view_ply_before_selection: true

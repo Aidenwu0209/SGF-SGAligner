@@ -63,6 +63,9 @@ config = [
 requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+"adapters.sgf" = ["resources/*.txt"]
+
 [project.urls]
 Homepage = "https://sayands.github.io/sgaligner"
 Repository = "https://github.com/sayands/sgaligner"

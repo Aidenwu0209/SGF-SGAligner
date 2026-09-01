@@ -13,7 +13,8 @@ from .robust_backend import transform_distance
 
 
 def trajectory_metrics(
-    estimate: Sequence[PoseRecord], reference: Sequence[PoseRecord],
+    estimate: Sequence[PoseRecord], reference: Sequence[PoseRecord], *,
+    _include_sim3: bool = True,
 ) -> dict:
     estimate_by_id = {row.frame_id: row for row in estimate}
     reference_by_id = {row.frame_id: row for row in reference}
@@ -64,7 +65,7 @@ def trajectory_metrics(
             "max": float(np.max(array)),
         }
 
-    return {
+    metric_result = {
         "schema": "pose_trajectory_evaluation.v1",
         "frame_count": len(frame_ids),
         "estimate_frame_count": len(estimate_by_id),
@@ -76,6 +77,83 @@ def trajectory_metrics(
         "relative_rotation_deg": describe(relative_rotation),
         "gt_role": "evaluation_only",
     }
+    if not _include_sim3:
+        return metric_result
+    if len(frame_ids) >= 2:
+        estimate_xyz = np.stack([
+            estimate_by_id[frame_id].t_world_camera[:3, 3] for frame_id in frame_ids
+        ])
+        reference_xyz = np.stack([
+            reference_by_id[frame_id].t_world_camera[:3, 3] for frame_id in frame_ids
+        ])
+        source_center = estimate_xyz.mean(axis=0)
+        target_center = reference_xyz.mean(axis=0)
+        source_zero = estimate_xyz - source_center
+        target_zero = reference_xyz - target_center
+        covariance = target_zero.T @ source_zero / len(frame_ids)
+        left, singular, right_t = np.linalg.svd(covariance)
+        sign = np.ones(3)
+        if np.linalg.det(left @ right_t) < 0:
+            sign[-1] = -1.0
+        alignment_rotation = left @ np.diag(sign) @ right_t
+        se3_translation = target_center - alignment_rotation @ source_center
+
+        def aligned_metrics(scale: float, translation: np.ndarray) -> dict:
+            aligned = []
+            for frame_id in frame_ids:
+                source_pose = estimate_by_id[frame_id].t_world_camera
+                pose = np.eye(4)
+                pose[:3, :3] = alignment_rotation @ source_pose[:3, :3]
+                pose[:3, 3] = scale * alignment_rotation @ source_pose[:3, 3] + translation
+                aligned.append(PoseRecord(
+                    frame_id=frame_id,
+                    timestamp_us=estimate_by_id[frame_id].timestamp_us,
+                    t_world_camera=validate_se3(pose),
+                    source="evaluation_only_aligned",
+                ))
+            return trajectory_metrics(
+                aligned, [reference_by_id[value] for value in frame_ids],
+                _include_sim3=False,
+            )
+
+        se3_aligned = aligned_metrics(1.0, se3_translation)
+        metric_se3 = {
+            "available": True,
+            "scale_fixed_to_one": True,
+            "global_rotation": alignment_rotation.tolist(),
+            "global_translation": se3_translation.tolist(),
+            "absolute_translation_m": se3_aligned["absolute_translation_m"],
+            "absolute_rotation_deg": se3_aligned["absolute_rotation_deg"],
+            "relative_translation_m": se3_aligned["relative_translation_m"],
+            "relative_rotation_deg": se3_aligned["relative_rotation_deg"],
+        }
+        variance = float(np.mean(np.sum(source_zero ** 2, axis=1)))
+        if variance <= 1e-12:
+            sim3 = {
+                "available": False,
+                "reason": "estimate_translation_variance_too_small",
+            }
+        else:
+            scale = float(np.sum(singular * sign) / variance)
+            translation = target_center - scale * alignment_rotation @ source_center
+            sim3_aligned = aligned_metrics(scale, translation)
+            sim3 = {
+                "available": True,
+                "scale_reference_units_per_estimate_unit": scale,
+                "global_rotation": alignment_rotation.tolist(),
+                "global_translation": translation.tolist(),
+                "absolute_translation_m": sim3_aligned["absolute_translation_m"],
+                "absolute_rotation_deg": sim3_aligned["absolute_rotation_deg"],
+                "relative_translation_m": sim3_aligned["relative_translation_m"],
+                "relative_rotation_deg": sim3_aligned["relative_rotation_deg"],
+            }
+    else:
+        metric_se3 = {"available": False, "reason": "at_least_two_frames_required"}
+        sim3 = {"available": False, "reason": "at_least_two_frames_required"}
+    metric_result["metric_se3"] = metric_se3
+    metric_result["sim3_alignment"] = sim3
+    metric_result["metric_conclusion_must_not_use_sim3"] = True
+    return metric_result
 
 
 def evaluate_trajectory_files(

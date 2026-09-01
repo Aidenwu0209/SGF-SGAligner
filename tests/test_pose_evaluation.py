@@ -38,6 +38,23 @@ class PoseEvaluationTests(unittest.TestCase):
         self.assertEqual(result["relative_translation_m"]["count"], 0)
         self.assertFalse(result["relative_translation_m"]["available"])
         self.assertIsNone(result["relative_translation_m"]["rmse"])
+        self.assertFalse(result["sim3_alignment"]["available"])
+
+    def test_sim3_is_reported_but_not_used_as_metric_conclusion(self):
+        estimate, reference = [], []
+        for index in range(3):
+            estimated_pose = np.eye(4)
+            estimated_pose[0, 3] = index * 2.0
+            reference_pose = np.eye(4)
+            reference_pose[0, 3] = float(index)
+            estimate.append(PoseRecord(index, index, estimated_pose))
+            reference.append(PoseRecord(index, index, reference_pose))
+        result = trajectory_metrics(estimate, reference)
+        self.assertAlmostEqual(
+            result["sim3_alignment"]["scale_reference_units_per_estimate_unit"],
+            0.5,
+        )
+        self.assertTrue(result["metric_conclusion_must_not_use_sim3"])
 
 
 if __name__ == "__main__":

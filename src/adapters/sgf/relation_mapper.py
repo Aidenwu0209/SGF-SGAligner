@@ -12,17 +12,16 @@ official repository sources (which are never modified).
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 
-OFFICIAL_VOCAB_FILE = (
-    "/home/aidenwu/Documents/sgaligner-sgf-official/checkpoints/release/"
-    "relationships.txt"
-)
+PACKAGED_VOCAB_FILE = Path(__file__).with_name("resources") / "relationships.txt"
+OFFICIAL_VOCAB_ENV = "SGALIGNER_RELATION_VOCAB"
 
-# SGF GraphPredictor relation outputs (from /home/aidenwu/opt/traced/
-# relationships.txt, 9 entries incl. 'none') — all exact substrings of
+# SGF GraphPredictor relation outputs (traced relationships.txt, 9 entries
+# incl. 'none') — all exact substrings of
 # official names except the listed aliases which we do NOT auto-map.
 SGF_RELATIONS = (
     "attached to", "build in", "connected to", "hanging on",
@@ -30,8 +29,23 @@ SGF_RELATIONS = (
 )
 
 
-def load_official_vocab(path: str | Path = OFFICIAL_VOCAB_FILE) -> list[str]:
-    lines = Path(path).read_text().splitlines()
+def resolve_official_vocab(path: str | Path | None = None) -> Path:
+    """Resolve an explicit vocabulary, an environment override, or the fixture.
+
+    The old workstation-specific absolute path made a clean checkout unusable.
+    Production runs should pass the checkpoint vocabulary explicitly (or set
+    ``SGALIGNER_RELATION_VOCAB``); the packaged copy is the exact frozen 41-word
+    fixture used by the focused tests.
+    """
+    if path is not None:
+        return Path(path)
+    override = os.environ.get(OFFICIAL_VOCAB_ENV)
+    return Path(override) if override else PACKAGED_VOCAB_FILE
+
+
+def load_official_vocab(path: str | Path | None = None) -> list[str]:
+    resolved = resolve_official_vocab(path)
+    lines = resolved.read_text(encoding="utf-8").splitlines()
     vocab = [line.strip() for line in lines if line.strip()]
     if len(vocab) != 41:
         raise ValueError(
@@ -43,7 +57,7 @@ def load_official_vocab(path: str | Path = OFFICIAL_VOCAB_FILE) -> list[str]:
 class RelationMapper:
     """Deterministic SGF->official relation-name mapping (exact only)."""
 
-    def __init__(self, official_vocab_path: str | Path = OFFICIAL_VOCAB_FILE):
+    def __init__(self, official_vocab_path: str | Path | None = None):
         self.official_vocab = load_official_vocab(official_vocab_path)
         self.name_to_index = {
             name: index for index, name in enumerate(self.official_vocab)

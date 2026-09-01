@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import math
 from pathlib import Path
 
@@ -60,6 +59,7 @@ def _plane_metrics(points: np.ndarray, normals: np.ndarray) -> list[dict]:
         inlier_points = band[inliers]
         residual = inlier_points[:, 1] - model.predict(inlier_points[:, (0, 2)])
         results.append({
+            "height_m": height,
             "points": int(inliers.sum()),
             "inlier_ratio": float(np.mean(inliers)),
             "tilt_from_gravity_deg": math.degrees(math.acos(float(np.clip(abs(normal[1]), 0, 1)))),
@@ -109,6 +109,9 @@ def ply_geometry_metrics(path: Path) -> dict:
         "vertices": int(len(points)),
         "occupied_voxels_2cm": int(len(np.unique(np.floor(points / 0.02).astype(np.int32), axis=0))),
         "bbox_extent_m": np.ptp(points, axis=0).astype(float).tolist(),
+        "robust_extent_p99_p01_m": (
+            np.percentile(points, 99, axis=0) - np.percentile(points, 1, axis=0)
+        ).astype(float).tolist(),
         "near_parallel_layer_conflict_ratio": _layer_conflict(points),
         "horizontal_planes": _plane_metrics(points, normals),
         "gt_consumed": False,
@@ -168,18 +171,41 @@ def render_fixed_comparison_views(
 def compare_no_gt_geometry(baseline: dict, candidate: dict) -> dict:
     before = float(baseline["near_parallel_layer_conflict_ratio"])
     after = float(candidate["near_parallel_layer_conflict_ratio"])
-    baseline_plane = max(
-        baseline.get("horizontal_planes", []),
-        key=lambda row: int(row.get("points", 0)), default=None,
-    )
-    candidate_plane = max(
-        candidate.get("horizontal_planes", []),
-        key=lambda row: int(row.get("points", 0)), default=None,
-    )
+    baseline_planes = baseline.get("horizontal_planes", [])
+    candidate_planes = candidate.get("horizontal_planes", [])
+    matched_plane_height_delta = None
+    plane_pairs = [
+        (abs(float(left["height_m"]) - float(right["height_m"])), left, right)
+        for left in baseline_planes for right in candidate_planes
+        if "height_m" in left and "height_m" in right
+    ]
+    if plane_pairs:
+        matched_plane_height_delta, baseline_plane, candidate_plane = min(
+            plane_pairs, key=lambda row: (row[0], -min(int(row[1].get("points", 0)), int(row[2].get("points", 0))))
+        )
+        if matched_plane_height_delta > 0.15:
+            baseline_plane = candidate_plane = None
+    else:
+        baseline_plane = max(
+            baseline_planes, key=lambda row: int(row.get("points", 0)), default=None,
+        )
+        candidate_plane = max(
+            candidate_planes, key=lambda row: int(row.get("points", 0)), default=None,
+        )
     point_ratio = candidate["vertices"] / max(baseline["vertices"], 1)
     bbox_ratio = (
         np.asarray(candidate["bbox_extent_m"], dtype=float)
         / np.maximum(np.asarray(baseline["bbox_extent_m"], dtype=float), 1e-9)
+    )
+    baseline_robust = np.asarray(
+        baseline.get("robust_extent_p99_p01_m", baseline["bbox_extent_m"]), dtype=float,
+    )
+    candidate_robust = np.asarray(
+        candidate.get("robust_extent_p99_p01_m", candidate["bbox_extent_m"]), dtype=float,
+    )
+    robust_extent_ratio = candidate_robust / np.maximum(baseline_robust, 1e-9)
+    occupied_voxel_ratio = float(candidate.get("occupied_voxels_2cm", candidate["vertices"])) / max(
+        int(baseline.get("occupied_voxels_2cm", baseline["vertices"])), 1,
     )
     conflict_improvement = (before - after) / max(before, 1e-12)
     gates = {
@@ -187,6 +213,8 @@ def compare_no_gt_geometry(baseline: dict, candidate: dict) -> dict:
         "layer_conflict_not_worse_10pct": after <= before * 1.10,
         "point_count_at_least_80pct": point_ratio >= 0.80,
         "every_bbox_axis_at_least_80pct": bool(np.all(bbox_ratio >= 0.80)),
+        "every_robust_extent_axis_at_least_80pct": bool(np.all(robust_extent_ratio >= 0.80)),
+        "occupied_voxels_at_least_80pct": occupied_voxel_ratio >= 0.80,
     }
     thickness_improvement = None
     tilt_delta = None
@@ -208,7 +236,10 @@ def compare_no_gt_geometry(baseline: dict, candidate: dict) -> dict:
         "layer_conflict_improvement_fraction": conflict_improvement,
         "dominant_plane_thickness_improvement_fraction": thickness_improvement,
         "ground_tilt_delta_deg": tilt_delta,
+        "matched_plane_height_delta_m": matched_plane_height_delta,
         "point_count_ratio": point_ratio,
+        "occupied_voxel_ratio": occupied_voxel_ratio,
         "bbox_axis_ratios": bbox_ratio.tolist(),
+        "robust_extent_axis_ratios": robust_extent_ratio.tolist(),
         "gt_consumed": False,
     }
