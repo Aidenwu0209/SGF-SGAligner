@@ -1,0 +1,38 @@
+schema: robust_pose_backend_config.v1
+enabled: false
+recommended_only_after_acceptance: true
+matrix_conventions:
+  trajectory: T_world_camera_m
+  registration: T_reference_source_m
+submaps:
+  anchor_stride: 80
+  half_window: 20
+  frame_stride: 4
+  pixel_stride: 4
+  voxel_m: 0.06
+loop_proposals:
+  minimum_anchor_gap: 4
+  maximum_initial_distance_m: 2.25
+  maximum_pairs: 36
+robust_pose:
+  compatibility_thresholds_m: [0.05, 0.10, 0.20]
+  minimum_support: 6
+  deterministic_ransac_pool: 32
+  deterministic_ransac_triangle_budget: 256
+  consensus_rotation_deg: 2.5
+  consensus_translation_m: 0.05
+  minimum_solver_families: 2
+  pygcransac_repeats: 5
+  pygcransac_quorum: 4
+  pygcransac_role: witness_only_no_vote
+  teaserpp:
+    estimate_scaling: false
+    rotation_estimation: GNC_TLS
+pose_graph:
+  loss: huber
+  maximum_loop_degree: 2
+  all_frame_correction: se3_anchor_interpolation
+safety:
+  gt_at_inference: false
+  identity_fallback: false
+  missing_fused_frame: reject
