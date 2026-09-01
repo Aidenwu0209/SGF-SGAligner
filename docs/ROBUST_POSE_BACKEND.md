@@ -86,8 +86,15 @@ python scripts/run_public_pose_matrix.py --dataset scannet \
   --data-root /data/scannet-rgbd --output /results/scannet \
   --dpv-python /envs/dpv/bin/python --dpv-worker /dpv/pose_worker.py \
   --dpvo-root /dpvo --dpvo-network /dpvo/dpvo.pth \
-  --dpvo-config /dpv/config.yaml --refuse
+  --dpvo-config /dpv/config.yaml \
+  --dpv-metric-config /dpv/metric_posefix.json --refuse
 ```
+
+`--dpv-metric-config` is optional only for deliberate worker-default runs. If
+it is omitted, local recovery may be disabled by the DPV worker. The runner
+records both the resolved path and SHA-256 of a supplied metric config in
+`environment.json`; matched experiments must compare these fields before
+comparing backend results.
 
 3RScan uses a transform-free selection file. Its builder is deliberately a
 separate process: the inference runner never opens `3RScan.json` because that
@@ -104,7 +111,8 @@ python scripts/run_public_pose_matrix.py --dataset 3rscan \
   --output /results/scan3r-sequences \
   --dpv-python /envs/dpv/bin/python --dpv-worker /dpv/pose_worker.py \
   --dpvo-root /dpvo --dpvo-network /dpvo/dpvo.pth \
-  --dpvo-config /dpv/config.yaml --refuse
+  --dpvo-config /dpv/config.yaml \
+  --dpv-metric-config /dpv/metric_posefix.json --refuse
 ```
 
 Reference/rescan registration is also split into inference and evaluation
@@ -143,3 +151,9 @@ promotion gates. The backend remains opt-in and the safe default is unchanged.
 Compact summaries, hashes, fixed-view comparisons, and the failure index are
 in `pose_backend_validation_20260901/`. Large PLYs and raw logs remain in the
 create-only result roots on the authoritative server.
+
+A later causal rerun found that the original public-data command omitted the
+DPV metric config used by the earlier demo. See
+`pose_backend_validation_20260901/POSEFIX_CAUSAL_RERUN.md`. This corrects the
+interpretation of the original ScanNet coverage result but is not sufficient
+to promote the backend from a single scene.

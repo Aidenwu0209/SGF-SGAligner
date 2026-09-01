@@ -7,6 +7,14 @@ not meet the promotion gates and does not change `official_top3`, `main`, or
 the default pose path. DPV-SLAM remains the continuous per-frame front end;
 the new PAGOR/G3Reg/TEASER++-inspired code is only a sparse constraint backend.
 
+Important addendum: the original ScanNet public-data run below used worker
+metric defaults and did not reproduce the earlier demo's DPV `posefix_v3`
+local-recovery profile. A controlled `scene0030_00` rerun restored valid-pose
+coverage from 238 to 2277 frames and produced one safe loop. See
+[`POSEFIX_CAUSAL_RERUN.md`](POSEFIX_CAUSAL_RERUN.md). The original matrix is
+retained as a historical result of its recorded configuration, not as a fair
+demo-versus-backend comparison.
+
 Implementation commit: `481707fdb5ba31f79247449ca011244d99d39d46`  
 Base commit: `84434efbbd19ea3c0914b7cf57c62a6f4e02000b`  
 Frozen config SHA-256: `1040a4fa32174922fa66d2d6761214624811192c59ec1c46611f88f42bb6d641`

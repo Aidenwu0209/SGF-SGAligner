@@ -67,11 +67,7 @@ def _wait_for_socket(path: Path, process: subprocess.Popen, timeout_s: float = 1
     raise TimeoutError(f"DPV socket not ready: {path}")
 
 
-def _run_frontend(args: argparse.Namespace, manifest_path: Path, output: Path) -> dict:
-    socket_id = hashlib.sha256(str(output).encode()).hexdigest()[:12]
-    socket_path = Path(f"/tmp/sgf_pose_{socket_id}.sock")
-    if socket_path.exists():
-        socket_path.unlink()
+def _frontend_command(args: argparse.Namespace, socket_path: Path) -> list[str]:
     command = [
         str(args.dpv_python), "-u", str(args.dpv_worker),
         "--socket", str(socket_path),
@@ -81,6 +77,17 @@ def _run_frontend(args: argparse.Namespace, manifest_path: Path, output: Path) -
         "--seed", str(args.seed),
         "--loop-closure", "--no-gravity-align",
     ]
+    if args.dpv_metric_config is not None:
+        command.extend(("--metric-config", str(args.dpv_metric_config)))
+    return command
+
+
+def _run_frontend(args: argparse.Namespace, manifest_path: Path, output: Path) -> dict:
+    socket_id = hashlib.sha256(str(output).encode()).hexdigest()[:12]
+    socket_path = Path(f"/tmp/sgf_pose_{socket_id}.sock")
+    if socket_path.exists():
+        socket_path.unlink()
+    command = _frontend_command(args, socket_path)
     log_path = output / "worker.log"
     with log_path.open("x", encoding="utf-8") as log:
         process = subprocess.Popen(
@@ -243,6 +250,14 @@ def run_scene(
         "dpv_worker_sha256": sha256_file(args.dpv_worker),
         "dpvo_network_sha256": sha256_file(args.dpvo_network),
         "dpvo_config_sha256": sha256_file(args.dpvo_config),
+        "dpv_metric_config": (
+            None if args.dpv_metric_config is None
+            else str(args.dpv_metric_config.resolve())
+        ),
+        "dpv_metric_config_sha256": (
+            None if args.dpv_metric_config is None
+            else sha256_file(args.dpv_metric_config)
+        ),
         "worker_command": frontend["worker_command"],
         "seed": args.seed,
         "gt_consumed": False,
@@ -441,6 +456,10 @@ def main() -> None:
     parser.add_argument("--dpvo-root", type=Path, required=True)
     parser.add_argument("--dpvo-network", type=Path, required=True)
     parser.add_argument("--dpvo-config", type=Path, required=True)
+    parser.add_argument(
+        "--dpv-metric-config", type=Path,
+        help="optional DPV metric/recovery JSON passed to the pose worker",
+    )
     parser.add_argument("--seed", type=int, default=20260819)
     parser.add_argument("--frame-timeout", type=float, default=30.0)
     parser.add_argument("--refuse", action="store_true")
