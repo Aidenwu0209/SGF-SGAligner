@@ -255,6 +255,27 @@ def evaluate(args: argparse.Namespace) -> None:
     alignment_cache = {}
     for item in inference_summary["rows"]:
         if item.get("status") != "completed":
+            row = {
+                "pair_id": item["pair_id"],
+                "group_reference": item["group_reference"],
+                "split": item["split"],
+                "source": item["source"],
+                "reference": item["reference"],
+                "official_reference_pair": (
+                    item["reference"] == item["group_reference"]
+                ),
+                "inference_status": "failed",
+                "inference_error": item.get("error"),
+            }
+            for arm in ("baseline", "candidate"):
+                row.update({
+                    f"{arm}_accepted": False,
+                    f"{arm}_rre_deg": None,
+                    f"{arm}_rte_m": None,
+                    f"{arm}_recall_5deg_02m": False,
+                    f"{arm}_catastrophic_accept": False,
+                })
+            rows.append(row)
             continue
         pair = json.loads(
             (args.inference / "pairs" / item["pair_id"] / "inference.json").read_text()
@@ -269,6 +290,7 @@ def evaluate(args: argparse.Namespace) -> None:
             "pair_id": pair["pair_id"], "group_reference": pair["group_reference"],
             "split": pair["split"], "source": source, "reference": target,
             "official_reference_pair": target == pair["group_reference"],
+            "inference_status": "completed",
         }
         for arm in ("baseline", "candidate"):
             for sequence_id in (source, target):
@@ -301,7 +323,10 @@ def evaluate(args: argparse.Namespace) -> None:
                 ),
             })
         rows.append(row)
-    official = [row for row in rows if row["official_reference_pair"]]
+    validation_rows = [row for row in rows if row["split"] == "validation"]
+    official = [
+        row for row in validation_rows if row["official_reference_pair"]
+    ]
     cycle_rows = []
     for group_reference, group in groups.items():
         ids = [group_reference, *[scan["reference"] for scan in group.get("scans", [])]]
@@ -322,12 +347,25 @@ def evaluate(args: argparse.Namespace) -> None:
                 })
             if result["baseline_available"] or result["candidate_available"]:
                 cycle_rows.append(result)
-    aggregate = {"schema": "scan3r_pair_evaluation.v1", "official_pairs": len(official)}
+    aggregate = {
+        "schema": "scan3r_pair_evaluation.v1",
+        "official_pairs": len(official),
+        "official_pairs_with_completed_inference": sum(
+            row["inference_status"] == "completed" for row in official
+        ),
+        "validation_pair_count": len(validation_rows),
+    }
     for arm in ("baseline", "candidate"):
         aggregate[arm] = {
             "accepted": sum(row[f"{arm}_accepted"] for row in official),
             "recall_5deg_02m": sum(row[f"{arm}_recall_5deg_02m"] for row in official) / max(len(official), 1),
             "catastrophic_accepts": sum(row[f"{arm}_catastrophic_accept"] for row in official),
+            "all_validation_accepted": sum(
+                row[f"{arm}_accepted"] for row in validation_rows
+            ),
+            "all_validation_catastrophic_accepts": sum(
+                row[f"{arm}_catastrophic_accept"] for row in validation_rows
+            ),
             "cycle_available": sum(row[f"{arm}_available"] for row in cycle_rows),
         }
     baseline_primary = [
@@ -343,7 +381,7 @@ def evaluate(args: argparse.Namespace) -> None:
     ) if official else None
     aggregate["passes_gate"] = bool(
         official
-        and aggregate["candidate"]["catastrophic_accepts"] == 0
+        and aggregate["candidate"]["all_validation_catastrophic_accepts"] == 0
         and aggregate["candidate"]["recall_5deg_02m"]
         >= aggregate["baseline"]["recall_5deg_02m"] - 0.01
         and aggregate["paired_primary_bootstrap"]["passes_10pct_and_positive_ci"]

@@ -54,10 +54,12 @@ from matching.sgpgm_enhancements import (
 )
 from pose_pipeline.robust_backend import (
     RobustPoseConfig,
+    decide_registration_v2,
     generate_hypotheses,
     select_cross_solver_consensus,
     transform_points,
 )
+from pose_pipeline.contracts import stable_json_sha256
 
 OFFICIAL_SNAPSHOT = (
     "/home/aidenwu/Documents/sgaligner-sgf-official/checkpoints/release/"
@@ -865,6 +867,57 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
                 data_dict, registration, node_corrs, pair_id,
                 device=device, rule=decision_rule,
             )
+            if robust_pose_backend:
+                # A pair plus its independently estimated reverse direction is
+                # the smallest closed SE(3) cycle.  Reuse that measured
+                # discrepancy for both the bidirectional and two-edge cycle
+                # checks; unavailable reverse evidence must reject rather than
+                # silently pass.
+                unavailable = 1e9
+                bidirectional_translation = features.get(
+                    "bidirectional_translation_m",
+                )
+                bidirectional_rotation = features.get(
+                    "bidirectional_rotation_deg",
+                )
+                if bidirectional_translation is None:
+                    bidirectional_translation = unavailable
+                if bidirectional_rotation is None:
+                    bidirectional_rotation = unavailable
+                decision = decide_registration_v2(
+                    consensus,
+                    {
+                        "spatial_extent_m": features["spatial_extent_m"],
+                        "spatial_second_axis_m": features[
+                            "spatial_second_axis_m"
+                        ],
+                        "icp_update_translation_m": features[
+                            "icp_update_translation_m"
+                        ],
+                        "icp_update_rotation_deg": features[
+                            "icp_update_rotation_deg"
+                        ],
+                        "bidirectional_translation_m": (
+                            bidirectional_translation
+                        ),
+                        "bidirectional_rotation_deg": bidirectional_rotation,
+                        "cycle_translation_m": bidirectional_translation,
+                        "cycle_rotation_deg": bidirectional_rotation,
+                        "overlap_ratio": features["overlap_ratio"],
+                    },
+                    robust_config,
+                )
+                decision["cycle_definition"] = (
+                    "independent_forward_reverse_two_edge_cycle"
+                )
+                decision["dense_feature_provenance"] = features[
+                    "_provenance"
+                ]
+                decision_unsigned = dict(decision)
+                decision_unsigned.pop("decision_sha256", None)
+                decision["decision_sha256"] = stable_json_sha256(
+                    decision_unsigned
+                )
             # final transform = ICP-refined (ICP update within bounds is
             # enforced by the rule; rejected pairs never write it)
             final_transform = (
