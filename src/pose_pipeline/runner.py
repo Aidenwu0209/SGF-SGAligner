@@ -80,6 +80,47 @@ def run_sequence(
         _write_json(output_dir / "run_result.json", result)
         return result
 
+    if len(bound) < 2:
+        _write_json(output_dir / "loop_evidence.json", {
+            "schema": "pose_pipeline_loop_evidence.v1",
+            "sequence_id": manifest.sequence_id,
+            "correspondence_provider": "geometry_bootstrap_fpfh",
+            "proposal_count": 0,
+            "pre_sparsification_accepted_loop_count": 0,
+            "submap_config": asdict(submap_config),
+            "proposal_config": asdict(proposal_config),
+            "robust_config": asdict(robust_config),
+            "geometry_config": asdict(geometry_config),
+            "anchors": [],
+            "evidence": [],
+            "rejection_reason": "fewer_than_two_valid_frontend_poses",
+            "gt_consumed": False,
+        })
+        write_trajectory(
+            output_dir / "trajectory.json", trajectory,
+            sequence_id=manifest.sequence_id, arm="candidate",
+            metadata={
+                "source_trajectory_sha256": trajectory_payload["payload_sha256"],
+                "backend_correction": False,
+                "fail_closed_action": "retain_original_dpv_trajectory",
+            },
+        )
+        result = {
+            "schema": "pose_pipeline_run.v1",
+            "arm": "candidate",
+            "sequence_id": manifest.sequence_id,
+            "frame_count": len(bound),
+            "accepted": False,
+            "reason": "insufficient_valid_poses_for_sparse_backend",
+            "accepted_loop_count": 0,
+            "corrected_trajectory_written": True,
+            "backend_correction_applied": False,
+            "identity_fallback_used": False,
+            "gt_consumed": False,
+        }
+        _write_json(output_dir / "run_result.json", result)
+        return result
+
     anchors = select_anchor_ordinals(len(bound), submap_config.anchor_stride)
     submaps = []
     anchor_rows = []

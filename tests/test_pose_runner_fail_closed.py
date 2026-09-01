@@ -16,6 +16,43 @@ from pose_pipeline.runner import run_sequence
 
 
 class PoseRunnerFailClosedTests(unittest.TestCase):
+    def test_single_valid_pose_is_an_explicit_noop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "color").mkdir()
+            (root / "depth").mkdir()
+            color, depth = root / "color" / "0.jpg", root / "depth" / "0.png"
+            color.write_bytes(b"rgb")
+            depth.write_bytes(b"depth")
+            frame = FrameRecord(
+                0, 1000, color, depth, (500.0, 500.0, 1.0, 1.0),
+            )
+            pose = PoseRecord(0, 1000, np.eye(4), source="DPV-SLAM")
+            manifest_path = root / "manifest.json"
+            trajectory_path = root / "trajectory.json"
+            write_manifest(manifest_path, SequenceManifest(
+                "3rscan", "scan", root, 1000.0, (frame,), "test",
+            ))
+            write_trajectory(
+                trajectory_path, [pose], sequence_id="scan", arm="baseline",
+            )
+            result = run_sequence(
+                arm="candidate", manifest_path=manifest_path,
+                trajectory_path=trajectory_path, output_dir=root / "candidate",
+            )
+            self.assertEqual(
+                result["reason"], "insufficient_valid_poses_for_sparse_backend",
+            )
+            self.assertFalse(result["backend_correction_applied"])
+            self.assertFalse(result["identity_fallback_used"])
+            output, payload = load_trajectory(root / "candidate" / "trajectory.json")
+            self.assertEqual(len(output), 1)
+            np.testing.assert_allclose(output[0].t_world_camera, pose.t_world_camera)
+            self.assertEqual(
+                payload["metadata"]["fail_closed_action"],
+                "retain_original_dpv_trajectory",
+            )
+
     def test_no_verified_loop_retains_complete_dpv_trajectory(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

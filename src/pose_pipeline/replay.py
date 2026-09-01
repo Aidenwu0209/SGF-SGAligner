@@ -26,6 +26,43 @@ REQUEST_MAGIC = b"XFREQ01\0"
 RESPONSE_MAGIC = b"XFRSP01\0"
 
 
+def _pad_rgbd_to_multiple(
+    color: np.ndarray, depth: np.ndarray, multiple: int = 16,
+) -> tuple[np.ndarray, np.ndarray, dict[str, int]]:
+    """Pad only the bottom/right borders without changing pixel coordinates.
+
+    DPV requires both image dimensions to be divisible by 16.  Zero padding
+    preserves the original principal point, unlike resizing or centered
+    padding, and zero depth keeps padded pixels outside metric estimation.
+    """
+    if multiple < 1:
+        raise ValueError("padding multiple must be positive")
+    if color.ndim != 3 or color.shape[2] != 3 or depth.ndim != 2:
+        raise ValueError("RGB-D padding requires HxWx3 color and HxW depth")
+    if color.shape[:2] != depth.shape:
+        raise ValueError("RGB-D padding requires aligned image sizes")
+    height, width = depth.shape
+    pad_bottom = (-height) % multiple
+    pad_right = (-width) % multiple
+    if pad_bottom or pad_right:
+        color = np.pad(
+            color, ((0, pad_bottom), (0, pad_right), (0, 0)),
+            mode="constant", constant_values=0,
+        )
+        depth = np.pad(
+            depth, ((0, pad_bottom), (0, pad_right)),
+            mode="constant", constant_values=0,
+        )
+    return color, depth, {
+        "original_width": int(width),
+        "original_height": int(height),
+        "padded_width": int(width + pad_right),
+        "padded_height": int(height + pad_bottom),
+        "pad_right_px": int(pad_right),
+        "pad_bottom_px": int(pad_bottom),
+    }
+
+
 def _recv_exact(connection: socket.socket, count: int) -> bytes:
     chunks = []
     while count:
@@ -55,10 +92,12 @@ def _read_frame(frame: FrameRecord):
     height, width = depth.shape
     if color.shape[:2] != depth.shape:
         color = cv2.resize(color, (width, height), interpolation=cv2.INTER_AREA)
+    color, depth, preprocessing = _pad_rgbd_to_multiple(color, depth)
     return (
         np.ascontiguousarray(color, dtype=np.uint8),
         np.ascontiguousarray(depth.astype("<u2", copy=False)),
         (float(fx), float(fy), float(cx), float(cy)),
+        preprocessing,
     )
 
 
@@ -76,7 +115,7 @@ def replay_manifest(
     started = time.monotonic()
     try:
         for frame in manifest.frames:
-            color, depth, intrinsics = _read_frame(frame)
+            color, depth, intrinsics, preprocessing = _read_frame(frame)
             height, width = depth.shape
             header = REQUEST.pack(
                 REQUEST_MAGIC, width, height, frame.frame_id,
@@ -113,6 +152,7 @@ def replay_manifest(
                 "inlier_ratio": float(values[25]),
                 "reprojection_rmse_px": float(values[26]),
                 "depth_inlier_ratio": float(values[27]),
+                "preprocessing": preprocessing,
                 "reason": reason,
                 "latency_ms": (time.monotonic() - frame_started) * 1000.0,
             }
@@ -158,6 +198,15 @@ def replay_manifest(
         "median_latency_ms": float(np.median(latencies)),
         "p95_latency_ms": float(np.percentile(latencies, 95)),
         "runtime_s": time.monotonic() - started,
+        "dimension_padding": {
+            "method": "zero_pad_bottom_right_to_multiple_16",
+            "principal_point_adjusted": False,
+            "frames_padded": sum(
+                bool(row["preprocessing"]["pad_right_px"])
+                or bool(row["preprocessing"]["pad_bottom_px"])
+                for row in records
+            ),
+        },
         "identity_fallback_used": False,
         "gt_consumed": False,
     }
