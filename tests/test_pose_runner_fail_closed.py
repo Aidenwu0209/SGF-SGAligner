@@ -16,6 +16,50 @@ from pose_pipeline.runner import run_sequence
 
 
 class PoseRunnerFailClosedTests(unittest.TestCase):
+    def _two_pose_fixture(self, root: Path):
+        (root / "color").mkdir()
+        (root / "depth").mkdir()
+        frames, poses = [], []
+        for index in range(2):
+            color = root / "color" / f"{index}.jpg"
+            depth = root / "depth" / f"{index}.png"
+            color.write_bytes(b"rgb")
+            depth.write_bytes(b"depth")
+            frames.append(FrameRecord(
+                index, index, color, depth, (500.0, 500.0, 1.0, 1.0),
+            ))
+            transform = np.eye(4)
+            transform[0, 3] = float(index)
+            poses.append(PoseRecord(index, index, transform, source="DPV-SLAM"))
+        manifest_path = root / "manifest.json"
+        trajectory_path = root / "trajectory.json"
+        write_manifest(manifest_path, SequenceManifest(
+            "scannet", "scene", root, 1000.0, tuple(frames), "test",
+        ))
+        write_trajectory(
+            trajectory_path, poses, sequence_id="scene", arm="baseline",
+        )
+        return manifest_path, trajectory_path, poses
+
+    def test_sparse_submap_failure_is_an_explicit_noop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest_path, trajectory_path, poses = self._two_pose_fixture(root)
+            with patch(
+                "pose_pipeline.runner.build_submap",
+                side_effect=ValueError("anchor produced only 176 points"),
+            ):
+                result = run_sequence(
+                    arm="candidate", manifest_path=manifest_path,
+                    trajectory_path=trajectory_path, output_dir=root / "candidate",
+                )
+            self.assertEqual(result["reason"], "submap_construction_failed")
+            self.assertFalse(result["backend_correction_applied"])
+            output, _ = load_trajectory(root / "candidate" / "trajectory.json")
+            self.assertEqual(len(output), len(poses))
+            evidence = (root / "candidate" / "loop_evidence.json").read_text()
+            self.assertIn("anchor produced only 176 points", evidence)
+
     def test_single_valid_pose_is_an_explicit_noop(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -56,26 +100,7 @@ class PoseRunnerFailClosedTests(unittest.TestCase):
     def test_no_verified_loop_retains_complete_dpv_trajectory(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "color").mkdir()
-            (root / "depth").mkdir()
-            frames, poses = [], []
-            for index in range(2):
-                color, depth = root / "color" / f"{index}.jpg", root / "depth" / f"{index}.png"
-                color.write_bytes(b"rgb")
-                depth.write_bytes(b"depth")
-                frames.append(FrameRecord(
-                    index, index, color, depth, (500.0, 500.0, 1.0, 1.0),
-                ))
-                transform = np.eye(4)
-                transform[0, 3] = float(index)
-                poses.append(PoseRecord(index, index, transform, source="DPV-SLAM"))
-            manifest_path, trajectory_path = root / "manifest.json", root / "trajectory.json"
-            write_manifest(manifest_path, SequenceManifest(
-                "scannet", "scene", root, 1000.0, tuple(frames), "test",
-            ))
-            write_trajectory(
-                trajectory_path, poses, sequence_id="scene", arm="baseline",
-            )
+            manifest_path, trajectory_path, poses = self._two_pose_fixture(root)
             fake_submap = SimpleNamespace(
                 anchor_frame_id=0, source_frame_ids=(0,),
                 points=np.zeros((500, 3)), points_sha256="0" * 64,

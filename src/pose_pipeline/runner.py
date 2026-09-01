@@ -39,6 +39,36 @@ def _write_json(path: Path, value: object) -> None:
         stream.write("\n")
 
 
+def _retain_candidate_noop(
+    *, output_dir: Path, manifest, trajectory, trajectory_payload: dict,
+    frame_count: int, reason: str,
+) -> dict[str, Any]:
+    write_trajectory(
+        output_dir / "trajectory.json", trajectory,
+        sequence_id=manifest.sequence_id, arm="candidate",
+        metadata={
+            "source_trajectory_sha256": trajectory_payload["payload_sha256"],
+            "backend_correction": False,
+            "fail_closed_action": "retain_original_dpv_trajectory",
+        },
+    )
+    result = {
+        "schema": "pose_pipeline_run.v1",
+        "arm": "candidate",
+        "sequence_id": manifest.sequence_id,
+        "frame_count": frame_count,
+        "accepted": False,
+        "reason": reason,
+        "accepted_loop_count": 0,
+        "corrected_trajectory_written": True,
+        "backend_correction_applied": False,
+        "identity_fallback_used": False,
+        "gt_consumed": False,
+    }
+    _write_json(output_dir / "run_result.json", result)
+    return result
+
+
 def run_sequence(
     *,
     arm: str,
@@ -125,9 +155,36 @@ def run_sequence(
     submaps = []
     anchor_rows = []
     for anchor_index, ordinal in enumerate(anchors):
-        submap = build_submap(
-            bound, ordinal, manifest.depth_scale, submap_config,
-        )
+        try:
+            submap = build_submap(
+                bound, ordinal, manifest.depth_scale, submap_config,
+            )
+        except (ValueError, RuntimeError) as error:
+            _write_json(output_dir / "loop_evidence.json", {
+                "schema": "pose_pipeline_loop_evidence.v1",
+                "sequence_id": manifest.sequence_id,
+                "correspondence_provider": "geometry_bootstrap_fpfh",
+                "proposal_count": 0,
+                "pre_sparsification_accepted_loop_count": 0,
+                "submap_config": asdict(submap_config),
+                "proposal_config": asdict(proposal_config),
+                "robust_config": asdict(robust_config),
+                "geometry_config": asdict(geometry_config),
+                "anchors": anchor_rows,
+                "evidence": [],
+                "rejection_reason": "submap_construction_failed",
+                "failure": {
+                    "anchor_index": anchor_index,
+                    "anchor_ordinal": ordinal,
+                    "error": f"{type(error).__name__}: {error}",
+                },
+                "gt_consumed": False,
+            })
+            return _retain_candidate_noop(
+                output_dir=output_dir, manifest=manifest,
+                trajectory=trajectory, trajectory_payload=trajectory_payload,
+                frame_count=len(bound), reason="submap_construction_failed",
+            )
         path = output_dir / "submaps" / (
             f"anchor_{anchor_index:03d}_frame_{submap.anchor_frame_id:06d}.npz"
         )
@@ -147,12 +204,22 @@ def run_sequence(
     for proposal in proposals:
         source_index = int(proposal["source_anchor_index"])
         target_index = int(proposal["target_anchor_index"])
-        registration = register_submaps_bidirectional(
-            submaps[source_index].points,
-            submaps[target_index].points,
-            robust_config,
-            geometry_config,
-        )
+        try:
+            registration = register_submaps_bidirectional(
+                submaps[source_index].points,
+                submaps[target_index].points,
+                robust_config,
+                geometry_config,
+            )
+        except (ValueError, RuntimeError) as error:
+            registration = {
+                "schema": "submap_registration.v1",
+                "correspondence_provider": "geometry_bootstrap_fpfh",
+                "accepted": False,
+                "reason": "registration_exception_fail_closed",
+                "error": f"{type(error).__name__}: {error}",
+                "gt_consumed": False,
+            }
         evidence.append({**proposal, "registration": registration})
         if registration["accepted"]:
             overlap = registration["forward"]["verification"]["minimum_overlap"]
