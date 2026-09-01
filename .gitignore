@@ -5,6 +5,7 @@ __pycache__/
 plots/
 output/
 outputs/
+/results/
 check.py
 test.py
 *egg-info/

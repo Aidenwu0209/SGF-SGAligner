@@ -23,6 +23,15 @@ layer conflict by 19.23%. See
 now tuning data and is excluded from future held-out claims; the safe default
 remains unchanged pending independent ScanNet, 3RScan, and Orbbec validation.
 
+That independent high-recall matrix is now complete and rejected. It improved
+held-out ScanNet translation/rotation ATE by 31.32%/33.66%, but improved final
+geometry in only one of 16 scenes; 3RScan produced 139 valid poses from 41,487
+frames and accepted one catastrophic official pair; Orbbec improved zero of
+five sequences. The compact authoritative evidence is in
+[`high_recall_full/`](high_recall_full/README.md). Start subsequent work from
+[`NEXT_VALIDATION.md`](NEXT_VALIDATION.md), not by rerunning the unchanged
+high-recall preset.
+
 Implementation commit: `481707fdb5ba31f79247449ca011244d99d39d46`  
 Base commit: `84434efbbd19ea3c0914b7cf57c62a6f4e02000b`  
 Frozen config SHA-256: `1040a4fa32174922fa66d2d6761214624811192c59ec1c46611f88f42bb6d641`

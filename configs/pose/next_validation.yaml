@@ -1,0 +1,56 @@
+schema: pose_backend_validation_protocol.v1
+status: ready
+date: 2026-09-02
+baseline_config: configs/pose/robust_backend.yaml
+failure_control_config: configs/pose/experimental_high_recall.yaml
+safe_default_changed: false
+gt_at_inference: false
+create_only_outputs: true
+authoritative_host: 100.72.138.33
+preconditions:
+  require_clean_develop_checkout: true
+  require_dpv_metric_config: true
+  require_same_input_trajectory_for_ab: true
+  require_input_sha256_audit: true
+  forbid_identity_fallback: true
+stages:
+  - name: focused_cpu_and_rtx_tests
+    stop_on_failure: true
+  - name: scan3r_frontend_metric_scale_smoke
+    stop_on_failure: true
+    minimum_pose_coverage: 0.80
+    sequence_ids:
+      - 0988ea72-eb32-2e61-8344-99e2283c2728
+      - 2451c048-fae8-24f6-9043-f1604dbada2c
+      - 095821f9-e2c2-2de1-9707-8f735cd1c148
+      - 4acaebcc-6c10-2a2a-858b-29c7e4fb410d
+  - name: scannet_correction_regression_set
+    stop_on_failure: true
+    sequence_ids:
+      - scene0000_00
+      - scene0030_00
+      - scene0030_02
+      - scene0046_00
+      - scene0046_01
+  - name: orbbec_complete_five
+    stop_on_failure: true
+    sequence_ids:
+      - slow_table_loop
+      - fast_turn
+      - small_motion
+      - leave_and_return
+      - sgf_parameter_control
+  - name: held_out_full_matrix
+    requires_all_prior_stages: true
+promotion_gates:
+  maximum_pose_coverage_loss_fraction: 0.01
+  catastrophic_edges: 0
+  unevaluable_edges: 0
+  minimum_pose_improvement_fraction: 0.10
+  minimum_orbbec_improved_sequences: 4
+  require_complete_refusion_frame_coverage: true
+  require_finite_se3: true
+notes:
+  - Do not rerun the full matrix before the 3RScan frontend smoke passes.
+  - The current full-Ply geometry gate is release QA, not a realtime production gate.
+  - Point count and dominant-plane tilt need metric repair before being production hard gates.

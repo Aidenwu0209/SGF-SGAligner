@@ -2,6 +2,9 @@ schema: pose_backend_experimental_preset.v1
 enabled: false
 development_only: true
 safe_default_changed: false
+promotion_eligible: false
+validation_status: rejected_full_matrix_20260901
+authoritative_summary: docs/pose_backend_validation_20260901/high_recall_full/summary.json
 selection_basis: no_gt_refusion_safety
 validated_sequences:
   - dataset: scannet
@@ -18,4 +21,6 @@ pose_graph:
 notes:
   - Solver consensus and dense registration gates are unchanged.
   - The cap affects only a loop spanning the complete anchor range.
-  - Do not promote before independent ScanNet, 3RScan, and Orbbec validation.
+  - The full matrix accepted 38 ScanNet loops, but this cap affected zero edges.
+  - Full ScanNet, 3RScan, and Orbbec validation failed the promotion contract.
+  - Keep this preset only as an opt-in failure control for the next validation.

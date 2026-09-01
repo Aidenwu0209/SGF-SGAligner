@@ -11,6 +11,21 @@ correspondences -> compatibility/pyGCRANSAC/TEASER hypotheses -> unique
 cross-family consensus -> dense fail-closed gates -> sparse pose graph ->
 all-frame correction -> TSDF refusion`.
 
+## Safety boundaries
+
+`registration_decision.v2` is an edge-level inference gate. It decides whether
+one relative submap transform may enter the sparse pose graph. Rejection is a
+no-op over the complete DPV trajectory; it must not stop continuous tracking.
+
+The point-count, map-extent, layer-conflict, plane-thickness, and tilt checks
+run only after baseline and candidate refusion. They are session-level release
+QA, not realtime per-frame production gates. An accepted loop edge does not by
+itself certify the final PLY because several individually plausible edges can
+still cause excessive correction propagation. Production integration should
+shadow-optimize a candidate trajectory, audit correction smoothness and local
+geometry, then atomically retain either the corrected trajectory or the
+unchanged DPV baseline.
+
 pyGCRANSAC is repeated five times with a four-run quorum and is recorded as a
 non-voting witness. This is intentional: its process-level randomness must
 not change whether a loop is released. The voting families are the
@@ -86,6 +101,10 @@ ScanNet scene using no-GT refusion safety; it is not a promoted default. The
 loop evidence records both proposal and weighting configs. Public-matrix runs
 with this setting must pass `--development-sequence scene0030_00` to keep the
 parameter-selection scene out of held-out aggregation.
+
+The later full high-recall matrix rejected this preset for promotion. Use it
+only as a frozen failure control; start new staged work from
+`pose_backend_validation_20260901/NEXT_VALIDATION.md`.
 
 The sequence runner labels FPFH correspondences as `geometry_bootstrap_fpfh`.
 It must not be reported as SGAligner evidence. SGAligner inference feeds its
