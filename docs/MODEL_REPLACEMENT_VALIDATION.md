@@ -23,7 +23,9 @@ checkpoint SHA-256, and writes create-only signed JSON contracts.
 - `pose_trajectory.v1`: complete finite metric `T_world_camera` for continuous
   frontends; no identity gap filling.
 - `model_runtime_report.v1`: input/checkpoint hashes, resolution, P50/P95,
-  throughput, peak VRAM, queue peak, drops and coverage.
+  throughput, peak VRAM, queue peak, drops and coverage. A failed official run
+  uses `status=failed`, zero output coverage and structured failure metadata;
+  partial internal progress is never serialized as a valid trajectory.
 - `trajectory_revision.v1`: binds parent/revised trajectory hashes. Pose display
   may update immediately, but the map cannot switch before complete RGB-D TSDF
   refusion.

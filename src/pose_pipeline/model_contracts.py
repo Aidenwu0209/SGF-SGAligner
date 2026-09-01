@@ -79,13 +79,23 @@ def write_model_runtime_report(
     queue_depth_peak: int = 0,
     wall_time_s: float | None = None,
     mode: str = "official_weights",
+    status: str = "completed",
+    failure: Mapping[str, object] | None = None,
     metadata: Mapping[str, object] | None = None,
 ) -> dict:
     """Write a reproducible runtime profile without accepting GT metadata."""
     manifest = load_manifest(manifest_path)
     samples = np.asarray(latency_ms, dtype=np.float64)
-    if samples.ndim != 1 or not len(samples) or not np.isfinite(samples).all():
-        raise ValueError("latency_ms must contain finite samples")
+    if status not in {"completed", "failed"}:
+        raise ValueError("runtime status must be completed or failed")
+    if samples.ndim != 1 or not np.isfinite(samples).all():
+        raise ValueError("latency_ms must be a finite one-dimensional list")
+    if status == "completed" and not len(samples):
+        raise ValueError("completed runtime report needs latency samples")
+    if status == "failed" and not failure:
+        raise ValueError("failed runtime report needs structured failure metadata")
+    if status == "completed" and failure:
+        raise ValueError("completed runtime report may not contain failure metadata")
     if (samples < 0).any():
         raise ValueError("latency samples must be non-negative")
     if not model:
@@ -109,6 +119,8 @@ def write_model_runtime_report(
     if not checkpoint_sha256:
         raise ValueError("an exact checkpoint SHA256 is required")
     checkpoint_sha256 = _require_sha256(checkpoint_sha256, "checkpoint SHA256")
+    if wall_time_s is None and not len(samples):
+        raise ValueError("failed run without latency samples requires wall time")
     elapsed = float(wall_time_s if wall_time_s is not None else samples.sum() / 1000.0)
     if elapsed <= 0 or not np.isfinite(elapsed):
         raise ValueError("wall time must be finite and positive")
@@ -118,6 +130,8 @@ def write_model_runtime_report(
         "sequence_id": manifest.sequence_id,
         "model": model,
         "mode": mode,
+        "status": status,
+        "failure": dict(failure) if failure else None,
         "model_commit": model_commit,
         "checkpoint_sha256": checkpoint_sha256,
         "input_manifest_sha256": manifest.as_dict()["payload_sha256"],
@@ -129,11 +143,12 @@ def write_model_runtime_report(
         "dropped_frame_count": len(dropped),
         "latency_ms": {
             "sample_count": int(len(samples)),
-            "p50": float(np.percentile(samples, 50)),
-            "p95": float(np.percentile(samples, 95)),
+            "p50": float(np.percentile(samples, 50)) if len(samples) else None,
+            "p95": float(np.percentile(samples, 95)) if len(samples) else None,
         },
         "wall_time_s": elapsed,
-        "throughput_fps": float(len(manifest.frames) / elapsed),
+        "throughput_fps": float(output_pose_count / elapsed),
+        "attempted_input_fps": float(len(manifest.frames) / elapsed),
         "peak_gpu_memory_mb": float(peak_gpu_memory_mb),
         "queue_depth_peak": int(queue_depth_peak),
         "gt_consumed": False,
@@ -149,6 +164,8 @@ def load_model_runtime_report(path: Path) -> dict:
         raise ValueError("runtime report consumed GT")
     if payload.get("identity_fallback_used") is not False:
         raise ValueError("runtime report used identity fallback")
+    if payload.get("status") == "failed" and not payload.get("failure"):
+        raise ValueError("failed runtime report misses failure metadata")
     return payload
 
 

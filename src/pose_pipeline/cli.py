@@ -182,6 +182,9 @@ def _runtime_report(args: argparse.Namespace) -> None:
     samples = json.loads(args.latency_ms.read_text(encoding="utf-8"))
     if isinstance(samples, dict):
         samples = samples.get("latency_ms")
+    failure = None
+    if args.failure_json is not None:
+        failure = json.loads(args.failure_json.read_text(encoding="utf-8"))
     print(json.dumps(write_model_runtime_report(
         args.output, manifest_path=args.manifest, model=args.model,
         model_commit=args.model_commit, checkpoint_path=args.checkpoint,
@@ -192,6 +195,7 @@ def _runtime_report(args: argparse.Namespace) -> None:
         dropped_frame_ids=args.dropped_frame_id,
         queue_depth_peak=args.queue_depth_peak, wall_time_s=args.wall_time,
         mode=args.mode,
+        status=args.status, failure=failure,
     ), indent=2))
 
 
@@ -349,6 +353,8 @@ def build_parser() -> argparse.ArgumentParser:
     runtime.add_argument("--queue-depth-peak", type=int, default=0)
     runtime.add_argument("--wall-time", type=float)
     runtime.add_argument("--mode", default="official_weights")
+    runtime.add_argument("--status", choices=("completed", "failed"), default="completed")
+    runtime.add_argument("--failure-json", type=Path)
     runtime.add_argument("--output", type=Path, required=True)
     runtime.set_defaults(handler=_runtime_report)
 
