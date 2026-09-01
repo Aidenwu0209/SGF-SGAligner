@@ -44,7 +44,19 @@ def trajectory_metrics(
 
     def describe(values: Sequence[float]) -> dict:
         array = np.asarray(values, dtype=np.float64)
+        if not len(array):
+            return {
+                "count": 0,
+                "available": False,
+                "median": None,
+                "mean": None,
+                "rmse": None,
+                "p95": None,
+                "max": None,
+            }
         return {
+            "count": int(len(array)),
+            "available": True,
             "median": float(np.median(array)),
             "mean": float(np.mean(array)),
             "rmse": float(np.sqrt(np.mean(array ** 2))),

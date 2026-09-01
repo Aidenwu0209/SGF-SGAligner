@@ -29,6 +29,16 @@ class PoseEvaluationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing from estimate"):
             trajectory_metrics(estimate, reference)
 
+    def test_single_pose_reports_unavailable_relative_metrics(self):
+        estimate = [PoseRecord(0, 0, np.eye(4), source="estimate")]
+        reference = [PoseRecord(0, 0, np.eye(4), source="reference")]
+        result = trajectory_metrics(estimate, reference)
+        self.assertEqual(result["absolute_translation_m"]["count"], 1)
+        self.assertTrue(result["absolute_translation_m"]["available"])
+        self.assertEqual(result["relative_translation_m"]["count"], 0)
+        self.assertFalse(result["relative_translation_m"]["available"])
+        self.assertIsNone(result["relative_translation_m"]["rmse"])
+
 
 if __name__ == "__main__":
     unittest.main()
