@@ -71,6 +71,19 @@
     "rre": null,
     "rte": null
   },
+  "arm_compatibility": {
+    "host": "100.105.135.18",
+    "architecture": "aarch64",
+    "shallow_clone_commit": "e8fcb7cea61362025728752ee6d17692b1508f7e",
+    "pure_cpu_tests_passed": 20,
+    "adapter_frames": 41,
+    "adapter_input_records_sha256": "c3c8e9466c8706850ef3a7e4c39fd2aded6198a9e9cc898da550ebd525be2516",
+    "adapter_manifest_payload_sha256": "43706be6c949cbbd1b84fa80842ed22d4f5250708d3c3aaffa38d395ca2a50e0",
+    "gt_consumed": false,
+    "available_kb_before": 5071836,
+    "available_kb_after": 5050032,
+    "stopped_below_3gb": false
+  },
   "overall_pass": false,
   "recommendation": "retain_as_opt_in_experiment",
   "safe_default_changed": false

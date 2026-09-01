@@ -57,6 +57,21 @@ Exact compact source summaries are under `raw_summaries/`. `summary.json` and
 config, summaries, and five Orbbec fixed-view comparisons. See `FAIL_INDEX.md`
 for failure classification and retained failed-run roots.
 
+## ARM compatibility smoke
+
+Host `100.105.135.18` shallow-cloned `develop` at
+`e8fcb7cea61362025728752ee6d17692b1508f7e`. Twenty pure CPU tests covering
+SE(3), pose graph, compatibility consensus, fail-closed gates, manifest
+contracts, and RGB-D padding passed on aarch64. The current-clone Orbbec adapter
+then rebuilt and hashed a 41-frame manifest with `gt_consumed=false`.
+
+- manifest payload SHA-256: `43706be6c949cbbd1b84fa80842ed22d4f5250708d3c3aaffa38d395ca2a50e0`
+- input-record SHA-256: `c3c8e9466c8706850ef3a7e4c39fd2aded6198a9e9cc898da550ebd525be2516`
+- disk available before/after: 5,071,836 / 5,050,032 KiB
+
+No public full dataset, Docker image, or large dependency was installed on the
+ARM host. The 3 GiB stop threshold was not reached.
+
 ## Reproduction
 
 Use the commands in `../ROBUST_POSE_BACKEND.md`. Freeze
