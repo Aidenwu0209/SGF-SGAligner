@@ -1,0 +1,179 @@
+{
+  "absolute_rotation_deg": {
+    "available": true,
+    "count": 15,
+    "max": 0.6343387088020578,
+    "mean": 0.28395455785555224,
+    "median": 0.27109125146743773,
+    "p95": 0.6082334206435284,
+    "rmse": 0.32892049276429863
+  },
+  "absolute_translation_m": {
+    "available": true,
+    "count": 15,
+    "max": 0.014213883140526434,
+    "mean": 0.007213469011201863,
+    "median": 0.007001948930053003,
+    "p95": 0.01379757672332075,
+    "rmse": 0.008432421032469764
+  },
+  "estimate_frame_count": 16,
+  "evaluation_coverage": 0.9375,
+  "excluded_estimate_frame_count": 1,
+  "frame_count": 15,
+  "gt_role": "evaluation_only",
+  "inputs": {
+    "estimate": {
+      "path": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/mapanything.pose.json",
+      "sha256": "f55a83c5b6fff731b6cff26faf281b97d5d72ebe3f4b299bcac07ea834e87e68"
+    },
+    "reference": {
+      "path": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/reference.common15.pose.json",
+      "sha256": "41b6f0c0feee6e70c4e794c90759689d8964cf729fdc52e74940a4dc88f46cd1"
+    }
+  },
+  "metric_conclusion_must_not_use_sim3": true,
+  "metric_se3": {
+    "absolute_rotation_deg": {
+      "available": true,
+      "count": 15,
+      "max": 23.42356669109925,
+      "mean": 23.291680002432848,
+      "median": 23.302390366948387,
+      "p95": 23.411161893833228,
+      "rmse": 23.29188897182009
+    },
+    "absolute_translation_m": {
+      "available": true,
+      "count": 15,
+      "max": 0.011354538049529819,
+      "mean": 0.005122060522485692,
+      "median": 0.003925290194489317,
+      "p95": 0.011078927527663153,
+      "rmse": 0.006008849783155473
+    },
+    "available": true,
+    "global_rotation": [
+      [
+        0.9931919889963237,
+        -0.10903223497392137,
+        -0.04100786180865548
+      ],
+      [
+        0.08549868314770706,
+        0.9214006082545981,
+        -0.37909219760905777
+      ],
+      [
+        0.07911793838020668,
+        0.37300521557298394,
+        0.9244498152857286
+      ]
+    ],
+    "global_translation": [
+      0.0006537658283320424,
+      0.0013131133905446013,
+      0.000896485181851335
+    ],
+    "relative_rotation_deg": {
+      "available": true,
+      "count": 14,
+      "max": 0.46033765834174206,
+      "mean": 0.1806731744595711,
+      "median": 0.14569175680150714,
+      "p95": 0.3572952803533095,
+      "rmse": 0.2101131678821437
+    },
+    "relative_translation_m": {
+      "available": true,
+      "count": 14,
+      "max": 0.01607840825847472,
+      "mean": 0.0055689348059474305,
+      "median": 0.0051581495430864325,
+      "p95": 0.011523146180046738,
+      "rmse": 0.00666661434764987
+    },
+    "scale_fixed_to_one": true
+  },
+  "relative_rotation_deg": {
+    "available": true,
+    "count": 14,
+    "max": 0.46033765834015855,
+    "mean": 0.18067317446136544,
+    "median": 0.14569175680150714,
+    "p95": 0.3572952803543252,
+    "rmse": 0.21011316788239146
+  },
+  "relative_translation_m": {
+    "available": true,
+    "count": 14,
+    "max": 0.016078408258474723,
+    "mean": 0.005568934805947434,
+    "median": 0.0051581495430864585,
+    "p95": 0.011523146180046726,
+    "rmse": 0.006666614347649872
+  },
+  "schema": "pose_trajectory_evaluation.v1",
+  "sim3_alignment": {
+    "absolute_rotation_deg": {
+      "available": true,
+      "count": 15,
+      "max": 23.42356669109925,
+      "mean": 23.291680002432848,
+      "median": 23.302390366948387,
+      "p95": 23.411161893833228,
+      "rmse": 23.29188897182009
+    },
+    "absolute_translation_m": {
+      "available": true,
+      "count": 15,
+      "max": 0.01134840194932191,
+      "mean": 0.004992590707619796,
+      "median": 0.004775114933441583,
+      "p95": 0.0108134126412808,
+      "rmse": 0.0056824902429145506
+    },
+    "available": true,
+    "global_rotation": [
+      [
+        0.9931919889963237,
+        -0.10903223497392137,
+        -0.04100786180865548
+      ],
+      [
+        0.08549868314770706,
+        0.9214006082545981,
+        -0.37909219760905777
+      ],
+      [
+        0.07911793838020668,
+        0.37300521557298394,
+        0.9244498152857286
+      ]
+    ],
+    "global_translation": [
+      0.003654377111348639,
+      0.0006869055505897628,
+      0.0019281324720666487
+    ],
+    "relative_rotation_deg": {
+      "available": true,
+      "count": 14,
+      "max": 0.46033765834174206,
+      "mean": 0.1806731744595711,
+      "median": 0.14569175680150714,
+      "p95": 0.3572952803533095,
+      "rmse": 0.2101131678821437
+    },
+    "relative_translation_m": {
+      "available": true,
+      "count": 14,
+      "max": 0.016313702181867448,
+      "mean": 0.005457935858959089,
+      "median": 0.004885457660321803,
+      "p95": 0.01136390113089562,
+      "rmse": 0.006585610090495555
+    },
+    "scale_reference_units_per_estimate_unit": 0.9819832864685837
+  }
+}

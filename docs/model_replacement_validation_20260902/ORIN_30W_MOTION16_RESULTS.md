@@ -30,6 +30,57 @@ is close and has the lowest median rotational RPE. SLAM-Former with every frame
 forced to be a keyframe is a useful research reference, but it is not its
 official online/default behavior and has the weakest translation RPE here.
 
+## Matched DPV baseline and RGB-D refusion
+
+The original full `scene0030_00` DPV worker responses were recovered from the
+frozen August 31 run. DPV returned 15 valid poses for this 16-frame interval.
+The source `responses.jsonl` SHA-256 is
+`aaa1fc0b11f3db2e765c79e48a33ae132b43d29bf95d6034bb59a78fda31fe27`.
+Frame `2349` was rejected by the worker's continuity gate
+(`0.050 m / 3.07 deg > 0.040 m / 3.50 deg`), so no 16-frame DPV refusion was
+fabricated. Its coverage is `93.75%`, which independently fails the proposed
+at-most-one-percent coverage-loss promotion gate.
+
+All four methods were nevertheless compared on the exact common frames
+`2334..2348`, using the same RGB, raw sensor depth, intrinsics and Open3D TSDF
+parameters (`2 cm` voxel, `8 cm` truncation, `4.5 m` depth limit):
+
+| Arm | metric SE(3) ATE RMSE | median RPE translation | median RPE rotation |
+| --- | ---: | ---: | ---: |
+| DPV-SLAM | 0.006096 m | **0.003271 m** | **0.1067 deg** |
+| MapAnything independent | **0.006009 m** | 0.005158 m | 0.1457 deg |
+| ABot-Recon no-loop | 0.009377 m | 0.005362 m | 0.1233 deg |
+| SLAM-Former `kf_th=0` diagnostic | 0.008820 m | 0.008964 m | 0.2078 deg |
+
+Against the evaluation-only GT-pose refusion of those same 15 RGB-D frames,
+MapAnything reduced symmetric mean surface distance from `10.504 mm` to
+`7.802 mm` (25.7%) and RMSE from `11.974 mm` to `10.790 mm` (9.9%). This was
+not a complete geometry win: 3 cm F-score changed from `0.98947` to `0.98764`,
+near-parallel layer conflict worsened by 1.7%, and dominant-plane thickness
+worsened by 4.0%. ABot and the SLAM-Former diagnostic were worse than DPV in
+both refusion distance and structural metrics.
+
+![DPV versus MapAnything refusion residual](orin_30w_motion16_evidence/dpv_vs_mapanything_refusion_residual.png)
+
+The darker MapAnything regions explain its lower mean error, while the localized
+yellow/red regions explain why its tail and structure gates do not improve.
+
+## DPV-conditioned MapAnything test
+
+An additional create-only 8-frame A/B (`2334..2341`) supplied valid DPV
+`T_world_camera` poses to the official MapAnything pose-conditioning input.
+Relative to DPV, the conditioned revision reduced ATE by 17.2%, translation
+RPE by 15.8%, and rotation RPE by 17.6%. The independent 8-frame run reduced
+ATE by 18.8% but worsened rotation RPE by 15.1%, so conditioning produced the
+more balanced trajectory.
+
+That pose improvement did not propagate into a material TSDF improvement.
+Against the same GT-pose refusion, conditioned MapAnything reduced mean surface
+distance by only 0.02% and RMSE by 0.37%, and raised 3 cm F-score by only 0.01%,
+while layer conflict worsened by 0.74%. Inference took `8.227 s` with 8.32 GB
+peak CUDA allocation. This arm remains a background-refinement experiment, not
+a main-chain replacement.
+
 ## Runtime and scale evidence
 
 - MapAnything: 16.242 s model inference (`0.985` input frames/s), 9.01 GB peak
@@ -60,18 +111,19 @@ fallback was emitted. A separate create-only run set `kf_th=0` and retained all
 
 ## Decision boundary
 
-This run establishes that MapAnything and ABot-Recon are viable on a meaningful
-motion window and that SLAM-Former's default keyframe policy is currently not
+This run establishes that MapAnything and ABot-Recon are executable on a
+meaningful motion window and that SLAM-Former's default keyframe policy is not
 viable for these dense ScanNet inputs. It does **not** authorize replacing DPV:
-the same-window DPV trajectory was not available on this host, this is only one
-development window, and no candidate has yet passed complete-trajectory TSDF
-refusion or final-geometry gates.
+the matched DPV response was recovered, all available common frames were
+refused, and no candidate produced the required simultaneous pose, coverage and
+final-geometry improvement. This is also only one development window.
 
 The current integration recommendation is therefore:
 
 1. keep DPV as the continuous metric frontend;
-2. advance MapAnything first as a non-blocking 8/16-frame local refinement
-   candidate;
+2. keep MapAnything as the first non-blocking 8/16-frame local-refinement
+   candidate, preferably DPV-conditioned, but require longer-window refusion
+   gains before promotion;
 3. keep ABot-Recon no-loop as the continuous-front-end challenger;
 4. use SLAM-Former only as an opt-in anchor/backend experiment until its
    keyframe selection and complete-trajectory propagation are validated.

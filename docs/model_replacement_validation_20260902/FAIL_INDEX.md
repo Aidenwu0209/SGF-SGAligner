@@ -151,3 +151,29 @@ A separate `kf_th=0` diagnostic produced 16 real keyframes and valid artifacts,
 but it does not supersede this default-policy failure or qualify as an online
 frontend result. Raw failure and diagnostic evidence are under
 `orin_30w_motion16_evidence/`.
+
+## DPV / ScanNet scene0030 motion-window coverage
+
+- Status: **FAIL — 15/16 valid poses (93.75% coverage)**
+- Source: frozen full-scene DPV `posefix_v3` worker responses
+- Missing frame: `2349`
+- Worker decision: continuity `0.050 m / 3.07 deg > 0.040 m / 3.50 deg`
+- GT consumed by DPV: no
+- Identity/interpolation fallback: no
+
+The strict DPV response importer correctly rejected a full 16-frame trajectory.
+A separate common-15 comparison is retained for diagnosis, but it does not
+erase this coverage failure.
+
+## MapAnything DPV-conditioned motion8 geometry gate
+
+- Status: **FAIL — pose improvement did not yield material geometry gain**
+- Input: frames `2334..2341`, RGB + intrinsics + metric depth + valid DPV pose
+- Pose change versus DPV: ATE `-17.2%`, translation RPE `-15.8%`, rotation RPE
+  `-17.6%`
+- Same-input TSDF change versus DPV: mean surface distance `-0.02%`, RMSE
+  `-0.37%`, 3 cm F-score `+0.01%`, layer conflict `+0.74%` (worse)
+- GT role: post-inference evaluation only
+
+The arm remains useful for research, but it does not meet the 10% final-geometry
+promotion requirement.

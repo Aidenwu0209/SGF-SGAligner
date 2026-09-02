@@ -1,0 +1,569 @@
+{
+  "arms": {
+    "abot": {
+      "aligned_cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_abot/aligned_to_scannet_world.ply",
+      "aligned_cloud_sha256": "1dc4f196cb98d2c3831ff86c1976b75044ab62797ce550e6ffd5196c6aaf19ae",
+      "alignment_world_to_scannet": [
+        [
+          -0.449313,
+          -0.337796,
+          0.82705,
+          1.636817
+        ],
+        [
+          -0.891771,
+          0.225019,
+          -0.392569,
+          2.285557
+        ],
+        [
+          -0.053494,
+          -0.913926,
+          -0.402341,
+          1.420533
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_abot/refused.ply",
+      "cloud_sha256": "ebe1915f995bcbe645198b3f73c4b104c4ea228f20157e4b00744dc3c7c353fe",
+      "geometry": {
+        "bbox_extent_m": [
+          4.619235038757324,
+          3.101684331893921,
+          1.368377447128296
+        ],
+        "gt_consumed": false,
+        "horizontal_planes": [
+          {
+            "height_m": 0.49,
+            "inlier_ratio": 0.6710353866317169,
+            "points": 1024,
+            "span_x_m": 1.3796381950378418,
+            "span_z_m": 1.2371954917907715,
+            "thickness_p90_p10_m": 0.01961077153682709,
+            "tilt_from_gravity_deg": 4.334286677370502
+          },
+          {
+            "height_m": 0.29,
+            "inlier_ratio": 0.6222038111019056,
+            "points": 751,
+            "span_x_m": 0.6819748878479004,
+            "span_z_m": 1.0892055034637451,
+            "thickness_p90_p10_m": 0.021466970443725586,
+            "tilt_from_gravity_deg": 2.3485023576826043
+          },
+          {
+            "height_m": 0.99,
+            "inlier_ratio": 0.5295138888888888,
+            "points": 610,
+            "span_x_m": 3.582141876220703,
+            "span_z_m": 1.2515878677368164,
+            "thickness_p90_p10_m": 0.021856361627578737,
+            "tilt_from_gravity_deg": 1.1301533108498454
+          },
+          {
+            "height_m": 0.79,
+            "inlier_ratio": 0.5225311601150527,
+            "points": 545,
+            "span_x_m": 1.8890879154205322,
+            "span_z_m": 1.2565019130706787,
+            "thickness_p90_p10_m": 0.018018233776092536,
+            "tilt_from_gravity_deg": 3.2310854050319144
+          }
+        ],
+        "near_parallel_layer_conflict_ratio": 0.3450151057401813,
+        "occupied_voxels_2cm": 35603,
+        "robust_extent_p99_p01_m": [
+          4.088062155246735,
+          2.827631868720055,
+          1.2476416353136301
+        ],
+        "schema": "no_gt_geometry_metrics.v1",
+        "source": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_abot/aligned_to_scannet_world.ply",
+        "vertices": 57572
+      },
+      "relative_to_dpv": {
+        "chamfer_rmse_improvement_fraction": -4.6525082811759734e-05,
+        "fscore_improvement_fraction": -0.0402669369538793
+      },
+      "surface_vs_scannet_mesh": {
+        "estimate_points": 19867,
+        "estimate_to_reference_mean_m": 0.04142994052850752,
+        "fscore": 0.2118573856640345,
+        "gt_role": "evaluation_only",
+        "precision": 0.7020184225096895,
+        "recall": 0.1247528520255793,
+        "reference_points": 120879,
+        "reference_to_estimate_mean_m": 1.417134360559154,
+        "schema": "reconstruction_surface_evaluation.v1",
+        "symmetric_chamfer_mean_m": 0.7292821505438307,
+        "symmetric_chamfer_rmse_m": 1.3132148679718951,
+        "threshold_m": 0.05,
+        "voxel_m": 0.03
+      },
+      "trajectory": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/abot.pose.json",
+      "trajectory_sha256": "0c1335b5c080372a794cab4f689a1b891f9092435b2ea07ffd5c4a6f9a62ca53"
+    },
+    "dpv": {
+      "aligned_cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_dpv/aligned_to_scannet_world.ply",
+      "aligned_cloud_sha256": "b1380c5fcace34f8168ce913c2be779ca6028a64fdc28f0ab854e57a1f45f989",
+      "alignment_world_to_scannet": [
+        [
+          0.9603411515186006,
+          0.1471134013327503,
+          -0.23693468971966952,
+          2.2492490830686815
+        ],
+        [
+          0.2644063794878739,
+          -0.21003029723046263,
+          0.941281759584912,
+          3.5271988052104533
+        ],
+        [
+          0.0887085836533616,
+          -0.9665632577504343,
+          -0.24059010891729968,
+          1.142486690299091
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_dpv/refused.ply",
+      "cloud_sha256": "26cbbc17929ee047237f31b2a0c8a0d6fe17ab5c32255f34f61586ff1186887b",
+      "geometry": {
+        "bbox_extent_m": [
+          4.632093906402588,
+          3.124323844909668,
+          1.4003816843032837
+        ],
+        "gt_consumed": false,
+        "horizontal_planes": [
+          {
+            "height_m": 0.51,
+            "inlier_ratio": 0.6371463714637147,
+            "points": 1036,
+            "span_x_m": 1.4279999732971191,
+            "span_z_m": 1.1961811780929565,
+            "thickness_p90_p10_m": 0.01846124231815338,
+            "tilt_from_gravity_deg": 3.4688200948087764
+          },
+          {
+            "height_m": 0.31,
+            "inlier_ratio": 0.6465648854961832,
+            "points": 847,
+            "span_x_m": 0.667726993560791,
+            "span_z_m": 1.099980354309082,
+            "thickness_p90_p10_m": 0.020437765121459957,
+            "tilt_from_gravity_deg": 2.6819112060639054
+          },
+          {
+            "height_m": 0.99,
+            "inlier_ratio": 0.531201248049922,
+            "points": 681,
+            "span_x_m": 3.5174856185913086,
+            "span_z_m": 1.2489947080612183,
+            "thickness_p90_p10_m": 0.021821439266204834,
+            "tilt_from_gravity_deg": 1.1557379682346416
+          },
+          {
+            "height_m": 0.81,
+            "inlier_ratio": 0.6151574803149606,
+            "points": 625,
+            "span_x_m": 0.6999702453613281,
+            "span_z_m": 1.026877999305725,
+            "thickness_p90_p10_m": 0.016760587692260742,
+            "tilt_from_gravity_deg": 4.523507418917539
+          }
+        ],
+        "near_parallel_layer_conflict_ratio": 0.3143549364021805,
+        "occupied_voxels_2cm": 35059,
+        "robust_extent_p99_p01_m": [
+          4.091636939048767,
+          2.8318172618746758,
+          1.2499239164590834
+        ],
+        "schema": "no_gt_geometry_metrics.v1",
+        "source": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_dpv/aligned_to_scannet_world.ply",
+        "vertices": 54384
+      },
+      "relative_to_dpv": {
+        "chamfer_rmse_improvement_fraction": 0.0,
+        "fscore_improvement_fraction": 0.0
+      },
+      "surface_vs_scannet_mesh": {
+        "estimate_points": 19049,
+        "estimate_to_reference_mean_m": 0.03780427759500741,
+        "fscore": 0.22074615726128582,
+        "gt_role": "evaluation_only",
+        "precision": 0.7431361226311093,
+        "recall": 0.1296254932618569,
+        "reference_points": 120879,
+        "reference_to_estimate_mean_m": 1.4167920110871093,
+        "schema": "reconstruction_surface_evaluation.v1",
+        "symmetric_chamfer_mean_m": 0.7272981443410583,
+        "symmetric_chamfer_rmse_m": 1.3131537733838439,
+        "threshold_m": 0.05,
+        "voxel_m": 0.03
+      },
+      "trajectory": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/dpv.common15.pose.json",
+      "trajectory_sha256": "5e36a1e1de01ce206b8e0ef0ca8894258ae2a9cacd14452bc098877d74e97e84"
+    },
+    "mapanything": {
+      "aligned_cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_mapanything/aligned_to_scannet_world.ply",
+      "aligned_cloud_sha256": "2634350644fa03abd9d9c7810e0b0bbd1ff7e88c7553453d7a20c01ccc95ab48",
+      "alignment_world_to_scannet": [
+        [
+          -0.449313,
+          -0.337796,
+          0.82705,
+          1.636817
+        ],
+        [
+          -0.891771,
+          0.225019,
+          -0.392569,
+          2.285557
+        ],
+        [
+          -0.053494,
+          -0.913926,
+          -0.402341,
+          1.420533
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_mapanything/refused.ply",
+      "cloud_sha256": "2b8b3d8b067581e4713d821547737cdb625e90a43e882166f153757baa77813d",
+      "geometry": {
+        "bbox_extent_m": [
+          4.620298385620117,
+          3.1137969493865967,
+          1.3712495565414429
+        ],
+        "gt_consumed": false,
+        "horizontal_planes": [
+          {
+            "height_m": 0.51,
+            "inlier_ratio": 0.7008660892738174,
+            "points": 1052,
+            "span_x_m": 1.4236326217651367,
+            "span_z_m": 1.2043368816375732,
+            "thickness_p90_p10_m": 0.019191882014274596,
+            "tilt_from_gravity_deg": 3.5579918524819885
+          },
+          {
+            "height_m": 0.31,
+            "inlier_ratio": 0.6135194709772226,
+            "points": 835,
+            "span_x_m": 0.6670012474060059,
+            "span_z_m": 1.1403244733810425,
+            "thickness_p90_p10_m": 0.020108246803283693,
+            "tilt_from_gravity_deg": 2.9308370165696456
+          },
+          {
+            "height_m": 0.99,
+            "inlier_ratio": 0.5596816976127321,
+            "points": 633,
+            "span_x_m": 0.6134648323059082,
+            "span_z_m": 1.2570422887802124,
+            "thickness_p90_p10_m": 0.018420708179473878,
+            "tilt_from_gravity_deg": 3.1911989718271645
+          },
+          {
+            "height_m": 0.79,
+            "inlier_ratio": 0.5335397316821465,
+            "points": 517,
+            "span_x_m": 2.7875871658325195,
+            "span_z_m": 1.2156001329421997,
+            "thickness_p90_p10_m": 0.02038838863372803,
+            "tilt_from_gravity_deg": 1.4693890209569034
+          }
+        ],
+        "near_parallel_layer_conflict_ratio": 0.3198071514664524,
+        "occupied_voxels_2cm": 34394,
+        "robust_extent_p99_p01_m": [
+          4.099006276130675,
+          2.837627965509892,
+          1.2526988212764263
+        ],
+        "schema": "no_gt_geometry_metrics.v1",
+        "source": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_mapanything/aligned_to_scannet_world.ply",
+        "vertices": 55002
+      },
+      "relative_to_dpv": {
+        "chamfer_rmse_improvement_fraction": -0.0009240077471813411,
+        "fscore_improvement_fraction": 0.004874598615983784
+      },
+      "surface_vs_scannet_mesh": {
+        "estimate_points": 19294,
+        "estimate_to_reference_mean_m": 0.037296117152317614,
+        "fscore": 0.22182220617395543,
+        "gt_role": "evaluation_only",
+        "precision": 0.7457758888773712,
+        "recall": 0.13028731210549394,
+        "reference_points": 120879,
+        "reference_to_estimate_mean_m": 1.4183539580000875,
+        "schema": "reconstruction_surface_evaluation.v1",
+        "symmetric_chamfer_mean_m": 0.7278250375762025,
+        "symmetric_chamfer_rmse_m": 1.314367137643691,
+        "threshold_m": 0.05,
+        "voxel_m": 0.03
+      },
+      "trajectory": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/mapanything.pose.json",
+      "trajectory_sha256": "f55a83c5b6fff731b6cff26faf281b97d5d72ebe3f4b299bcac07ea834e87e68"
+    },
+    "reference": {
+      "aligned_cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_reference/aligned_to_scannet_world.ply",
+      "aligned_cloud_sha256": "53669fac90c6afab469ac67e134b3bbd15f244377541dba1bf0e86be99c81f03",
+      "alignment_world_to_scannet": [
+        [
+          -0.44931300000000013,
+          -0.337796,
+          0.82705,
+          1.6368170000000002
+        ],
+        [
+          -0.8917710000000002,
+          0.22501900000000002,
+          -0.39256900000000006,
+          2.2855570000000003
+        ],
+        [
+          -0.05349400000000003,
+          -0.913926,
+          -0.402341,
+          1.420533
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_reference/refused.ply",
+      "cloud_sha256": "dd6d4627ace95f74a4ab3ae9ea620839696b4d9f7ec99edbc8a1c35c1a7215ad",
+      "geometry": {
+        "bbox_extent_m": [
+          4.622523307800293,
+          3.097111225128174,
+          1.3845540285110474
+        ],
+        "gt_consumed": false,
+        "horizontal_planes": [
+          {
+            "height_m": 0.51,
+            "inlier_ratio": 0.6716596764529659,
+            "points": 1121,
+            "span_x_m": 0.8879036903381348,
+            "span_z_m": 1.2357254028320312,
+            "thickness_p90_p10_m": 0.02097514271736145,
+            "tilt_from_gravity_deg": 5.068547347232555
+          },
+          {
+            "height_m": 0.33,
+            "inlier_ratio": 0.6256684491978609,
+            "points": 936,
+            "span_x_m": 0.6920247077941895,
+            "span_z_m": 1.1574405431747437,
+            "thickness_p90_p10_m": 0.02115236222743988,
+            "tilt_from_gravity_deg": 4.298162475258025
+          },
+          {
+            "height_m": 0.81,
+            "inlier_ratio": 0.6639511201629328,
+            "points": 652,
+            "span_x_m": 0.7119801044464111,
+            "span_z_m": 1.0233345031738281,
+            "thickness_p90_p10_m": 0.017040693759918207,
+            "tilt_from_gravity_deg": 4.761671040489857
+          },
+          {
+            "height_m": 0.99,
+            "inlier_ratio": 0.5454545454545454,
+            "points": 612,
+            "span_x_m": 0.5883207321166992,
+            "span_z_m": 1.2588227987289429,
+            "thickness_p90_p10_m": 0.02031976580619812,
+            "tilt_from_gravity_deg": 2.543359745285715
+          }
+        ],
+        "near_parallel_layer_conflict_ratio": 0.3226195259140217,
+        "occupied_voxels_2cm": 34184,
+        "robust_extent_p99_p01_m": [
+          4.087145857810974,
+          2.8348931044340135,
+          1.2524103834480047
+        ],
+        "schema": "no_gt_geometry_metrics.v1",
+        "source": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_reference/aligned_to_scannet_world.ply",
+        "vertices": 54283
+      },
+      "relative_to_dpv": {
+        "chamfer_rmse_improvement_fraction": 0.0005261735707194145,
+        "fscore_improvement_fraction": 0.02331467148367338
+      },
+      "surface_vs_scannet_mesh": {
+        "estimate_points": 18992,
+        "estimate_to_reference_mean_m": 0.036151421114002005,
+        "fscore": 0.225892781399116,
+        "gt_role": "evaluation_only",
+        "precision": 0.7630054759898904,
+        "recall": 0.13257058711604167,
+        "reference_points": 120879,
+        "reference_to_estimate_mean_m": 1.41590690484513,
+        "schema": "reconstruction_surface_evaluation.v1",
+        "symmetric_chamfer_mean_m": 0.726029162979566,
+        "symmetric_chamfer_rmse_m": 1.3124628265739988,
+        "threshold_m": 0.05,
+        "voxel_m": 0.03
+      },
+      "trajectory": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/reference.common15.pose.json",
+      "trajectory_sha256": "41b6f0c0feee6e70c4e794c90759689d8964cf729fdc52e74940a4dc88f46cd1"
+    },
+    "slamformer_kf0": {
+      "aligned_cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_slamformer_kf0/aligned_to_scannet_world.ply",
+      "aligned_cloud_sha256": "4bd2e25133baa541cfa7a970409a050d2d1d1cf1e61c7d4dd887ec175fc7510c",
+      "alignment_world_to_scannet": [
+        [
+          -0.44931299999999996,
+          -0.33779599999999993,
+          0.8270500000000002,
+          1.636817
+        ],
+        [
+          -0.891771,
+          0.22501899999999997,
+          -0.39256900000000006,
+          2.285557
+        ],
+        [
+          -0.053494000000000055,
+          -0.913926,
+          -0.40234100000000006,
+          1.420533
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "cloud": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_slamformer_kf0/refused.ply",
+      "cloud_sha256": "c3d1ae5ec0f631b0bf488b4927e6412e221c20a41b3d9dce8e1bf66490cfc308",
+      "geometry": {
+        "bbox_extent_m": [
+          4.629178047180176,
+          3.0990426540374756,
+          1.393115758895874
+        ],
+        "gt_consumed": false,
+        "horizontal_planes": [
+          {
+            "height_m": 0.49,
+            "inlier_ratio": 0.6317030053034767,
+            "points": 1072,
+            "span_x_m": 1.3601799011230469,
+            "span_z_m": 1.266932725906372,
+            "thickness_p90_p10_m": 0.019108155369758604,
+            "tilt_from_gravity_deg": 4.217402853754362
+          },
+          {
+            "height_m": 0.31,
+            "inlier_ratio": 0.5772187281621244,
+            "points": 826,
+            "span_x_m": 0.6759953498840332,
+            "span_z_m": 1.088760256767273,
+            "thickness_p90_p10_m": 0.02100345492362976,
+            "tilt_from_gravity_deg": 3.6153437376233457
+          },
+          {
+            "height_m": 0.99,
+            "inlier_ratio": 0.5504504504504505,
+            "points": 611,
+            "span_x_m": 3.507558822631836,
+            "span_z_m": 1.248562216758728,
+            "thickness_p90_p10_m": 0.021747827529907227,
+            "tilt_from_gravity_deg": 0.8723696324244362
+          },
+          {
+            "height_m": 0.79,
+            "inlier_ratio": 0.5569377990430622,
+            "points": 582,
+            "span_x_m": 0.7244179248809814,
+            "span_z_m": 1.216944932937622,
+            "thickness_p90_p10_m": 0.018954986333847044,
+            "tilt_from_gravity_deg": 3.8942212726578247
+          }
+        ],
+        "near_parallel_layer_conflict_ratio": 0.3347466182111851,
+        "occupied_voxels_2cm": 34844,
+        "robust_extent_p99_p01_m": [
+          4.08986011981964,
+          2.8199282258749006,
+          1.2484365178644656
+        ],
+        "schema": "no_gt_geometry_metrics.v1",
+        "source": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/refusion_slamformer_kf0/aligned_to_scannet_world.ply",
+        "vertices": 55987
+      },
+      "relative_to_dpv": {
+        "chamfer_rmse_improvement_fraction": -0.005132669354647738,
+        "fscore_improvement_fraction": -0.03840660161361073
+      },
+      "surface_vs_scannet_mesh": {
+        "estimate_points": 19341,
+        "estimate_to_reference_mean_m": 0.04004606109047909,
+        "fscore": 0.21226804754161616,
+        "gt_role": "evaluation_only",
+        "precision": 0.7165606742153974,
+        "recall": 0.12458739731467004,
+        "reference_points": 120879,
+        "reference_to_estimate_mean_m": 1.4263052433470718,
+        "schema": "reconstruction_surface_evaluation.v1",
+        "symmetric_chamfer_mean_m": 0.7331756522187755,
+        "symmetric_chamfer_rmse_m": 1.3198937575144312,
+        "threshold_m": 0.05,
+        "voxel_m": 0.03
+      },
+      "trajectory": "/home/aidenwu/Documents/SGF-SGA-model-comparison-scene0030-motion16-20260902/slamformer_kf0.pose.json",
+      "trajectory_sha256": "9caef37016450da6193a2536d30da07ba859863b9153a5ec004a1670fbcb94ab"
+    }
+  },
+  "frame_ids": [
+    2334,
+    2335,
+    2336,
+    2337,
+    2338,
+    2339,
+    2340,
+    2341,
+    2342,
+    2343,
+    2344,
+    2345,
+    2346,
+    2347,
+    2348
+  ],
+  "gt_role": "evaluation_only",
+  "reference_mesh": "/home/aidenwu/Documents/Scannet/Original_files_from_scannet_dataset/scene0030_00/scene0030_00_vh_clean_2.ply",
+  "schema": "scene0030_motion16_common15_geometry_comparison.v1"
+}

@@ -10,7 +10,7 @@ from pathlib import Path
 from .adapters import orbbec_manifest, scan3r_manifest, scannet_manifest
 from .contracts import (
     bind_manifest_trajectory, load_dpv_response_jsonl, load_legacy_tcw_mm,
-    load_manifest, write_manifest, write_trajectory,
+    load_manifest, sha256_file, write_manifest, write_trajectory,
 )
 from .evaluation import evaluate_trajectory_files
 from .model_adapters import (
@@ -96,6 +96,7 @@ def _import_trajectory(args: argparse.Namespace) -> None:
         metadata={
             "import_format": args.format,
             "filtered_to_manifest": True,
+            "source_sha256": sha256_file(args.input),
         },
     )
     print(json.dumps({
