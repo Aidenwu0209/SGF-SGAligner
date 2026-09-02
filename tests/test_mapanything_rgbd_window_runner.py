@@ -45,3 +45,21 @@ def test_prepare_raw_views_rejects_invalid_depth_scale(tmp_path: Path) -> None:
             assert "depth scale" in str(exc)
         else:
             raise AssertionError(f"invalid depth scale accepted: {depth_scale}")
+
+
+def test_prepare_raw_views_adds_pose_conditioning(tmp_path: Path) -> None:
+    color_root = tmp_path / "color"
+    depth_root = tmp_path / "depth"
+    color_root.mkdir()
+    depth_root.mkdir()
+    Image.fromarray(np.zeros((2, 3, 3), dtype=np.uint8)).save(color_root / "7.jpg")
+    Image.fromarray(np.full((2, 3), 1000, dtype=np.uint16)).save(depth_root / "7.png")
+    pose = np.eye(4, dtype=np.float64)
+    pose[0, 3] = 0.25
+
+    views = RUNNER.prepare_raw_views(
+        tmp_path, [7], np.eye(3, dtype=np.float32), 1000.0, {7: pose},
+    )
+
+    assert set(views[0]) == {"img", "intrinsics", "depth_z", "camera_poses"}
+    np.testing.assert_array_equal(views[0]["camera_poses"], pose)

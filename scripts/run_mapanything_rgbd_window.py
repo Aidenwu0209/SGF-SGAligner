@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -27,6 +28,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--frame-ids", default=",".join(str(i) for i in range(8)))
     parser.add_argument("--depth-scale", type=float, default=1000.0)
     parser.add_argument("--intrinsic", type=Path)
+    parser.add_argument(
+        "--pose-trajectory", type=Path,
+        help="Optional pose_trajectory.v1 used as OpenCV cam2world conditioning",
+    )
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--amp-dtype", choices=("bf16", "fp16"), default="bf16")
     parser.add_argument(
@@ -66,6 +71,7 @@ def prepare_raw_views(
     frame_ids: list[int],
     intrinsic: np.ndarray,
     depth_scale: float,
+    pose_by_frame: dict[int, np.ndarray] | None = None,
 ) -> list[dict]:
     if not np.isfinite(depth_scale) or depth_scale <= 0:
         raise ValueError("depth scale must be finite and positive")
@@ -82,7 +88,7 @@ def prepare_raw_views(
                 Image.fromarray(depth).resize(image.size, resample=Image.Resampling.NEAREST),
                 dtype=np.float32,
             )
-        views.append({
+        view = {
             "img": image,
             "intrinsics": intrinsic.copy(),
             "depth_z": depth,
@@ -90,8 +96,25 @@ def prepare_raw_views(
             # preprocessor defaults an omitted value to scalar ``True``;
             # passing a one-element NumPy array is later interpreted as an
             # integer index by the official model and breaks a valid window.
-        })
+        }
+        if pose_by_frame is not None:
+            view["camera_poses"] = pose_by_frame[frame_id].copy()
+        views.append(view)
     return views
+
+
+def load_pose_conditioning(path: Path, frame_ids: list[int]) -> dict[int, np.ndarray]:
+    source_root = Path(__file__).resolve().parents[1] / "src"
+    if str(source_root) not in sys.path:
+        sys.path.insert(0, str(source_root))
+    from pose_pipeline.contracts import load_trajectory
+
+    rows, _ = load_trajectory(path)
+    available = {row.frame_id: row.t_world_camera for row in rows}
+    missing = [frame_id for frame_id in frame_ids if frame_id not in available]
+    if missing:
+        raise ValueError(f"pose conditioning misses requested frames: {missing}")
+    return {frame_id: available[frame_id] for frame_id in frame_ids}
 
 
 def main() -> None:
@@ -121,7 +144,13 @@ def main() -> None:
     if args.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA was requested but is unavailable")
     intrinsic = load_intrinsic(intrinsic_path)
-    raw_views = prepare_raw_views(input_root, frame_ids, intrinsic, args.depth_scale)
+    pose_by_frame = (
+        load_pose_conditioning(args.pose_trajectory.resolve(), frame_ids)
+        if args.pose_trajectory is not None else None
+    )
+    raw_views = prepare_raw_views(
+        input_root, frame_ids, intrinsic, args.depth_scale, pose_by_frame,
+    )
     processed_views = preprocess_inputs(raw_views, resolution_set=518, verbose=True)
 
     started = time.perf_counter()
@@ -146,7 +175,7 @@ def main() -> None:
             use_multiview_confidence=False,
             ignore_calibration_inputs=False,
             ignore_depth_inputs=False,
-            ignore_pose_inputs=True,
+            ignore_pose_inputs=pose_by_frame is None,
             ignore_depth_scale_inputs=False,
         )
     if args.device.startswith("cuda"):
@@ -185,7 +214,18 @@ def main() -> None:
         "input_root": str(input_root),
         "frame_ids": frame_ids,
         "gt_consumed": False,
-        "input_mode": "independent_rgb_intrinsics_depth",
+        "input_mode": (
+            "conditioned_on_dpv_pose" if pose_by_frame is not None
+            else "independent_rgb_intrinsics_depth"
+        ),
+        "pose_trajectory": (
+            str(args.pose_trajectory.resolve())
+            if args.pose_trajectory is not None else None
+        ),
+        "pose_trajectory_sha256": (
+            sha256_file(args.pose_trajectory.resolve())
+            if args.pose_trajectory is not None else None
+        ),
         "resolution_set": 518,
         "memory_efficient_inference": True,
         "minibatch_size": 1,
