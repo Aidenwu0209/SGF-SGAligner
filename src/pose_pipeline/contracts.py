@@ -354,6 +354,57 @@ def load_legacy_tcw_mm(
     return records
 
 
+def load_dpv_response_jsonl(
+    path: Path,
+    *,
+    allowed_frame_ids: set[int] | None = None,
+    source: str = "DPV-SLAM",
+) -> list[PoseRecord]:
+    """Import valid DPV worker responses without filling rejected frames.
+
+    The worker publishes ``T_cw_m`` (world-to-camera, metres), whereas the
+    public trajectory contract stores its inverse, ``T_world_camera_m``.
+    Coverage is checked by the caller against the manifest so an invalid or
+    absent response fails closed rather than becoming an identity pose.
+    """
+    records = []
+    seen = set()
+    for line_number, raw in enumerate(Path(path).read_text().splitlines(), 1):
+        line = raw.strip()
+        if not line:
+            continue
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"DPV response line {line_number} is not valid JSON"
+            ) from exc
+        frame_id = int(payload["frame_id"])
+        if allowed_frame_ids is not None and frame_id not in allowed_frame_ids:
+            continue
+        if frame_id in seen:
+            raise ValueError(f"duplicate DPV response frame {frame_id}")
+        seen.add(frame_id)
+        if payload.get("valid") is not True:
+            continue
+        if "T_cw_m" not in payload:
+            raise ValueError(f"valid DPV response frame {frame_id} misses T_cw_m")
+        t_camera_world = validate_se3(
+            np.asarray(payload["T_cw_m"], dtype=np.float64).reshape(4, 4),
+            f"DPV response frame {frame_id}",
+        )
+        records.append(PoseRecord(
+            frame_id=frame_id,
+            timestamp_us=int(payload["timestamp_us"]),
+            t_world_camera=validate_se3(np.linalg.inv(t_camera_world)),
+            valid=True,
+            source=source,
+        ))
+    if not records:
+        raise ValueError("DPV responses contain no selected valid poses")
+    return records
+
+
 def bind_manifest_trajectory(
     manifest: SequenceManifest,
     trajectory: Sequence[PoseRecord],

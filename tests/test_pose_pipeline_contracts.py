@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 import tempfile
@@ -12,6 +13,7 @@ from pose_pipeline.contracts import (
     PoseRecord,
     SequenceManifest,
     bind_manifest_trajectory,
+    load_dpv_response_jsonl,
     load_manifest,
     load_legacy_tcw_mm,
     load_trajectory,
@@ -152,6 +154,25 @@ class PosePipelineContractTests(unittest.TestCase):
             rows = load_legacy_tcw_mm(path)
             self.assertEqual(rows[0].frame_id, 7)
             self.assertAlmostEqual(rows[0].t_world_camera[0, 3], -1.0)
+
+    def test_dpv_response_jsonl_imports_only_valid_world_camera(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "responses.jsonl"
+            valid = np.eye(4)
+            valid[0, 3] = 2.0
+            rows = [
+                {
+                    "frame_id": 7,
+                    "timestamp_us": 99,
+                    "valid": True,
+                    "T_cw_m": valid.reshape(-1).tolist(),
+                },
+                {"frame_id": 8, "timestamp_us": 100, "valid": False},
+            ]
+            path.write_text("\n".join(json.dumps(row) for row in rows) + "\n")
+            poses = load_dpv_response_jsonl(path)
+            self.assertEqual([pose.frame_id for pose in poses], [7])
+            self.assertAlmostEqual(poses[0].t_world_camera[0, 3], -2.0)
 
 
 if __name__ == "__main__":

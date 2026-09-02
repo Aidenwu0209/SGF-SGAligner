@@ -9,7 +9,8 @@ from pathlib import Path
 
 from .adapters import orbbec_manifest, scan3r_manifest, scannet_manifest
 from .contracts import (
-    load_legacy_tcw_mm, load_manifest, write_manifest, write_trajectory,
+    bind_manifest_trajectory, load_dpv_response_jsonl, load_legacy_tcw_mm,
+    load_manifest, write_manifest, write_trajectory,
 )
 from .evaluation import evaluate_trajectory_files
 from .model_adapters import (
@@ -81,13 +82,19 @@ def _run(args: argparse.Namespace) -> None:
 def _import_trajectory(args: argparse.Namespace) -> None:
     manifest = load_manifest(args.manifest)
     allowed = {frame.frame_id for frame in manifest.frames}
-    records = load_legacy_tcw_mm(
-        args.input, allowed_frame_ids=allowed, source=args.source,
-    )
+    if args.format == "legacy_tcw_mm":
+        records = load_legacy_tcw_mm(
+            args.input, allowed_frame_ids=allowed, source=args.source,
+        )
+    else:
+        records = load_dpv_response_jsonl(
+            args.input, allowed_frame_ids=allowed, source=args.source,
+        )
+    bind_manifest_trajectory(manifest, records)
     write_trajectory(
         args.output, records, sequence_id=manifest.sequence_id, arm="baseline",
         metadata={
-            "import_format": "T_cw_row_major_translation_mm",
+            "import_format": args.format,
             "filtered_to_manifest": True,
         },
     )
@@ -275,6 +282,10 @@ def build_parser() -> argparse.ArgumentParser:
     import_trajectory.add_argument("--manifest", type=Path, required=True)
     import_trajectory.add_argument("--output", type=Path, required=True)
     import_trajectory.add_argument("--source", default="DPV-SLAM")
+    import_trajectory.add_argument(
+        "--format", choices=("legacy_tcw_mm", "dpv_response_jsonl"),
+        default="legacy_tcw_mm",
+    )
     import_trajectory.set_defaults(handler=_import_trajectory)
     evaluate = commands.add_parser("evaluate")
     evaluate.add_argument("--estimate", type=Path, required=True)
