@@ -1,0 +1,137 @@
+{
+  "checkpoint": {
+    "path": "/dev/shm/sgf_sga_model_validation_20260902/checkpoints/slamformer-0071ca9/V1.1-long.pth",
+    "sha256": "5375d5cfdf2423327d71bbd38351f1219a66c68e0a1fce34ee63b058d28ccfd1"
+  },
+  "expanded_official_command": [
+    "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+    "slam/demo.py",
+    "--ckpt_path",
+    "/dev/shm/sgf_sga_model_validation_20260902/checkpoints/slamformer-0071ca9/V1.1-long.pth",
+    "--image_folder",
+    "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0/input_no_gt/rgb",
+    "--target_size",
+    "224",
+    "--output_dir",
+    "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0/official_output",
+    "--stride",
+    "1",
+    "--kf_th",
+    "0.0",
+    "--retention_ratio",
+    "1",
+    "--bn_every",
+    "10"
+  ],
+  "expected_outputs": [
+    "final_traj.txt",
+    "final.ply"
+  ],
+  "input": {
+    "frame_count": 8,
+    "frame_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "gt_at_inference": false,
+    "sequence_id": "scene0030_00",
+    "source_manifest": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/manifests/scene0030_00_first8.json",
+    "source_manifest_payload_sha256": "c8a7baba10c5b98adeb6d66016f1c79f7de2a5e512d799c8367d7313b6f0c837",
+    "staged_rgb_sha256": [
+      "555768c9451953657b9cff253a7f990b9a356bfdde5dae333ea47344eb150720",
+      "d9b04ddedeb776960477900fd300bc819dac67d92142233251309a769819e80f",
+      "a6f1ca2fa997f77be59b127e139ab5e5fa2794f462ae146fe2cad4a9af3958e7",
+      "faa4bfc4f80ff06bb78dc49c3fff4f47c9278851366d2da84cca259009170fdd",
+      "48260c9204cb361b7ba3965c14ed763c0255c9d02311326472e859475a14e735",
+      "eb276eef24d03ec2c74d87a3bb23b536f74f9baa821bdcfceecfeca7f191f3fa",
+      "9b04a87828ba4d317d157e544ac665576d55a473d8c041ce3241e680379953c3",
+      "0bd02fa5775c2b747185e7c30b7b162987d1cc59adca8c2c1be8ca60f5262b22"
+    ],
+    "timestamp_us": [
+      1000000,
+      1033333,
+      1066666,
+      1099999,
+      1133332,
+      1166665,
+      1199998,
+      1233331
+    ]
+  },
+  "model": {
+    "official": {
+      "checkout": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former",
+      "clean": true,
+      "commit": "0071ca9e6c53aec55572a5557c5fcf3a23cdba5d",
+      "dependency_declarations": [
+        {
+          "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/requirements.txt",
+          "sha256": "22aaa4df518a7736095972ec6bf2bd2593ff555182b2a90c7e01ad67f43d7857",
+          "size_bytes": 315
+        },
+        {
+          "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/setup.py",
+          "sha256": "8b97ab61050bc94f6196c3fbfe908b06bf6ea336b713972f50b9e3973dbb46c5",
+          "size_bytes": 261
+        }
+      ],
+      "python": {
+        "executable": "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+        "module_probes": {
+          "cv2": true,
+          "numpy": true,
+          "open3d": true,
+          "scipy": true,
+          "torch": true,
+          "torchvision": true,
+          "yaml": true
+        },
+        "version": "3.10.12"
+      },
+      "repository": "https://github.com/Tsinghua-MARS-Lab/SLAM-Former"
+    },
+    "provider": "SLAM-Former",
+    "variant": "V1.1-long@224"
+  },
+  "notes": [
+    "prepare performs no inference and makes no network request",
+    "only RGB symlinks and intrinsics/frame mapping are staged",
+    "final_traj.txt is sparse/keyframe output, not a complete per-frame trajectory",
+    "final.ply is visual geometry evidence, not SGF-SGAligner refusion acceptance"
+  ],
+  "official_command_template": [
+    "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+    "slam/demo.py",
+    "--ckpt_path",
+    "{checkpoint}",
+    "--image_folder",
+    "{input_root}/rgb",
+    "--target_size",
+    "224",
+    "--output_dir",
+    "{output_root}",
+    "--stride",
+    "1",
+    "--kf_th",
+    "0.0",
+    "--retention_ratio",
+    "1",
+    "--bn_every",
+    "10"
+  ],
+  "output_policy": "create_only",
+  "paths": {
+    "attempt_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0",
+    "input_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0/input_no_gt",
+    "official_output_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0/official_output"
+  },
+  "payload_sha256": "51a157a7c945d47cfc408ab46da06618e3c9c08c6ac87f47c63bdf1aafee2632",
+  "schema": "slamformer_scene0030_smoke_plan.v1",
+  "status": "prepared_not_executed"
+}

@@ -86,7 +86,10 @@ def prepare_raw_views(
             "img": image,
             "intrinsics": intrinsic.copy(),
             "depth_z": depth,
-            "is_metric_scale": np.asarray([True]),
+            # Do not materialize ``is_metric_scale`` here.  The official
+            # preprocessor defaults an omitted value to scalar ``True``;
+            # passing a one-element NumPy array is later interpreted as an
+            # integer index by the official model and breaks a valid window.
         })
     return views
 

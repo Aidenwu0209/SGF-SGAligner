@@ -1,0 +1,31 @@
+{
+  "amp_dtype": "bf16",
+  "checkpoint_sha256": "981f060c64664dff3272b5f5a823d350abe71a2f144444db4cfc325f3ed5a3a0",
+  "cuda_version": "12.6",
+  "device": "Orin",
+  "frame_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "gt_consumed": false,
+  "inference_seconds": 8.775879409000026,
+  "input_mode": "independent_rgb_intrinsics_depth",
+  "input_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00",
+  "memory_efficient_inference": true,
+  "minibatch_size": 1,
+  "model_load_seconds": 34.65646353699992,
+  "output_sha256": "0136f2510a2695c2060080a343f7ca81e457bbe075f03cd2c02329dc0077bbb9",
+  "peak_cuda_allocated_bytes": 8318545408,
+  "peak_cuda_reserved_bytes": 8797552640,
+  "resolution_set": 518,
+  "schema": "mapanything_official_window_runtime.v1",
+  "status": "completed",
+  "torch_version": "2.5.0a0+872d972e41.nv24.08",
+  "wall_seconds": 51.62033597900006
+}

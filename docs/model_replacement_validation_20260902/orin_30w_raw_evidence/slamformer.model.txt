@@ -1,0 +1,76 @@
+/usr/lib/python3/dist-packages/scipy/__init__.py:146: UserWarning: A NumPy version >=1.17.3 and <1.25.0 is required for this version of SciPy (detected version 1.26.3
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+Warning, cannot find cuda-compiled version of RoPE2D, using a slow pytorch version instead
+Loading images from
+/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030
+_first8_v1_1_long_224_30w_attempt4_kf0/input_no_gt/rgb...
+Found 8 images
+resize image 1
+Loaded state_dict from 'model' key in checkpoint.
+Detected ConvHead in checkpoint; setting use_conv_head=True.
+Frame 0
+ # KEYFRAME 0
+Frame 1
+tensor(0.0020)
+ # KEYFRAME 1
+Frame 2
+tensor(0.0027)
+ # KEYFRAME 2
+0.38891427299995485
+Frame 3
+tensor(0.0009)
+ # KEYFRAME 3
+0.3921312479997141
+Frame 4
+tensor(0.0010)
+ # KEYFRAME 4
+0.3912687259999075
+Frame 5
+tensor(0.0006)
+ # KEYFRAME 5
+0.39147306900031253
+Frame 6
+tensor(0.0012)
+ # KEYFRAME 6
+0.40454838800042126
+Frame 7
+tensor(0.0007)
+ # KEYFRAME 7
+0.4028778390002117
+Backending... 8 KFs
+backend_take 0.8425460589996874
+[
+    0.0002658759999576432,
+    1.1084810049997031,
+    0.5579838979997476,
+    0.5516054519998761,
+    0.5536497939997389,
+    0.5520010860000184,
+    0.5543373190002967,
+    0.5656816310001886
+]
+[
+    3.0078999770921655e-05,
+    0.5614937410000493,
+    0.3919369850000294,
+    0.3949290099999416,
+    0.39519610200022726,
+    0.39435105200027465,
+    0.4079307330002848,
+    0.40619893900020543
+]
+[0.8425406839996867]
+frontend take 0.3690083301250979
+KFT
+total 4.444006060999527 FPS 1.8001775628093257
+FT
+total 2.9520666410007834 FPS 2.7099659231567723
+BT
+total 0.8425406839996867 FPS 1.1868863058966204
+Summary
+total 8.238613385999997 FPS 0.9710371909907222
+[0, 1, 2, 3, 4, 5, 6, 7]
+{
+  "output_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_first8_v1_1_long_224_30w_attempt4_kf0/official_output",
+  "status": "executed_unverified"
+}

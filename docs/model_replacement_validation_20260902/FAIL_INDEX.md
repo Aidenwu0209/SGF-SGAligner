@@ -99,3 +99,34 @@ external SSD and a Jetson-specific stability plan are available.
 Persistent remote artifacts are under:
 
 `/home/ai3d/Documents/sgf_sga_model_validation_20260902`
+
+### Superseding controlled 30 W retry
+
+The failure above remains valid evidence for the original power-mode attempt,
+but it is **not the current model verdict**.  After an authorized reboot into
+Jetson `MODE_30W` (nvpmodel ID 2), the same frozen source, checkpoint and eight
+frames completed with the default allocator and official BF16,
+memory-efficient inference settings.
+
+The first 30 W process reached inference and exposed an adapter-only error:
+the runner supplied `is_metric_scale` as a one-element NumPy array, whereas the
+official preprocessing path expects the missing-field scalar default.  That
+attempt produced no promoted output.  The runner now omits that optional field
+and a focused regression test seals the input shape.
+
+The create-only retry then produced 8/8 finite camera poses and the full
+official depth, confidence and point-map output:
+
+- inference: `8.775879409` s; total model-process wall: `51.620335979` s;
+- peak CUDA allocated / reserved: `8,318,545,408` / `8,797,552,640` bytes;
+- output SHA-256:
+  `0136f2510a2695c2060080a343f7ca81e457bbe075f03cd2c02329dc0077bbb9`;
+- rotation determinants: `0.9999999548` through `1.0000000243`;
+- GT consumed: no; identity gap filling: no.
+
+Authoritative artifacts are create-only under:
+
+`/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/mapanything_scene0030_8_independent_30w_original_attempt2`
+
+This supersedes only the host-eligibility failure.  An eight-frame smoke is not
+pose-accuracy, full-scene refusion or promotion evidence.
