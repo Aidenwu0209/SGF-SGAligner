@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "absolute_rotation_rmse_deg": 0.7921394005471294,
+    "absolute_translation_rmse_m": 0.029352926243829458,
+    "relative_rotation_rmse_deg": 0.23931087647889293,
+    "relative_translation_rmse_m": 0.009538626385849923
+  },
+  "candidate": {
+    "absolute_rotation_rmse_deg": 0.3373764238883209,
+    "absolute_translation_rmse_m": 0.08088296592498542,
+    "relative_rotation_rmse_deg": 0.2581809927740907,
+    "relative_translation_rmse_m": 0.01083777665417089
+  },
+  "evaluation_sha256": "8920f0a860f4b7fc17cd839c813976ccfbf1cb03bb049a645e5d4be5d249658a",
+  "frame_count": 32,
+  "gt_consumed_at_inference": false,
+  "import_audit_sha256": "833b13e1634b8804909e8e60a45f0db9122d100ad9206cad32f750f4c9b89a2a",
+  "provider_commit": "c3414af6047d06bafc1a6645d09f23247f3b2cdc",
+  "promotion_decision": "STOP_BEFORE_FULL_SEQUENCE_AND_REFUSION",
+  "raw_trajectory_sha256": "f63f309901d953b1807a50a1febde91d8eb71ba7f3c8a9f815a41e0ed15d6ded",
+  "schema": "droid_w_shadow_failfast_summary.v1",
+  "sequence_id": "scene0000_00:frames-0-31",
+  "sim3_alignment_used": false
+}

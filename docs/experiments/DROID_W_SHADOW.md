@@ -28,5 +28,24 @@ regularizer and its checkpoint digest must be recorded.
 5. Run unchanged pose graph/refusion on the same fused frames and compare final
    geometry with DPV-SLAM. A DROID-W rendering is not an SGF success metric.
 
-Current RTX 4060 feasibility and same-input results are recorded only after an
-actual provider run; this adapter alone is not evidence of improvement.
+## RTX 4060 fail-fast result (2026-09-02)
+
+The official provider completed a 32-frame `scene0000_00` no-pose run at
+commit `c3414af6047d06bafc1a6645d09f23247f3b2cdc`. The importer accepted all 32
+raw poses with no GT, no Sim(3), and no identity fallback. On the identical
+frame window, evaluation-only ScanNet reference metrics were:
+
+| Metric RMSE | production DPV | DROID-W raw |
+| --- | ---: | ---: |
+| relative translation | 0.009539 m | 0.010838 m |
+| relative rotation | 0.239311 deg | 0.258181 deg |
+| absolute translation | 0.029353 m | 0.080883 m |
+| absolute rotation | 0.792139 deg | 0.337376 deg |
+
+DROID-W improved only absolute rotation while worsening both relative metrics
+and absolute translation. The fail-fast gate therefore stopped before full
+sequence and SGF refusion. This branch is a working shadow adapter, not a
+promotion candidate and not evidence of final geometry improvement.
+
+Remote evidence root:
+`/home/aidenwu/Documents/DROID-W-sgf-sga-shadow-20260902-results`.

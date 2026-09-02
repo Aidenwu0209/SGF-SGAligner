@@ -1,0 +1,9 @@
+diff --git a/simple_knn.cu b/simple_knn.cu
+--- a/simple_knn.cu
++++ b/simple_knn.cu
+@@ -13,4 +13,5 @@
+ #include "device_launch_parameters.h"
+ #include "simple_knn.h"
+ #include <cub/cub.cuh>
++#include <cfloat>
+ #include <cub/device/device_radix_sort.cuh>
