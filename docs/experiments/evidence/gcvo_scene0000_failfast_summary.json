@@ -1,0 +1,22 @@
+{
+  "artifacts": {
+    "evaluation_path": "/home/aidenwu/Documents/GCVO-sgf-sga-shadow-20260902-results/scene0000_first9_pair_evaluation.json",
+    "evaluation_sha256": "610f41d92cd239e33e30152c95da40895e61a6c0b18c88ff262b696e98abd21b",
+    "relative_result_path": "/home/aidenwu/Documents/GCVO-sgf-sga-shadow-20260902-results/scene0000_first9_gcvo_relative.json",
+    "relative_result_sha256": "53bdbeac006a206f2d269e31cc551bb873c99dbc413e64f75154bb62d91d3964"
+  },
+  "baseline_rotation_rmse_deg": 0.2674720706586141,
+  "baseline_translation_rmse_m": 0.01085641262372741,
+  "both_win_count": 1,
+  "gcvo_commit": "d1268382faf8853499e6f72abe1096ff396a1ae0",
+  "gcvo_config": "gcvo_params/gcvo_eth3d_rgbd_v3.yaml",
+  "gcvo_rotation_rmse_deg": 0.358519693602035,
+  "gcvo_translation_rmse_m": 0.010859966518280867,
+  "gt_role": "evaluation_only",
+  "pair_count": 9,
+  "promotion_gate_passed": false,
+  "rotation_win_count": 1,
+  "schema": "gcvo_scene0000_failfast_summary.v1",
+  "sequence_id": "scene0000_00",
+  "translation_win_count": 6
+}

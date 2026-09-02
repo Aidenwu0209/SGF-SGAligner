@@ -1,0 +1,39 @@
+diff --git a/gcvo/apps/gcvo_run_pcd.cu b/gcvo/apps/gcvo_run_pcd.cu
+--- a/gcvo/apps/gcvo_run_pcd.cu
++++ b/gcvo/apps/gcvo_run_pcd.cu
+@@ -72,5 +72,6 @@ struct Args {
+   // pair mode
+   std::string source_pcd;
+   std::string target_pcd;
++  std::string init_matrix;
+   // sequence mode
+   std::string pcd_dir;
+@@ -110,3 +111,4 @@ static bool parse_args(int argc, char** argv, Args& a) {
+     else if (k == "--source")    a.source_pcd = need("--source");
+     else if (k == "--target")    a.target_pcd = need("--target");
++    else if (k == "--init_matrix") a.init_matrix = need("--init_matrix");
+     else if (k == "--pcd_dir")   a.pcd_dir    = need("--pcd_dir");
+@@ -176,4 +178,16 @@ static std::vector<std::string> collect_pcds(const std::string& dir) {
+   return files;
+ }
+ 
++static Eigen::Matrix4f load_init_matrix(const std::string& path) {
++  if (path.empty()) return Eigen::Matrix4f::Identity();
++  std::ifstream stream(path);
++  if (!stream) throw std::runtime_error("Cannot open init matrix: " + path);
++  Eigen::Matrix4f matrix;
++  for (int r = 0; r < 4; ++r)
++    for (int c = 0; c < 4; ++c)
++      if (!(stream >> matrix(r, c)))
++        throw std::runtime_error("Init matrix must contain 16 floats: " + path);
++  return matrix;
++}
++
+ // ---- pair mode -------------------------------------------------------------
+@@ -192,5 +206,5 @@ int run_pair(const Args& a) {
+     tgt.compute_covariance(0.1f, 100.0f, 12, 8, is_rescaled, true);
+   }
+ 
+-  const Eigen::Matrix4f T_init = Eigen::Matrix4f::Identity();
++  const Eigen::Matrix4f T_init = load_init_matrix(a.init_matrix);
+   gcvo::GCvoResultInfo r = solver.align(src, tgt, T_init, false);

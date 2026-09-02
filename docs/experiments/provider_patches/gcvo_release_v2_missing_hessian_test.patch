@@ -1,0 +1,24 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e72b7f4..a547dcb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -241,19 +241,6 @@ if (GCVO_BUILD_TESTS)
+     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+   )
+ 
+-  # Hessian term unit tests (H1, H2, H3 analytical vs GPU kernel).
+-  # Links gcvo_headers to avoid duplicate symbols (same pattern as test_gn).
+-  add_executable(gcvo_test_hessian_terms gcvo/tests/test_hessian_terms.cu)
+-  target_link_libraries(gcvo_test_hessian_terms PRIVATE gcvo_headers)
+-  target_compile_options(gcvo_test_hessian_terms PRIVATE
+-    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
+-  )
+-  add_test(
+-    NAME gcvo_test_hessian_terms
+-    COMMAND gcvo_test_hessian_terms --params ${GCVO_TEST_PARAMS}
+-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+-  )
+-
+   # 2-frame KITTI test — only registered when GCVO_TEST_KITTI_ROOT is set.
+   set(GCVO_TEST_KITTI_ROOT "" CACHE PATH "KITTI odometry dataset root (enables 2-frame test)")
+   if (GCVO_TEST_KITTI_ROOT)

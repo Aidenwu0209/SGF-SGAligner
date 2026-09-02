@@ -45,3 +45,24 @@ python scripts/apply_gcvo_refinement.py \
 The official G-CVO executable remains an isolated external dependency. Its
 exact commit, build configuration, and output hash must be recorded in the
 external result before an authoritative run.
+
+## 2026-09-02 RTX 4060 fail-fast result
+
+Official commit `d1268382faf8853499e6f72abe1096ff396a1ae0` compiled with
+CUDA 12.6 for SM 8.9 after applying the recorded build-only patch for a missing
+upstream test source. The official transformed-bunny test passed with SE(3) log
+error `0.007010`.
+
+The same-input ScanNet fail-fast window used tracked frames 92--101 from
+`scene0000_00`, DPV relative poses as initializers, and the official
+`gcvo_eth3d_rgbd_v3.yaml`. Across nine pairs:
+
+- translation RMSE: DPV `0.0108564 m`, G-CVO `0.0108600 m`;
+- rotation RMSE: DPV `0.267472 deg`, G-CVO `0.358520 deg`;
+- G-CVO won translation on 6/9 pairs, rotation on 1/9, and both on only 1/9.
+
+The local arm therefore fails the fail-fast promotion condition: aggregate
+translation is unchanged/slightly worse and rotation is 34% worse. A full
+213-pair run and SGF refusion were intentionally not started. The safe default
+remains disabled; this result is evidence against promoting the current
+parameterization, not a claim that G-CVO cannot help after further tuning.
