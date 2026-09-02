@@ -1,0 +1,128 @@
+{
+  "dataset": "scannet",
+  "depth_scale": 1000.0,
+  "forbidden_inputs": [
+    "evaluation",
+    "evaluations",
+    "ground-truth",
+    "ground_truth",
+    "gt",
+    "mesh",
+    "meshes",
+    "pose",
+    "poses"
+  ],
+  "frames": [
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/0.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/0.png",
+      "frame_id": 0,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1000000
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/1.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/1.png",
+      "frame_id": 1,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1033333
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2.png",
+      "frame_id": 2,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1066666
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/3.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/3.png",
+      "frame_id": 3,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1099999
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/4.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/4.png",
+      "frame_id": 4,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1133332
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/5.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/5.png",
+      "frame_id": 5,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1166665
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/6.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/6.png",
+      "frame_id": 6,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1199998
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/7.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/7.png",
+      "frame_id": 7,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 1233331
+    }
+  ],
+  "gt_at_inference": false,
+  "matrix_convention": "T_world_camera_m",
+  "payload_sha256": "c8a7baba10c5b98adeb6d66016f1c79f7de2a5e512d799c8367d7313b6f0c837",
+  "root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00",
+  "schema": "rgbd_sequence_manifest.v1",
+  "sequence_id": "scene0030_00",
+  "source": "raw_rgbd_intrinsics_only"
+}

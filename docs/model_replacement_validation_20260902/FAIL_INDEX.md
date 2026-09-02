@@ -58,3 +58,44 @@ promotion.
 Authoritative raw artifacts remain create-only at:
 
 `/home/aidenwu/Documents/model-validation-runs-20260902/abot_orbbec41_slow_table_loop`
+
+## MapAnything / ScanNet scene0030 first-eight-frame smoke
+
+- Status: **FAIL — Jetson host rebooted during official model load**
+- Role/arm: background 8-frame RGB + intrinsics + metric-depth refinement
+- MapAnything commit: `3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9`
+- Hugging Face snapshot: `a1d87e9086706fb9974f3be5a3e3a0ca5401c5aa`
+- Checkpoint size: 4,914,062,480 bytes, stored only in `/dev/shm`
+- Checkpoint SHA-256:
+  `981f060c64664dff3272b5f5a823d350abe71a2f144444db4cfc325f3ed5a3a0`
+- Input: ScanNet `scene0030_00`, frame IDs `0..7`, 518 x 392 official
+  preprocessing, memory-efficient inference, minibatch size 1 and BF16
+- Input manifest payload SHA-256:
+  `c8a7baba10c5b98adeb6d66016f1c79f7de2a5e512d799c8367d7313b6f0c837`
+- Host: Jetson Orin, JetPack 6.2.1, 61 GiB unified memory
+- GT consumed: no; ScanNet GT poses were physically isolated under
+  `eval_only/` and absent from the inference root
+- Identity fallback: no
+- Valid output pose count / coverage: 0 / 0%
+
+The first attempt used `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` and
+failed at `model.to(cuda)` with a CUDA driver OOM. Diagnostics then showed that
+the Orin could cumulatively allocate 20 GiB using the default allocator, while
+the expandable-segment setting failed on a single 1 GiB allocation. The runner
+was corrected not to force that allocator.
+
+The second attempt passed the previous failure point and reached roughly 14
+GiB system memory use, but the entire host rebooted at `2026-09-02 08:49:52`
+before inference. `last -x` marked both model/tegrastats tmux sessions as
+`crash`; `/dev/shm` was cleared. No persistent previous-boot kernel log or
+pstore record was available, so the exact kernel/power cause is unknown and
+must not be reported as a confirmed OOM.
+
+The signed failed runtime report has payload SHA-256
+`d354ed8cabc1288717f266c082e88cc77c3b053649c8f990a4d459a4d72140fb`.
+Do not retry this 4.9 GB checkpoint on the eMMC-only Orin until a persistent
+external SSD and a Jetson-specific stability plan are available.
+
+Persistent remote artifacts are under:
+
+`/home/ai3d/Documents/sgf_sga_model_validation_20260902`

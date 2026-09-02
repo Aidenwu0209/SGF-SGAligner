@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import json
 from pathlib import Path
 
@@ -38,6 +39,16 @@ def _manifest(args: argparse.Namespace) -> None:
         value = scan3r_manifest(args.input, rotate_ccw=not args.no_rotate_ccw)
     else:
         value = orbbec_manifest(args.input)
+    if args.frame_id:
+        requested = set(args.frame_id)
+        available = {frame.frame_id for frame in value.frames}
+        missing = sorted(requested - available)
+        if missing:
+            raise ValueError(f"requested frame IDs are unavailable: {missing}")
+        value = replace(
+            value,
+            frames=tuple(frame for frame in value.frames if frame.frame_id in requested),
+        ).validate()
     write_manifest(args.output, value)
     print(json.dumps({"manifest": str(args.output.resolve()), "frames": len(value.frames)}))
 
@@ -237,6 +248,7 @@ def build_parser() -> argparse.ArgumentParser:
     manifest.add_argument("--input", type=Path, required=True)
     manifest.add_argument("--output", type=Path, required=True)
     manifest.add_argument("--no-rotate-ccw", action="store_true")
+    manifest.add_argument("--frame-id", type=int, action="append", default=[])
     manifest.set_defaults(handler=_manifest)
     replay = commands.add_parser("replay")
     replay.add_argument("--manifest", type=Path, required=True)
@@ -347,7 +359,7 @@ def build_parser() -> argparse.ArgumentParser:
     runtime.add_argument("--width", type=int, required=True)
     runtime.add_argument("--height", type=int, required=True)
     runtime.add_argument("--latency-ms", type=Path, required=True)
-    runtime.add_argument("--peak-gpu-memory-mb", type=float, required=True)
+    runtime.add_argument("--peak-gpu-memory-mb", type=float)
     runtime.add_argument("--output-pose-count", type=int, required=True)
     runtime.add_argument("--dropped-frame-id", type=int, action="append", default=[])
     runtime.add_argument("--queue-depth-peak", type=int, default=0)

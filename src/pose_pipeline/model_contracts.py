@@ -73,7 +73,7 @@ def write_model_runtime_report(
     checkpoint_sha256: str | None = None,
     resolution: tuple[int, int],
     latency_ms: Sequence[float],
-    peak_gpu_memory_mb: float,
+    peak_gpu_memory_mb: float | None,
     output_pose_count: int,
     dropped_frame_ids: Sequence[int] = (),
     queue_depth_peak: int = 0,
@@ -103,7 +103,10 @@ def write_model_runtime_report(
     model_commit = _require_git_commit(model_commit)
     if len(resolution) != 2 or min(resolution) <= 0:
         raise ValueError("resolution must be positive width,height")
-    if peak_gpu_memory_mb < 0 or not np.isfinite(peak_gpu_memory_mb):
+    if peak_gpu_memory_mb is None:
+        if status == "completed":
+            raise ValueError("completed runtime report needs peak GPU memory")
+    elif peak_gpu_memory_mb < 0 or not np.isfinite(peak_gpu_memory_mb):
         raise ValueError("peak GPU memory must be finite and non-negative")
     if output_pose_count < 0 or output_pose_count > len(manifest.frames):
         raise ValueError("output pose count is outside manifest range")
@@ -149,7 +152,9 @@ def write_model_runtime_report(
         "wall_time_s": elapsed,
         "throughput_fps": float(output_pose_count / elapsed),
         "attempted_input_fps": float(len(manifest.frames) / elapsed),
-        "peak_gpu_memory_mb": float(peak_gpu_memory_mb),
+        "peak_gpu_memory_mb": (
+            float(peak_gpu_memory_mb) if peak_gpu_memory_mb is not None else None
+        ),
         "queue_depth_peak": int(queue_depth_peak),
         "gt_consumed": False,
         "identity_fallback_used": False,

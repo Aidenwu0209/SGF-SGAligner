@@ -1,0 +1,68 @@
+{
+  "attempted_input_fps": 0.13333333333333333,
+  "checkpoint_sha256": "981f060c64664dff3272b5f5a823d350abe71a2f144444db4cfc325f3ed5a3a0",
+  "coverage": 0.0,
+  "dropped_frame_count": 8,
+  "dropped_frame_ids": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "failure": {
+    "attempts": [
+      {
+        "allocator": "expandable_segments:True",
+        "output_pose_count": 0,
+        "result": "cuda_driver_out_of_memory_during_model_to_cuda"
+      },
+      {
+        "allocator": "pytorch_default",
+        "output_pose_count": 0,
+        "result": "host_reboot_during_model_to_cuda"
+      }
+    ],
+    "boot_evidence": {
+      "boot_time": "2026-09-02 08:49:52",
+      "last_record": "tmux sessions started at 08:48 and ended with crash at reboot",
+      "persistent_previous_boot_kernel_log_available": false
+    },
+    "category": "system_reboot_during_model_load",
+    "checkpoint_storage": "ephemeral_/dev/shm",
+    "gt_consumed": false,
+    "identity_fallback_used": false,
+    "message": "The Jetson Orin rebooted while moving the official MapAnything model to CUDA after the allocator-specific false OOM was removed.",
+    "stage": "official_checkpoint_to_cuda_before_inference",
+    "wall_time_is_lower_bound": true
+  },
+  "gt_consumed": false,
+  "identity_fallback_used": false,
+  "input_frame_count": 8,
+  "input_manifest_sha256": "c8a7baba10c5b98adeb6d66016f1c79f7de2a5e512d799c8367d7313b6f0c837",
+  "latency_ms": {
+    "p50": null,
+    "p95": null,
+    "sample_count": 0
+  },
+  "metadata": {},
+  "mode": "official_weights_independent_rgb_intrinsics_depth",
+  "model": "MapAnything",
+  "model_commit": "3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9",
+  "output_pose_count": 0,
+  "payload_sha256": "d354ed8cabc1288717f266c082e88cc77c3b053649c8f990a4d459a4d72140fb",
+  "peak_gpu_memory_mb": null,
+  "queue_depth_peak": 0,
+  "resolution": {
+    "height": 392,
+    "width": 518
+  },
+  "schema": "model_runtime_report.v1",
+  "sequence_id": "scene0030_00",
+  "status": "failed",
+  "throughput_fps": 0.0,
+  "wall_time_s": 60.0
+}

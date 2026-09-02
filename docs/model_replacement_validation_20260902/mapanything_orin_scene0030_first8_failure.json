@@ -1,0 +1,26 @@
+{
+  "category": "system_reboot_during_model_load",
+  "stage": "official_checkpoint_to_cuda_before_inference",
+  "message": "The Jetson Orin rebooted while moving the official MapAnything model to CUDA after the allocator-specific false OOM was removed.",
+  "attempts": [
+    {
+      "allocator": "expandable_segments:True",
+      "result": "cuda_driver_out_of_memory_during_model_to_cuda",
+      "output_pose_count": 0
+    },
+    {
+      "allocator": "pytorch_default",
+      "result": "host_reboot_during_model_to_cuda",
+      "output_pose_count": 0
+    }
+  ],
+  "boot_evidence": {
+    "boot_time": "2026-09-02 08:49:52",
+    "last_record": "tmux sessions started at 08:48 and ended with crash at reboot",
+    "persistent_previous_boot_kernel_log_available": false
+  },
+  "wall_time_is_lower_bound": true,
+  "checkpoint_storage": "ephemeral_/dev/shm",
+  "gt_consumed": false,
+  "identity_fallback_used": false
+}

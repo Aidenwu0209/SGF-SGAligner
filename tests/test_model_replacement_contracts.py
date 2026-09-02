@@ -77,7 +77,7 @@ def test_failed_runtime_report_keeps_zero_coverage_and_failure(tmp_path: Path):
         output, manifest_path=manifest, model="ABot-Recon",
         model_commit="a" * 40, checkpoint_path=None,
         checkpoint_sha256="b" * 64, resolution=(512, 384),
-        latency_ms=[], peak_gpu_memory_mb=7768, output_pose_count=0,
+        latency_ms=[], peak_gpu_memory_mb=None, output_pose_count=0,
         dropped_frame_ids=[0, 1, 2], wall_time_s=85.06,
         status="failed", failure={
             "category": "cuda_out_of_memory", "failed_frame_ordinal": 8,
@@ -87,6 +87,7 @@ def test_failed_runtime_report_keeps_zero_coverage_and_failure(tmp_path: Path):
     assert report["coverage"] == 0.0
     assert report["throughput_fps"] == 0.0
     assert report["latency_ms"]["p95"] is None
+    assert report["peak_gpu_memory_mb"] is None
     assert report["failure"]["category"] == "cuda_out_of_memory"
 
 

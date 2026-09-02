@@ -1,0 +1,33 @@
+Downloading: "https://github.com/facebookresearch/dinov2/zipball/main" to /home/ai3d/.cache/torch/hub/main.zip
+Calculated average aspect ratio: 1.339 from 8 images
+Using target resolution 518x392 (W x H) for all views
+Processed view 0 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 1 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 2 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 3 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 4 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 5 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 6 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Processed view 7 with keys: ['img', 'data_norm_type', 'depth_z', 'intrinsics', 'is_metric_scale']
+Successfully processed 8 views
+Loading pretrained dinov2_vitg14 from torch hub
+Loading weights from local directory
+Traceback (most recent call last):
+  File "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SGF-SGAligner/scripts/run_mapanything_rgbd_window.py", line 208, in <module>
+    main()
+  File "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SGF-SGAligner/scripts/run_mapanything_rgbd_window.py", line 121, in main
+    model = MapAnything.from_pretrained(str(checkpoint)).to(args.device).eval()
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1318, in to
+    return self._apply(convert)
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 897, in _apply
+    module._apply(fn)
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 897, in _apply
+    module._apply(fn)
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 897, in _apply
+    module._apply(fn)
+  [Previous line repeated 1 more time]
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 924, in _apply
+    param_applied = fn(param)
+  File "/home/ai3d/Documents/project_chicken/chicken_env/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1304, in convert
+    return t.to(
+RuntimeError: CUDA driver error: out of memory

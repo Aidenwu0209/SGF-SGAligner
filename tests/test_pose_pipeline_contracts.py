@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from unittest.mock import patch
 import tempfile
 import unittest
 
@@ -18,9 +19,51 @@ from pose_pipeline.contracts import (
     write_manifest,
     write_trajectory,
 )
+from pose_pipeline.cli import main as pose_pipeline_main
 
 
 class PosePipelineContractTests(unittest.TestCase):
+    def test_manifest_cli_filters_requested_frame_ids(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "scene0030_00"
+            (root / "color").mkdir(parents=True)
+            (root / "depth").mkdir()
+            (root / "intrinsic").mkdir()
+            np.savetxt(root / "intrinsic" / "intrinsic_depth.txt", np.eye(4))
+            for frame_id in range(3):
+                (root / "color" / f"{frame_id}.jpg").write_bytes(b"rgb")
+                (root / "depth" / f"{frame_id}.png").write_bytes(b"depth")
+            output = Path(directory) / "first8.json"
+
+            with patch("sys.argv", [
+                "pose-pipeline", "manifest", "--dataset", "scannet",
+                "--input", str(root), "--output", str(output),
+                "--frame-id", "0", "--frame-id", "2",
+            ]):
+                pose_pipeline_main()
+
+            manifest = load_manifest(output)
+            self.assertEqual([frame.frame_id for frame in manifest.frames], [0, 2])
+
+    def test_manifest_cli_rejects_unavailable_frame_id(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "scene0030_00"
+            (root / "color").mkdir(parents=True)
+            (root / "depth").mkdir()
+            (root / "intrinsic").mkdir()
+            np.savetxt(root / "intrinsic" / "intrinsic_depth.txt", np.eye(4))
+            (root / "color" / "0.jpg").write_bytes(b"rgb")
+            (root / "depth" / "0.png").write_bytes(b"depth")
+
+            with patch("sys.argv", [
+                "pose-pipeline", "manifest", "--dataset", "scannet",
+                "--input", str(root),
+                "--output", str(Path(directory) / "manifest.json"),
+                "--frame-id", "7",
+            ]):
+                with self.assertRaisesRegex(ValueError, "unavailable"):
+                    pose_pipeline_main()
+
     def test_manifest_and_trajectory_roundtrip(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
