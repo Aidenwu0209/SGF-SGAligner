@@ -47,6 +47,27 @@ def test_trajectory_contract_rejects_unmanifested_identifier(tmp_path: Path) -> 
         RUNNER._trajectory_contract(trajectory, _plan(), "frame_id")
 
 
+def test_staging_preserves_nonzero_manifest_frame_ids(tmp_path: Path) -> None:
+    source = tmp_path / "source.jpg"
+    source.write_bytes(b"rgb")
+    input_root = tmp_path / "staged"
+    input_root.mkdir()
+
+    rows = RUNNER._stage_rgb_create_only(input_root, [{
+        "frame_id": 2334,
+        "timestamp_us": 78_799_922,
+        "color_path": str(source),
+        "intrinsics": [574.5, 577.6, 322.5, 238.6],
+        "rotate_ccw": False,
+    }])
+
+    staged = input_root / "rgb" / "002334.jpg"
+    assert staged.is_symlink()
+    assert staged.resolve() == source.resolve()
+    assert rows[0]["frame_id"] == 2334
+    assert rows[0]["staged_color_path"] == str(staged)
+
+
 def test_ply_contract_requires_nonempty_xyz_payload(tmp_path: Path) -> None:
     cloud = tmp_path / "final.ply"
     cloud.write_text(

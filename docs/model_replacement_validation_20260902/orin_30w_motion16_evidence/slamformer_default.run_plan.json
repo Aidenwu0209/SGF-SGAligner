@@ -1,0 +1,161 @@
+{
+  "checkpoint": {
+    "path": "/dev/shm/sgf_sga_model_validation_20260902/checkpoints/slamformer-0071ca9/V1.1-long.pth",
+    "sha256": "5375d5cfdf2423327d71bbd38351f1219a66c68e0a1fce34ee63b058d28ccfd1"
+  },
+  "expanded_official_command": [
+    "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+    "slam/demo.py",
+    "--ckpt_path",
+    "/dev/shm/sgf_sga_model_validation_20260902/checkpoints/slamformer-0071ca9/V1.1-long.pth",
+    "--image_folder",
+    "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf01/input_no_gt/rgb",
+    "--target_size",
+    "224",
+    "--output_dir",
+    "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf01/official_output",
+    "--stride",
+    "1",
+    "--kf_th",
+    "0.1",
+    "--retention_ratio",
+    "1",
+    "--bn_every",
+    "10"
+  ],
+  "expected_outputs": [
+    "final_traj.txt",
+    "final.ply"
+  ],
+  "input": {
+    "frame_count": 16,
+    "frame_ids": [
+      2334,
+      2335,
+      2336,
+      2337,
+      2338,
+      2339,
+      2340,
+      2341,
+      2342,
+      2343,
+      2344,
+      2345,
+      2346,
+      2347,
+      2348,
+      2349
+    ],
+    "gt_at_inference": false,
+    "sequence_id": "scene0030_00",
+    "source_manifest": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/manifests/scene0030_00_motion16_2334_2349.json",
+    "source_manifest_payload_sha256": "282989bbbd3fa91e00aac2c8ac884a96e711400288a9bd78204fda6b5c245b7d",
+    "staged_rgb_sha256": [
+      "9f1bf6d8cfc5e2331e4246b91fc49a73c86fbc19aec3286965779382a02c9d2a",
+      "5d8148fb613791ecd6fbcfb7685be7ad5c4d7bcc53863699c2b1f7dac07c7d7a",
+      "333a1f2b98e1bc333bb7b09fee541a4bbbe3f27432fc9d081f5d482615b5a34a",
+      "99a29b24fb7562d5af7ea778bdedd54b26d780aac6ae0e92b4c03e4230dc51b8",
+      "56a42865fe8bbc1e85c12a94b8f69cfc3e38f1aff49ddeed66c1834bad5dd3bb",
+      "adfc437a8b6c5ea8a6d69a09bef6f958ae163f675db15112c5c31de880a72212",
+      "f07fbd02ee3a8ed3096612e3b2af56879674d4b4d3765991a20e408eb5a58457",
+      "a52eb03a94767b5bf7be0012bb33a3b8bb9d11d532fe26011128c1e2a556d17e",
+      "3e0b8108ff9056b23f8e535ca026f1626e42876e97722fd2e251260f83b32169",
+      "8d61c2d806d2f662de1b202e398fd123ebf3e5f2bb6b7901d39a2d40f7ee7115",
+      "bfd41859a27d3c371bf77073dda50a17bb38c129db8a516e796550700e4427eb",
+      "1fff4445b276b21c5cdf07e803ea43706c8221a97a90acd4fa850e569600abd6",
+      "5a9b3af985f03fa3c95918ab09f87639392eac7dd3eecc24280ec2a29a62e576",
+      "e36850935edaead270198eaa03e6b14920a5d0eb2dff1b92e0325d34753f6723",
+      "d90df4dfe1d4f64e680b05c71493775096d20b0d88d69f97657d08add77f9809",
+      "e3007bce50e066ae7838b907d731460477f4758f919f9c765c337696f490a8a8"
+    ],
+    "timestamp_us": [
+      78799222,
+      78832555,
+      78865888,
+      78899221,
+      78932554,
+      78965887,
+      78999220,
+      79032553,
+      79065886,
+      79099219,
+      79132552,
+      79165885,
+      79199218,
+      79232551,
+      79265884,
+      79299217
+    ]
+  },
+  "model": {
+    "official": {
+      "checkout": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former",
+      "clean": true,
+      "commit": "0071ca9e6c53aec55572a5557c5fcf3a23cdba5d",
+      "dependency_declarations": [
+        {
+          "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/requirements.txt",
+          "sha256": "22aaa4df518a7736095972ec6bf2bd2593ff555182b2a90c7e01ad67f43d7857",
+          "size_bytes": 315
+        },
+        {
+          "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/setup.py",
+          "sha256": "8b97ab61050bc94f6196c3fbfe908b06bf6ea336b713972f50b9e3973dbb46c5",
+          "size_bytes": 261
+        }
+      ],
+      "python": {
+        "executable": "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+        "module_probes": {
+          "cv2": true,
+          "numpy": true,
+          "open3d": false,
+          "scipy": true,
+          "torch": true,
+          "torchvision": true,
+          "yaml": true
+        },
+        "version": "3.10.12"
+      },
+      "repository": "https://github.com/Tsinghua-MARS-Lab/SLAM-Former"
+    },
+    "provider": "SLAM-Former",
+    "variant": "V1.1-long@224"
+  },
+  "notes": [
+    "prepare performs no inference and makes no network request",
+    "only RGB symlinks and intrinsics/frame mapping are staged",
+    "final_traj.txt is sparse/keyframe output, not a complete per-frame trajectory",
+    "final.ply is visual geometry evidence, not SGF-SGAligner refusion acceptance"
+  ],
+  "official_command_template": [
+    "/home/ai3d/Documents/project_chicken/chicken_env/bin/python",
+    "slam/demo.py",
+    "--ckpt_path",
+    "{checkpoint}",
+    "--image_folder",
+    "{input_root}/rgb",
+    "--target_size",
+    "224",
+    "--output_dir",
+    "{output_root}",
+    "--stride",
+    "1",
+    "--kf_th",
+    "0.1",
+    "--retention_ratio",
+    "1",
+    "--bn_every",
+    "10"
+  ],
+  "output_policy": "create_only",
+  "paths": {
+    "attempt_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf01",
+    "input_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf01/input_no_gt",
+    "official_output_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf01/official_output"
+  },
+  "payload_sha256": "f1d2ef06914bf9163b674b6f2ad5933c6d5d75a504d306485bca1d2742360438",
+  "schema": "slamformer_scene0030_smoke_plan.v1",
+  "status": "prepared_not_executed"
+}

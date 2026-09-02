@@ -1,0 +1,33 @@
+{
+  "checkpoint_sha256": "5375d5cfdf2423327d71bbd38351f1219a66c68e0a1fce34ee63b058d28ccfd1",
+  "geometry": {
+    "format": "binary_little_endian",
+    "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf0/official_output/final.ply",
+    "sha256": "2562fc93c1a9a665254573fca0e8a7d3a205ca70cf420816c8986fb78d20e820",
+    "size_bytes": 13818674,
+    "vertex_count": 511795,
+    "xyz_properties_present": true
+  },
+  "gt_consumed": false,
+  "limitations": [
+    "keyframe trajectory coverage is not complete per-frame T_world_camera coverage",
+    "PLY structure validation is not geometric quality or refusion acceptance",
+    "promotion still requires scale evidence, DPV-anchor revision, complete refusion, and fixed-view QA"
+  ],
+  "model_commit": "0071ca9e6c53aec55572a5557c5fcf3a23cdba5d",
+  "model_variant": "V1.1-long@224",
+  "payload_sha256": "e280e6fcad115e81d3c380c98d955f3de54e4f1b04a9ec4dbd283217c0665ee4",
+  "plan_payload_sha256": "eef0f0377635ba066f530c8d4eee9e09418d83be0dc742c1e910c8a06f6c9667",
+  "schema": "slamformer_scene0030_smoke_verification.v1",
+  "status": "official_artifacts_contract_valid",
+  "trajectory": {
+    "finite": true,
+    "first_identifier": 2334.0,
+    "identifier_mode": "frame_id",
+    "last_identifier": 2349.0,
+    "path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf0/official_output/final_traj.txt",
+    "row_count": 16,
+    "sha256": "37b47f6f8be1e87fa622fda4ee342aedfb7190e82dc9599e0080e367e2e4cf8f",
+    "zero_quaternion": false
+  }
+}

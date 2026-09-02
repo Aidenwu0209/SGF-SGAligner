@@ -201,7 +201,10 @@ def _stage_rgb_create_only(
     for ordinal, row in enumerate(frames):
         source = Path(row["color_path"]).resolve()
         suffix = source.suffix.lower() or ".jpg"
-        destination = rgb_root / f"{ordinal:06d}{suffix}"
+        # SLAM-Former parses the numeric image stem into final_traj.txt.  Use
+        # the manifest frame ID rather than a window-local ordinal so a smoke
+        # starting after frame zero remains traceable to the source sequence.
+        destination = rgb_root / f"{int(row['frame_id']):06d}{suffix}"
         os.symlink(source, destination)
         staged.append({
             "ordinal": ordinal,

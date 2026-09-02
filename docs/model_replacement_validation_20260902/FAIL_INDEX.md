@@ -130,3 +130,24 @@ Authoritative artifacts are create-only under:
 
 This supersedes only the host-eligibility failure.  An eight-frame smoke is not
 pose-accuracy, full-scene refusion or promotion evidence.
+
+## SLAM-Former / ScanNet scene0030 motion-window default policy
+
+- Status: **FAIL — only one keyframe; backend map absent**
+- Model: V1.1-long@224, official default `kf_th=0.1`
+- SLAM-Former commit: `0071ca9e6c53aec55572a5557c5fcf3a23cdba5d`
+- Checkpoint SHA-256:
+  `5375d5cfdf2423327d71bbd38351f1219a66c68e0a1fce34ee63b058d28ccfd1`
+- Input: `scene0030_00` frames `2334..2349`, no-GT manifest payload SHA-256
+  `282989bbbd3fa91e00aac2c8ac884a96e711400288a9bd78204fda6b5c245b7d`
+- GT consumed: no
+- Frames processed: 16; keyframes retained: 1 (6.25%)
+- Failure: termination called `self.model.backendT(self.map.cuda())` while
+  `self.map` was `None`
+- Valid trajectory written: no; identity fallback: no
+
+The maximum keyframe score was `0.0491`, below the official `0.1` threshold.
+A separate `kf_th=0` diagnostic produced 16 real keyframes and valid artifacts,
+but it does not supersede this default-policy failure or qualify as an online
+frontend result. Raw failure and diagnostic evidence are under
+`orin_30w_motion16_evidence/`.

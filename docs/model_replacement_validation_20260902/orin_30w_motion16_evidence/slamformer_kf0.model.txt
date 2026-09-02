@@ -1,0 +1,126 @@
+/usr/lib/python3/dist-packages/scipy/__init__.py:146: UserWarning: A NumPy version >=1.17.3 and <1.25.0 is required for this version of SciPy (detected version 1.26.3
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+Warning, cannot find cuda-compiled version of RoPE2D, using a slow pytorch version instead
+Loading images from
+/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030
+_motion16_2334_2349_v1_1_long_224_30w_kf0/input_no_gt/rgb...
+Found 16 images
+resize image 1
+Loaded state_dict from 'model' key in checkpoint.
+Detected ConvHead in checkpoint; setting use_conv_head=True.
+Frame 0
+ # KEYFRAME 0
+Frame 1
+tensor(0.0079)
+ # KEYFRAME 1
+Frame 2
+tensor(0.0018)
+ # KEYFRAME 2
+0.38578506399971957
+Frame 3
+tensor(0.0053)
+ # KEYFRAME 3
+0.3882507430007536
+Frame 4
+tensor(0.0155)
+ # KEYFRAME 4
+0.3891678119998687
+Frame 5
+tensor(0.0039)
+ # KEYFRAME 5
+0.39001345799988485
+Frame 6
+tensor(0.0026)
+ # KEYFRAME 6
+0.39887440699931176
+Frame 7
+tensor(0.0046)
+ # KEYFRAME 7
+0.3928865180005232
+Frame 8
+tensor(0.0023)
+ # KEYFRAME 8
+0.39983399999982794
+Frame 9
+tensor(0.0027)
+ # KEYFRAME 9
+0.3985108559991204
+Backending... 10 KFs
+backend_take 0.9913306179987558
+Frame 10
+tensor(0.0043)
+ # KEYFRAME 10
+0.39601422600026126
+Frame 11
+tensor(0.0051)
+ # KEYFRAME 11
+0.4061761409993778
+Frame 12
+tensor(0.0061)
+ # KEYFRAME 12
+0.4133842890005326
+Frame 13
+tensor(0.0066)
+ # KEYFRAME 13
+0.41023253800085513
+Frame 14
+tensor(0.0062)
+ # KEYFRAME 14
+0.4142112449990236
+Frame 15
+tensor(0.0145)
+ # KEYFRAME 15
+0.4198794550011371
+Backending... 16 KFs
+backend_take 1.5323772530009592
+[
+    0.00027637899984256364,
+    1.158398452000256,
+    0.5687341399989236,
+    0.5494694449989765,
+    0.5559521360009967,
+    0.5561364160002995,
+    0.558073111998965,
+    0.5613506139998208,
+    0.5506538860008732,
+    0.5562008490014705,
+    0.5672302340008173,
+    0.5499531509994995,
+    0.5499834199999896,
+    0.5494983690005029,
+    0.547758431001057,
+    0.5539017670016619
+]
+[
+    2.8095000743633136e-05,
+    0.5551055030009593,
+    0.38934010099910665,
+    0.39193336100106535,
+    0.39245635800034506,
+    0.39321896499859577,
+    0.4025830720001977,
+    0.39586284600045474,
+    0.4035932890001277,
+    0.40230214300027,
+    0.4001480349998019,
+    0.4093981919995713,
+    0.4175296499997785,
+    0.41376453500015486,
+    0.4182916789995943,
+    0.4237117020002188
+]
+[0.9913253699996858, 1.5323721650001971]
+frontend take 0.3880792203750616
+KFT
+total 8.933570801003953 FPS 1.7909971674710323
+FT
+total 6.2092675260009855 FPS 2.576793467667616
+BT
+total 2.523697534999883 FPS 0.7924879951987166
+Summary
+total 17.66653586200482 FPS 0.9056670829515017
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+{
+  "output_root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030_motion16_2334_2349_v1_1_long_224_30w_kf0/official_output",
+  "status": "executed_unverified"
+}

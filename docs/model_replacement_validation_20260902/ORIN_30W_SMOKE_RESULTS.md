@@ -1,5 +1,10 @@
 # Jetson Orin 30 W model smoke results
 
+The follow-up meaningful-motion evaluation is documented in
+[`ORIN_30W_MOTION16_RESULTS.md`](ORIN_30W_MOTION16_RESULTS.md). It supersedes
+the first-eight-frame prefix for accuracy interpretation, while this document
+remains the original compatibility-smoke record.
+
 Remote create-only root:
 
 `/home/ai3d/Documents/sgf_sga_model_validation_20260902`

@@ -1,0 +1,52 @@
+/usr/lib/python3/dist-packages/scipy/__init__.py:146: UserWarning: A NumPy version >=1.17.3 and <1.25.0 is required for this version of SciPy (detected version 1.26.3
+  warnings.warn(f"A NumPy version >={np_minversion} and <{np_maxversion}"
+Warning, cannot find cuda-compiled version of RoPE2D, using a slow pytorch version instead
+Loading images from
+/home/ai3d/Documents/sgf_sga_model_validation_20260902/runs/slamformer_scene0030
+_motion16_2334_2349_v1_1_long_224_30w_kf01/input_no_gt/rgb...
+Found 16 images
+resize image 1
+Loaded state_dict from 'model' key in checkpoint.
+Detected ConvHead in checkpoint; setting use_conv_head=True.
+Frame 0
+ # KEYFRAME 0
+Frame 1
+tensor(0.0079)
+Frame 2
+tensor(0.0090)
+Frame 3
+tensor(0.0126)
+Frame 4
+tensor(0.0273)
+Frame 5
+tensor(0.0298)
+Frame 6
+tensor(0.0302)
+Frame 7
+tensor(0.0261)
+Frame 8
+tensor(0.0268)
+Frame 9
+tensor(0.0272)
+Frame 10
+tensor(0.0305)
+Frame 11
+tensor(0.0334)
+Frame 12
+tensor(0.0351)
+Frame 13
+tensor(0.0406)
+Frame 14
+tensor(0.0403)
+Frame 15
+tensor(0.0491)
+Backending... 1 KFs
+Traceback (most recent call last):
+  File "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/slam/demo.py", line 593, in <module>
+    result = slam.terminate()
+  File "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/slam/demo.py", line 409, in terminate
+    self.backend(final=True)
+  File "/home/ai3d/Documents/sgf_sga_model_validation_20260902/models/SLAM-Former/slam/demo.py", line 315, in backend
+    map_optimed = self.model.backendT(self.map.cuda())
+AttributeError: 'NoneType' object has no attribute 'cuda'
+{"error": "official command failed with exit code 1", "status": "failed"}

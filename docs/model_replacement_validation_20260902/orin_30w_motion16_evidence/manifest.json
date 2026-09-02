@@ -1,0 +1,232 @@
+{
+  "dataset": "scannet",
+  "depth_scale": 1000.0,
+  "forbidden_inputs": [
+    "evaluation",
+    "evaluations",
+    "ground-truth",
+    "ground_truth",
+    "gt",
+    "mesh",
+    "meshes",
+    "pose",
+    "poses"
+  ],
+  "frames": [
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2334.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2334.png",
+      "frame_id": 2334,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78799222
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2335.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2335.png",
+      "frame_id": 2335,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78832555
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2336.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2336.png",
+      "frame_id": 2336,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78865888
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2337.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2337.png",
+      "frame_id": 2337,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78899221
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2338.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2338.png",
+      "frame_id": 2338,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78932554
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2339.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2339.png",
+      "frame_id": 2339,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78965887
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2340.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2340.png",
+      "frame_id": 2340,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 78999220
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2341.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2341.png",
+      "frame_id": 2341,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79032553
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2342.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2342.png",
+      "frame_id": 2342,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79065886
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2343.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2343.png",
+      "frame_id": 2343,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79099219
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2344.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2344.png",
+      "frame_id": 2344,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79132552
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2345.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2345.png",
+      "frame_id": 2345,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79165885
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2346.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2346.png",
+      "frame_id": 2346,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79199218
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2347.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2347.png",
+      "frame_id": 2347,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79232551
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2348.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2348.png",
+      "frame_id": 2348,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79265884
+    },
+    {
+      "color_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/color/2349.jpg",
+      "depth_path": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00/depth/2349.png",
+      "frame_id": 2349,
+      "intrinsics": [
+        574.540771,
+        577.58374,
+        322.522827,
+        238.558853
+      ],
+      "rotate_ccw": false,
+      "timestamp_us": 79299217
+    }
+  ],
+  "gt_at_inference": false,
+  "matrix_convention": "T_world_camera_m",
+  "payload_sha256": "282989bbbd3fa91e00aac2c8ac884a96e711400288a9bd78204fda6b5c245b7d",
+  "root": "/home/ai3d/Documents/sgf_sga_model_validation_20260902/data/scannet/scene0030_00",
+  "schema": "rgbd_sequence_manifest.v1",
+  "sequence_id": "scene0030_00",
+  "source": "raw_rgbd_intrinsics_only"
+}

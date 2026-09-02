@@ -1,0 +1,5 @@
+model,status,frames,coverage,ate_rmse_m,ate_median_m,rpe_translation_median_m,rpe_rotation_median_deg,metric_scale_m_per_model_unit,sim3_residual_scale,wall_seconds,max_tegrastats_ram_mb
+mapanything,completed_official_independent_window,16,1.0,0.006622002785148286,0.0042823554211774174,0.005348469359231089,0.15208614749767743,1.0,0.9760763146206978,67.892411,
+abot_recon,completed_official_noloop,16,1.0,0.009195413895428741,0.007571780757386943,0.0054424149467023515,0.13146495160900826,2.6852761557641136,1.0193043411033582,25.80322,10593
+slamformer_kf0,completed_diagnostic_kf_th_0_not_official_default,16,1.0,0.008859490371400758,0.007450887636227519,0.009338298930541514,0.1943561442422257,2.1214412333216335,1.0195343115752873,51.132233,14915
+slamformer_default,failed_one_keyframe_backend_none,,0.0625,,,,,,,39.660718,
