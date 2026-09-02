@@ -1,0 +1,27 @@
+schema: gcvo_rgbd_refinement_config.v1
+enabled: false
+branch: exp/pose-gcvo-rgbd-refinement
+base: develop@f3d1adbd14d0bdd444f7ca9436aaa5d2d23cb326
+matrix_convention: p_source=T_source_target@p_target
+input:
+  manifest: rgbd_sequence_manifest.v1
+  baseline_trajectory: pose_trajectory.v1
+  external_result: gcvo_relative_refinement.v1
+gates:
+  maximum_baseline_disagreement_translation_m: 0.08
+  maximum_baseline_disagreement_rotation_deg: 8.0
+  maximum_step_translation_m: 0.20
+  maximum_step_rotation_deg: 20.0
+  minimum_accepted_fraction: 0.80
+output:
+  trajectory: pose_trajectory.v1
+  audit: gcvo_refinement_audit.v1
+  require_complete_frame_coverage: true
+  identity_fallback_allowed: false
+backend:
+  pose_graph_unchanged: true
+  full_refusion_required: true
+promotion:
+  same_input_ab_required: true
+  require_final_geometry_improvement: true
+
