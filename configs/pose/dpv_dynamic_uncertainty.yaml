@@ -1,0 +1,36 @@
+schema: dpv_dynamic_uncertainty_config.v1
+enabled: false
+branch: exp/pose-dpv-dynamic-uncertainty
+base: develop@f3d1adbd14d0bdd444f7ca9436aaa5d2d23cb326
+provider_allowlist:
+  - DROID-W
+  - pi3_mos
+input:
+  manifest: rgbd_sequence_manifest.v1
+  artifact_fields:
+    - frame_ids
+    - dynamic_uncertainty
+    - provider
+    - model_commit
+    - checkpoint_sha256
+    - gt_consumed
+  optional_depth_prior_m: true
+weights:
+  minimum_static_confidence: 0.20
+  depth_prior_sigma_m: 0.10
+  minimum_weighted_samples: 120
+  sampling_stride: 8
+integration:
+  metric_scale_patch_samples: weighted
+  rgbd_depth_consistency: weighted
+  dpvo_bundle_adjustment_patch_weights: multiply_static_confidence
+  modify_rgb_pixels: false
+backend:
+  pose_graph_unchanged: true
+  full_refusion_required: true
+promotion:
+  require_complete_uncertainty_coverage: true
+  require_complete_pose_coverage: true
+  identity_fallback_allowed: false
+  same_input_ab_required: true
+
