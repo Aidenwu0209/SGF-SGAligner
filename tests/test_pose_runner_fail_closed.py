@@ -127,6 +127,21 @@ class PoseRunnerFailClosedTests(unittest.TestCase):
                 "retain_original_dpv_trajectory",
             )
 
+    def test_existing_output_directory_is_never_reused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest_path, trajectory_path, _poses = self._two_pose_fixture(root)
+            output = root / "already_exists"
+            output.mkdir()
+            sentinel = output / "sentinel.txt"
+            sentinel.write_text("preserve me", encoding="utf-8")
+            with self.assertRaises(FileExistsError):
+                run_sequence(
+                    arm="baseline", manifest_path=manifest_path,
+                    trajectory_path=trajectory_path, output_dir=output,
+                )
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "preserve me")
+
 
 if __name__ == "__main__":
     unittest.main()

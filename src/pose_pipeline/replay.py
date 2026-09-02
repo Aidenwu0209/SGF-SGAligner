@@ -18,6 +18,11 @@ from .contracts import (
     write_manifest,
     write_trajectory,
 )
+from .depth_filter import (
+    DepthFilterAccumulator,
+    DepthFilterConfig,
+    apply_depth_filter,
+)
 
 
 REQUEST = struct.Struct("<8sIIQQddddIII")
@@ -74,7 +79,11 @@ def _recv_exact(connection: socket.socket, count: int) -> bytes:
     return b"".join(chunks)
 
 
-def _read_frame(frame: FrameRecord):
+def _read_frame(
+    frame: FrameRecord, depth_scale: float = 1000.0,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+    *, return_filter_stats: bool = False,
+):
     import cv2
 
     color = cv2.imread(str(frame.color_path), cv2.IMREAD_COLOR)
@@ -92,30 +101,41 @@ def _read_frame(frame: FrameRecord):
     height, width = depth.shape
     if color.shape[:2] != depth.shape:
         color = cv2.resize(color, (width, height), interpolation=cv2.INTER_AREA)
+    depth, filter_stats = apply_depth_filter(
+        depth, depth_scale, depth_filter_config,
+    )
     color, depth, preprocessing = _pad_rgbd_to_multiple(color, depth)
-    return (
+    preprocessing["depth_filter"] = filter_stats.as_dict()
+    result = (
         np.ascontiguousarray(color, dtype=np.uint8),
         np.ascontiguousarray(depth.astype("<u2", copy=False)),
         (float(fx), float(fy), float(cx), float(cy)),
         preprocessing,
     )
+    return result + (filter_stats,) if return_filter_stats else result
 
 
 def replay_manifest(
     *, manifest_path: Path, socket_path: Path, output_dir: Path,
     timeout_s: float = 30.0,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
 ) -> dict:
     manifest = load_manifest(manifest_path)
     output_dir = Path(output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=False)
     records, poses, valid_frames = [], [], []
+    depth_filter_audit = DepthFilterAccumulator(depth_filter_config)
     connection = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     connection.settimeout(timeout_s)
     connection.connect(str(socket_path))
     started = time.monotonic()
     try:
         for frame in manifest.frames:
-            color, depth, intrinsics, preprocessing = _read_frame(frame)
+            color, depth, intrinsics, preprocessing, filter_stats = _read_frame(
+                frame, manifest.depth_scale, depth_filter_config,
+                return_filter_stats=True,
+            )
+            depth_filter_audit.update(frame.frame_id, filter_stats)
             height, width = depth.shape
             header = REQUEST.pack(
                 REQUEST_MAGIC, width, height, frame.frame_id,
@@ -186,11 +206,17 @@ def replay_manifest(
     write_trajectory(
         output_dir / "trajectory.json", poses,
         sequence_id=manifest.sequence_id, arm="baseline",
-        metadata={"frontend": "DPV-SLAM", "raw_frame_count": len(records)},
+        metadata={
+            "frontend": "DPV-SLAM",
+            "raw_frame_count": len(records),
+            "depth_filter_parameters_sha256": (
+                depth_filter_config.parameters_sha256
+            ),
+        },
     )
     latencies = [row["latency_ms"] for row in records]
     summary = {
-        "schema": "dpv_manifest_replay.v1",
+        "schema": "dpv_manifest_replay.v2",
         "sequence_id": manifest.sequence_id,
         "input_frame_count": len(records),
         "valid_pose_count": len(poses),
@@ -198,6 +224,7 @@ def replay_manifest(
         "median_latency_ms": float(np.median(latencies)),
         "p95_latency_ms": float(np.percentile(latencies, 95)),
         "runtime_s": time.monotonic() - started,
+        "depth_filter": depth_filter_audit.summary(),
         "dimension_padding": {
             "method": "zero_pad_bottom_right_to_multiple_16",
             "principal_point_adjusted": False,

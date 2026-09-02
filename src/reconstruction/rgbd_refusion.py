@@ -21,6 +21,11 @@ from pose_pipeline.contracts import (
     load_trajectory,
     sha256_file,
 )
+from pose_pipeline.depth_filter import (
+    DepthFilterAccumulator,
+    DepthFilterConfig,
+    apply_depth_filter,
+)
 
 
 @dataclass
@@ -41,6 +46,7 @@ class FullRefusionRequest:
     voxel_length_m: float = 0.02
     sdf_trunc_m: float = 0.08
     depth_trunc_m: float = 4.50
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig()
 
 
 def check_refusion_authorization(
@@ -54,7 +60,11 @@ def check_refusion_authorization(
     return value.shape == (4, 4) and np.isfinite(value).all()
 
 
-def _read_rgbd(frame):
+def _read_rgbd(
+    frame, depth_scale: float = 1000.0,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+    *, return_filter_stats: bool = False,
+):
     import cv2
 
     color = cv2.imread(str(frame.color_path), cv2.IMREAD_COLOR)
@@ -73,7 +83,11 @@ def _read_rgbd(frame):
     if color.shape[:2] != depth.shape:
         color = cv2.resize(color, (width, height), interpolation=cv2.INTER_AREA)
     color = cv2.cvtColor(color, cv2.COLOR_BGR2RGB)
-    return color, depth, (fx, fy, cx, cy)
+    depth, filter_stats = apply_depth_filter(
+        depth, depth_scale, depth_filter_config,
+    )
+    result = (color, depth, (fx, fy, cx, cy))
+    return result + (filter_stats,) if return_filter_stats else result
 
 
 def run_full_rgbd_refusion(request: FullRefusionRequest) -> dict:
@@ -104,9 +118,16 @@ def run_full_rgbd_refusion(request: FullRefusionRequest) -> dict:
         sdf_trunc=request.sdf_trunc_m,
         color_type=o3d.pipelines.integration.TSDFVolumeColorType.RGB8,
     )
+    depth_filter_audit = DepthFilterAccumulator(
+        request.depth_filter_config,
+    )
     for frame_id in selected_ids:
         frame, pose = frame_by_id[frame_id]
-        color, depth, intrinsics = _read_rgbd(frame)
+        color, depth, intrinsics, filter_stats = _read_rgbd(
+            frame, manifest.depth_scale, request.depth_filter_config,
+            return_filter_stats=True,
+        )
+        depth_filter_audit.update(frame_id, filter_stats)
         height, width = depth.shape
         rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
             o3d.geometry.Image(np.ascontiguousarray(color, dtype=np.uint8)),
@@ -132,7 +153,7 @@ def run_full_rgbd_refusion(request: FullRefusionRequest) -> dict:
     if not o3d.io.write_point_cloud(str(cloud_path), cloud, write_ascii=False):
         raise RuntimeError("Open3D failed to write refused.ply")
     report = {
-        "schema": "rgbd_full_refusion.v1",
+        "schema": "rgbd_full_refusion.v2",
         "status": "completed",
         "sequence_id": manifest.sequence_id,
         "requested_frame_count": len(selected_ids),
@@ -142,6 +163,7 @@ def run_full_rgbd_refusion(request: FullRefusionRequest) -> dict:
         "voxel_length_m": request.voxel_length_m,
         "sdf_trunc_m": request.sdf_trunc_m,
         "depth_trunc_m": request.depth_trunc_m,
+        "depth_filter": depth_filter_audit.summary(),
         "manifest_sha256": sha256_file(request.manifest),
         "trajectory_sha256": sha256_file(request.trajectory),
         "trajectory_payload_sha256": trajectory_payload["payload_sha256"],

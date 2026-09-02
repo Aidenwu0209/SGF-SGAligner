@@ -20,6 +20,7 @@ from .geometry_backend import (
     GeometryBootstrapConfig,
     register_submaps_bidirectional,
 )
+from .depth_filter import DepthFilterAccumulator, DepthFilterConfig
 from .pose_graph import (
     LoopWeightConfig,
     PoseGraphEdge,
@@ -47,7 +48,7 @@ def _write_json(path: Path, value: object) -> None:
 
 def _retain_candidate_noop(
     *, output_dir: Path, manifest, trajectory, trajectory_payload: dict,
-    frame_count: int, reason: str,
+    frame_count: int, reason: str, depth_filter: dict,
 ) -> dict[str, Any]:
     write_trajectory(
         output_dir / "trajectory.json", trajectory,
@@ -56,6 +57,7 @@ def _retain_candidate_noop(
             "source_trajectory_sha256": trajectory_payload["payload_sha256"],
             "backend_correction": False,
             "fail_closed_action": "retain_original_dpv_trajectory",
+            "depth_filter_parameters_sha256": depth_filter["parameters_sha256"],
         },
     )
     result = {
@@ -68,6 +70,7 @@ def _retain_candidate_noop(
         "accepted_loop_count": 0,
         "corrected_trajectory_written": True,
         "backend_correction_applied": False,
+        "depth_filter": depth_filter,
         "identity_fallback_used": False,
         "gt_consumed": False,
     }
@@ -86,6 +89,7 @@ def run_sequence(
     robust_config: RobustPoseConfig = RobustPoseConfig(),
     geometry_config: GeometryBootstrapConfig = GeometryBootstrapConfig(),
     loop_weight_config: LoopWeightConfig = LoopWeightConfig(),
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
 ) -> dict[str, Any]:
     if arm not in {"baseline", "candidate"}:
         raise ValueError("arm must be baseline or candidate")
@@ -96,13 +100,16 @@ def run_sequence(
     bound = bind_manifest_trajectory(
         manifest, trajectory, allow_manifest_superset=True,
     )
+    depth_filter_audit = DepthFilterAccumulator(depth_filter_config)
     if arm == "baseline":
+        filter_report = depth_filter_audit.summary()
         write_trajectory(
             output_dir / "trajectory.json", trajectory,
             sequence_id=manifest.sequence_id, arm="baseline",
             metadata={
                 "source_trajectory_sha256": trajectory_payload["payload_sha256"],
                 "backend_correction": False,
+                "depth_filter_parameters_sha256": filter_report["parameters_sha256"],
             },
         )
         result = {
@@ -112,12 +119,14 @@ def run_sequence(
             "frame_count": len(bound),
             "accepted_loop_count": 0,
             "corrected_trajectory_written": True,
+            "depth_filter": filter_report,
             "gt_consumed": False,
         }
         _write_json(output_dir / "run_result.json", result)
         return result
 
     if len(bound) < 2:
+        filter_report = depth_filter_audit.summary()
         _write_json(output_dir / "loop_evidence.json", {
             "schema": "pose_pipeline_loop_evidence.v1",
             "sequence_id": manifest.sequence_id,
@@ -129,6 +138,7 @@ def run_sequence(
             "robust_config": asdict(robust_config),
             "geometry_config": asdict(geometry_config),
             "loop_weight_config": asdict(loop_weight_config),
+            "depth_filter": filter_report,
             "anchors": [],
             "evidence": [],
             "rejection_reason": "fewer_than_two_valid_frontend_poses",
@@ -141,6 +151,7 @@ def run_sequence(
                 "source_trajectory_sha256": trajectory_payload["payload_sha256"],
                 "backend_correction": False,
                 "fail_closed_action": "retain_original_dpv_trajectory",
+                "depth_filter_parameters_sha256": filter_report["parameters_sha256"],
             },
         )
         result = {
@@ -153,6 +164,7 @@ def run_sequence(
             "accepted_loop_count": 0,
             "corrected_trajectory_written": True,
             "backend_correction_applied": False,
+            "depth_filter": filter_report,
             "identity_fallback_used": False,
             "gt_consumed": False,
         }
@@ -166,8 +178,10 @@ def run_sequence(
         try:
             submap = build_submap(
                 bound, ordinal, manifest.depth_scale, submap_config,
+                depth_filter_config, depth_filter_audit,
             )
         except (ValueError, RuntimeError) as error:
+            filter_report = depth_filter_audit.summary()
             _write_json(output_dir / "loop_evidence.json", {
                 "schema": "pose_pipeline_loop_evidence.v1",
                 "sequence_id": manifest.sequence_id,
@@ -179,6 +193,7 @@ def run_sequence(
                 "robust_config": asdict(robust_config),
                 "geometry_config": asdict(geometry_config),
                 "loop_weight_config": asdict(loop_weight_config),
+                "depth_filter": filter_report,
                 "anchors": anchor_rows,
                 "evidence": [],
                 "rejection_reason": "submap_construction_failed",
@@ -193,11 +208,12 @@ def run_sequence(
                 output_dir=output_dir, manifest=manifest,
                 trajectory=trajectory, trajectory_payload=trajectory_payload,
                 frame_count=len(bound), reason="submap_construction_failed",
+                depth_filter=filter_report,
             )
         path = output_dir / "submaps" / (
             f"anchor_{anchor_index:03d}_frame_{submap.anchor_frame_id:06d}.npz"
         )
-        save_submap(path, submap, submap_config)
+        save_submap(path, submap, submap_config, depth_filter_config)
         submaps.append(submap)
         anchor_rows.append({
             "anchor_index": anchor_index,
@@ -243,6 +259,7 @@ def run_sequence(
                 ),
                 provenance="geometry_bootstrap_fpfh+pagor+pygcransac+teaser_witness",
             ))
+    filter_report = depth_filter_audit.summary()
     _write_json(output_dir / "loop_evidence.json", {
         "schema": "pose_pipeline_loop_evidence.v1",
         "sequence_id": manifest.sequence_id,
@@ -254,6 +271,7 @@ def run_sequence(
         "robust_config": asdict(robust_config),
         "geometry_config": asdict(geometry_config),
         "loop_weight_config": asdict(loop_weight_config),
+        "depth_filter": filter_report,
         "anchors": anchor_rows,
         "evidence": evidence,
         "gt_consumed": False,
@@ -266,6 +284,7 @@ def run_sequence(
                 "source_trajectory_sha256": trajectory_payload["payload_sha256"],
                 "backend_correction": False,
                 "fail_closed_action": "retain_original_dpv_trajectory",
+                "depth_filter_parameters_sha256": filter_report["parameters_sha256"],
             },
         )
         result = {
@@ -278,6 +297,7 @@ def run_sequence(
             "accepted_loop_count": 0,
             "corrected_trajectory_written": True,
             "backend_correction_applied": False,
+            "depth_filter": filter_report,
             "identity_fallback_used": False,
             "gt_consumed": False,
         }
@@ -294,6 +314,7 @@ def run_sequence(
                 "source_trajectory_sha256": trajectory_payload["payload_sha256"],
                 "backend_correction": False,
                 "fail_closed_action": "retain_original_dpv_trajectory",
+                "depth_filter_parameters_sha256": filter_report["parameters_sha256"],
             },
         )
         result = {
@@ -306,6 +327,7 @@ def run_sequence(
             "accepted_loop_count": 0,
             "corrected_trajectory_written": True,
             "backend_correction_applied": False,
+            "depth_filter": filter_report,
             "identity_fallback_used": False,
             "gt_consumed": False,
         }
@@ -319,6 +341,7 @@ def run_sequence(
             "source_trajectory_sha256": trajectory_payload["payload_sha256"],
             "pose_graph_result_sha256": stable_json_sha256(optimization),
             "correspondence_provider": "geometry_bootstrap_fpfh",
+            "depth_filter_parameters_sha256": filter_report["parameters_sha256"],
         },
     )
     result = {
@@ -331,6 +354,7 @@ def run_sequence(
         "accepted_loop_count": optimization["accepted_loop_edge_count"],
         "corrected_trajectory_written": True,
         "backend_correction_applied": True,
+        "depth_filter": filter_report,
         "identity_fallback_used": False,
         "gt_consumed": False,
     }

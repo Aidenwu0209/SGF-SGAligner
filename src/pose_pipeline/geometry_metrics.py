@@ -100,15 +100,22 @@ def ply_geometry_metrics(path: Path) -> dict:
         if {"nx", "ny", "nz"} <= names else np.zeros_like(points)
     )
     finite = np.isfinite(points).all(axis=1) & np.isfinite(normals).all(axis=1)
+    input_vertices = int(len(points))
     points, normals = points[finite], normals[finite]
     if not len(points):
         raise ValueError("PLY contains no finite points")
     return {
         "schema": "no_gt_geometry_metrics.v1",
         "source": str(Path(path).resolve()),
+        "input_vertices": input_vertices,
         "vertices": int(len(points)),
+        "all_vertices_finite": bool(np.all(finite)),
         "occupied_voxels_2cm": int(len(np.unique(np.floor(points / 0.02).astype(np.int32), axis=0))),
         "bbox_extent_m": np.ptp(points, axis=0).astype(float).tolist(),
+        "robust_extent_p99_p01_m": (
+            np.percentile(points, 99, axis=0)
+            - np.percentile(points, 1, axis=0)
+        ).astype(float).tolist(),
         "near_parallel_layer_conflict_ratio": _layer_conflict(points),
         "horizontal_planes": _plane_metrics(points, normals),
         "gt_consumed": False,

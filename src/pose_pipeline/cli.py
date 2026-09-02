@@ -11,6 +11,7 @@ from .contracts import (
     load_legacy_tcw_mm, load_manifest, write_manifest, write_trajectory,
 )
 from .evaluation import evaluate_trajectory_files
+from .depth_filter import DEPTH_FILTER_PROFILES, DepthFilterConfig
 from .pose_graph import LoopWeightConfig
 from .replay import replay_manifest
 from .runner import run_sequence
@@ -34,6 +35,9 @@ def _replay(args: argparse.Namespace) -> None:
         socket_path=args.socket,
         output_dir=args.output,
         timeout_s=args.timeout,
+        depth_filter_config=DepthFilterConfig.from_profile(
+            args.depth_filter_profile,
+        ),
     ), indent=2))
 
 
@@ -49,6 +53,9 @@ def _run(args: argparse.Namespace) -> None:
                 args.high_leverage_loop_min_span_fraction
             ),
             high_leverage_weight_cap=args.high_leverage_loop_weight_cap,
+        ),
+        depth_filter_config=DepthFilterConfig.from_profile(
+            args.depth_filter_profile,
         ),
     ), indent=2))
 
@@ -98,6 +105,9 @@ def _refuse(args: argparse.Namespace) -> None:
         voxel_length_m=args.voxel_length,
         sdf_trunc_m=args.sdf_trunc,
         depth_trunc_m=args.depth_trunc,
+        depth_filter_config=DepthFilterConfig.from_profile(
+            args.depth_filter_profile,
+        ),
     )), indent=2))
 
 
@@ -115,6 +125,10 @@ def build_parser() -> argparse.ArgumentParser:
     replay.add_argument("--socket", type=Path, required=True)
     replay.add_argument("--output", type=Path, required=True)
     replay.add_argument("--timeout", type=float, default=30.0)
+    replay.add_argument(
+        "--depth-filter-profile", choices=DEPTH_FILTER_PROFILES,
+        default="off",
+    )
     replay.set_defaults(handler=_replay)
     run = commands.add_parser("run")
     run.add_argument("--arm", choices=("baseline", "candidate"), required=True)
@@ -128,6 +142,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument(
         "--high-leverage-loop-weight-cap", type=float, default=1.5,
+    )
+    run.add_argument(
+        "--depth-filter-profile", choices=DEPTH_FILTER_PROFILES,
+        default="off",
     )
     run.set_defaults(handler=_run)
     import_trajectory = commands.add_parser("import-trajectory")
@@ -149,6 +167,10 @@ def build_parser() -> argparse.ArgumentParser:
     refuse.add_argument("--voxel-length", type=float, default=0.02)
     refuse.add_argument("--sdf-trunc", type=float, default=0.08)
     refuse.add_argument("--depth-trunc", type=float, default=4.50)
+    refuse.add_argument(
+        "--depth-filter-profile", choices=DEPTH_FILTER_PROFILES,
+        default="off",
+    )
     refuse.set_defaults(handler=_refuse)
     return parser
 

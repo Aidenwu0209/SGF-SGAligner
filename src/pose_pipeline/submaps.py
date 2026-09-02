@@ -10,6 +10,11 @@ from typing import Sequence
 import numpy as np
 
 from .contracts import FrameRecord, PoseRecord, stable_json_sha256
+from .depth_filter import (
+    DepthFilterAccumulator,
+    DepthFilterConfig,
+    apply_depth_filter,
+)
 
 
 @dataclass(frozen=True)
@@ -64,7 +69,11 @@ def select_anchor_ordinals(count: int, stride: int) -> list[int]:
     return anchors
 
 
-def _read_depth(frame: FrameRecord) -> np.ndarray:
+def _read_depth(
+    frame: FrameRecord, depth_scale: float = 1000.0,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+    *, return_filter_stats: bool = False,
+):
     import cv2
 
     depth = cv2.imread(str(frame.depth_path), cv2.IMREAD_UNCHANGED)
@@ -72,13 +81,23 @@ def _read_depth(frame: FrameRecord) -> np.ndarray:
         raise ValueError(f"frame {frame.frame_id} depth is not uint16 HxW")
     if frame.rotate_ccw:
         depth = cv2.rotate(depth, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    return depth
+    filtered, stats = apply_depth_filter(
+        depth, depth_scale, depth_filter_config,
+    )
+    return (filtered, stats) if return_filter_stats else filtered
 
 
 def depth_points(
     frame: FrameRecord, depth_scale: float, config: SubmapConfig,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+    depth_filter_audit: DepthFilterAccumulator | None = None,
 ) -> np.ndarray:
-    depth = _read_depth(frame)
+    depth, filter_stats = _read_depth(
+        frame, depth_scale, depth_filter_config,
+        return_filter_stats=True,
+    )
+    if depth_filter_audit is not None:
+        depth_filter_audit.update(frame.frame_id, filter_stats)
     height, width = depth.shape
     vv, uu = np.mgrid[
         0:height:config.pixel_stride, 0:width:config.pixel_stride,
@@ -118,6 +137,8 @@ def build_submap(
     anchor_ordinal: int,
     depth_scale: float,
     config: SubmapConfig = SubmapConfig(),
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+    depth_filter_audit: DepthFilterAccumulator | None = None,
 ) -> Submap:
     import open3d as o3d
 
@@ -133,7 +154,10 @@ def build_submap(
     pieces, frame_ids = [], []
     for ordinal in selected:
         frame, pose = bound[ordinal]
-        points = depth_points(frame, depth_scale, config)
+        points = depth_points(
+            frame, depth_scale, config, depth_filter_config,
+            depth_filter_audit,
+        )
         current_to_anchor = np.linalg.inv(anchor_pose) @ pose.t_world_camera
         pieces.append(_transform(points, current_to_anchor))
         frame_ids.append(frame.frame_id)
@@ -158,7 +182,10 @@ def build_submap(
     )
 
 
-def save_submap(path: Path, submap: Submap, config: SubmapConfig) -> None:
+def save_submap(
+    path: Path, submap: Submap, config: SubmapConfig,
+    depth_filter_config: DepthFilterConfig = DepthFilterConfig(),
+) -> None:
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("xb") as stream:
@@ -170,6 +197,9 @@ def save_submap(path: Path, submap: Submap, config: SubmapConfig) -> None:
             source_frame_ids=np.asarray(submap.source_frame_ids, dtype=np.int64),
             points_sha256=np.asarray(submap.points_sha256),
             config_sha256=np.asarray(config_sha256(config)),
+            depth_filter_parameters_sha256=np.asarray(
+                depth_filter_config.parameters_sha256,
+            ),
         )
 
 

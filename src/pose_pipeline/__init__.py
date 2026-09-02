@@ -12,6 +12,13 @@ from .contracts import (
     write_manifest,
     write_trajectory,
 )
+from .depth_filter import (
+    DEPTH_FILTER_PROFILES,
+    DepthFilterAccumulator,
+    DepthFilterConfig,
+    DepthFilterStats,
+    apply_depth_filter,
+)
 
 __all__ = [
     "MANIFEST_SCHEMA",
@@ -24,4 +31,9 @@ __all__ = [
     "load_trajectory",
     "write_manifest",
     "write_trajectory",
+    "DEPTH_FILTER_PROFILES",
+    "DepthFilterAccumulator",
+    "DepthFilterConfig",
+    "DepthFilterStats",
+    "apply_depth_filter",
 ]
