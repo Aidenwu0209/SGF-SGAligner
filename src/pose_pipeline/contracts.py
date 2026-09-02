@@ -89,39 +89,6 @@ class FrameRecord:
 
 
 @dataclass(frozen=True)
-class ImuSample:
-    """One inference-visible IMU sample in the RGB-D device clock domain.
-
-    ``kind`` follows the existing DPV-SLAM socket protocol: 0 is linear
-    acceleration in m/s^2 and 1 is angular velocity in rad/s.
-    """
-
-    timestamp_us: int
-    kind: int
-    x: float
-    y: float
-    z: float
-
-    def validate(self) -> "ImuSample":
-        if self.timestamp_us < 0:
-            raise ValueError("IMU timestamp must be non-negative")
-        if self.kind not in {0, 1}:
-            raise ValueError(f"unsupported IMU kind: {self.kind}")
-        if not np.isfinite((self.x, self.y, self.z)).all():
-            raise ValueError("IMU values must be finite")
-        return self
-
-    def as_dict(self) -> dict:
-        return {
-            "timestamp_us": self.timestamp_us,
-            "kind": self.kind,
-            "x": self.x,
-            "y": self.y,
-            "z": self.z,
-        }
-
-
-@dataclass(frozen=True)
 class SequenceManifest:
     dataset: str
     sequence_id: str
@@ -129,7 +96,6 @@ class SequenceManifest:
     depth_scale: float
     frames: tuple[FrameRecord, ...]
     source: str
-    imu_samples: tuple[ImuSample, ...] = ()
 
     def validate(self, *, require_files: bool = True) -> "SequenceManifest":
         if self.dataset not in {"scannet", "3rscan", "orbbec"}:
@@ -155,12 +121,6 @@ class SequenceManifest:
                 _audit_rgbd_path(frame.depth_path, root=root, kind="depth")
             seen.add(frame.frame_id)
             previous_timestamp = frame.timestamp_us
-        previous_imu_timestamp = -1
-        for sample in self.imu_samples:
-            sample.validate()
-            if sample.timestamp_us < previous_imu_timestamp:
-                raise ValueError("IMU timestamps must be monotonic")
-            previous_imu_timestamp = sample.timestamp_us
         return self
 
     def as_dict(self) -> dict:
@@ -175,7 +135,6 @@ class SequenceManifest:
             "gt_at_inference": False,
             "forbidden_inputs": sorted(FORBIDDEN_PARTS),
             "frames": [frame.as_dict() for frame in self.frames],
-            "imu_samples": [sample.as_dict() for sample in self.imu_samples],
         }
         return {**unsigned, "payload_sha256": stable_json_sha256(unsigned)}
 
@@ -264,13 +223,6 @@ def load_manifest(path: Path, *, require_files: bool = True) -> SequenceManifest
         intrinsics=tuple(float(value) for value in row["intrinsics"]),
         rotate_ccw=bool(row.get("rotate_ccw", False)),
     ) for row in payload["frames"])
-    imu_samples = tuple(ImuSample(
-        timestamp_us=int(row["timestamp_us"]),
-        kind=int(row["kind"]),
-        x=float(row["x"]),
-        y=float(row["y"]),
-        z=float(row["z"]),
-    ) for row in payload.get("imu_samples", ()))
     return SequenceManifest(
         dataset=str(payload["dataset"]),
         sequence_id=str(payload["sequence_id"]),
@@ -278,7 +230,6 @@ def load_manifest(path: Path, *, require_files: bool = True) -> SequenceManifest
         depth_scale=float(payload["depth_scale"]),
         frames=frames,
         source=str(payload["source"]),
-        imu_samples=imu_samples,
     ).validate(require_files=require_files)
 
 

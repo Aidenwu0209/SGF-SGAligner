@@ -7,7 +7,6 @@ from pathlib import Path
 import socket
 import struct
 import time
-from typing import Optional
 
 import numpy as np
 
@@ -22,7 +21,6 @@ from .contracts import (
 
 
 REQUEST = struct.Struct("<8sIIQQddddIII")
-IMU_SAMPLE = struct.Struct("<QB7xddd")
 RESPONSE = struct.Struct("<8s6i21dI")
 REQUEST_MAGIC = b"XFREQ01\0"
 RESPONSE_MAGIC = b"XFRSP01\0"
@@ -103,41 +101,9 @@ def _read_frame(frame: FrameRecord):
     )
 
 
-def _load_finalized_poses(path: Path) -> dict[int, PoseRecord]:
-    """Load the worker's create-only, real-estimate backfill sidecar."""
-    result = {}
-    for line_number, line in enumerate(Path(path).read_text().splitlines(), 1):
-        if not line.strip():
-            continue
-        row = json.loads(line)
-        if row.get("schema") != "dpv_finalized_pose.v1":
-            raise ValueError(f"bad finalized pose schema at line {line_number}")
-        if row.get("identity_fallback_used") is not False:
-            raise ValueError("finalized trajectory must reject identity fallback")
-        if row.get("gt_consumed") is not False:
-            raise ValueError("finalized trajectory must be GT-free")
-        frame_id = int(row["frame_id"])
-        if frame_id in result:
-            raise ValueError(f"duplicate finalized pose frame: {frame_id}")
-        t_camera_world = np.asarray(
-            row["T_camera_world_m"], dtype=np.float64,
-        ).reshape(4, 4)
-        if not np.isfinite(t_camera_world).all():
-            raise ValueError(f"non-finite finalized pose frame: {frame_id}")
-        result[frame_id] = PoseRecord(
-            frame_id=frame_id,
-            timestamp_us=int(row["timestamp_us"]),
-            t_world_camera=np.linalg.inv(t_camera_world),
-            valid=True,
-            source=str(row["source"]),
-        )
-    return result
-
-
 def replay_manifest(
     *, manifest_path: Path, socket_path: Path, output_dir: Path,
     timeout_s: float = 30.0,
-    finalized_trajectory_path: Optional[Path] = None,
 ) -> dict:
     manifest = load_manifest(manifest_path)
     output_dir = Path(output_dir).resolve()
@@ -147,37 +113,16 @@ def replay_manifest(
     connection.settimeout(timeout_s)
     connection.connect(str(socket_path))
     started = time.monotonic()
-    imu_cursor = 0
-    previous_frame_timestamp_us = -1
-    imu_samples_sent = 0
     try:
         for frame in manifest.frames:
             color, depth, intrinsics, preprocessing = _read_frame(frame)
             height, width = depth.shape
-            frame_imu = []
-            while imu_cursor < len(manifest.imu_samples):
-                sample = manifest.imu_samples[imu_cursor]
-                if sample.timestamp_us > frame.timestamp_us:
-                    break
-                imu_cursor += 1
-                if sample.timestamp_us > previous_frame_timestamp_us:
-                    frame_imu.append(sample)
             header = REQUEST.pack(
                 REQUEST_MAGIC, width, height, frame.frame_id,
-                frame.timestamp_us, *intrinsics, len(frame_imu),
-                color.nbytes, depth.nbytes,
+                frame.timestamp_us, *intrinsics, 0, color.nbytes, depth.nbytes,
             )
             frame_started = time.monotonic()
             connection.sendall(header)
-            for sample in frame_imu:
-                connection.sendall(IMU_SAMPLE.pack(
-                    sample.timestamp_us,
-                    sample.kind,
-                    sample.x,
-                    sample.y,
-                    sample.z,
-                ))
-            imu_samples_sent += len(frame_imu)
             connection.sendall(color.tobytes(order="C"))
             connection.sendall(depth.tobytes(order="C"))
             values = RESPONSE.unpack(_recv_exact(connection, RESPONSE.size))
@@ -212,7 +157,6 @@ def replay_manifest(
                 "latency_ms": (time.monotonic() - frame_started) * 1000.0,
             }
             records.append(row)
-            previous_frame_timestamp_us = frame.timestamp_us
             if valid:
                 t_world_camera = np.linalg.inv(t_camera_world)
                 poses.append(PoseRecord(
@@ -225,22 +169,6 @@ def replay_manifest(
                 valid_frames.append(frame)
     finally:
         connection.close()
-    online_valid_pose_count = len(poses)
-    pose_by_frame = {pose.frame_id: pose for pose in poses}
-    if finalized_trajectory_path is not None:
-        finalized = _load_finalized_poses(finalized_trajectory_path)
-        unknown = sorted(set(finalized) - {frame.frame_id for frame in manifest.frames})
-        if unknown:
-            raise ValueError(f"finalized trajectory contains unknown frames: {unknown}")
-        pose_by_frame.update(finalized)
-    poses = [
-        pose_by_frame[frame.frame_id]
-        for frame in manifest.frames
-        if frame.frame_id in pose_by_frame
-    ]
-    valid_frames = [
-        frame for frame in manifest.frames if frame.frame_id in pose_by_frame
-    ]
     with (output_dir / "responses.jsonl").open("x", encoding="utf-8") as stream:
         for row in records:
             stream.write(json.dumps(row, separators=(",", ":"), allow_nan=False) + "\n")
@@ -253,7 +181,6 @@ def replay_manifest(
         depth_scale=manifest.depth_scale,
         frames=tuple(valid_frames),
         source=f"{manifest.source}+dpv_valid_only",
-        imu_samples=manifest.imu_samples,
     )
     write_manifest(output_dir / "tracked_manifest.json", tracked)
     write_trajectory(
@@ -267,8 +194,6 @@ def replay_manifest(
         "sequence_id": manifest.sequence_id,
         "input_frame_count": len(records),
         "valid_pose_count": len(poses),
-        "online_valid_pose_count": online_valid_pose_count,
-        "backfilled_pose_count": len(poses) - online_valid_pose_count,
         "coverage": len(poses) / len(records),
         "median_latency_ms": float(np.median(latencies)),
         "p95_latency_ms": float(np.percentile(latencies, 95)),
@@ -284,8 +209,6 @@ def replay_manifest(
         },
         "identity_fallback_used": False,
         "gt_consumed": False,
-        "imu_samples_available": len(manifest.imu_samples),
-        "imu_samples_sent": imu_samples_sent,
     }
     with (output_dir / "summary.json").open("x", encoding="utf-8") as stream:
         json.dump(summary, stream, indent=2, sort_keys=True, allow_nan=False)
