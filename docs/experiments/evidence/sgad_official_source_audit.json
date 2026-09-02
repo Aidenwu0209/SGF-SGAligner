@@ -1,0 +1,29 @@
+{
+  "blockers": [
+    {
+      "evidence": "mp_Mapper.py:48",
+      "rule": "first_pose_from_dataset"
+    },
+    {
+      "evidence": "mp_Mapper.py:196-197",
+      "rule": "first_two_poses_from_dataset"
+    },
+    {
+      "evidence": "src/entities/datasets.py:182",
+      "rule": "scannet_pose_loader"
+    },
+    {
+      "evidence": "src/entities/datasets.py:104-115",
+      "rule": "tum_pose_loader"
+    }
+  ],
+  "files": {
+    "mp_Mapper.py": "898f6846e55bc9ffdc277dfc3df0fc27fe5128d7bfaacffd84c14de37c20658c",
+    "src/entities/datasets.py": "f32be6e7604cceb6613e5d81a907aab20489b0a96083e017826e736aeecd54e7",
+    "src/entities/tracker.py": "9b47c1434669357f8119f75d8b12f8f196e9cf0d3d97b84799483aa0af271801"
+  },
+  "gt_consumed_by_official_runner": true,
+  "provider_commit": "2dca26dcef242edf07c3c361be390d3ca254aa43",
+  "schema": "sgad_official_source_audit.v1",
+  "source_audit_passed": false
+}

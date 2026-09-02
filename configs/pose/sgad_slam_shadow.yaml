@@ -1,0 +1,18 @@
+schema: sgad_slam_shadow_experiment.v1
+provider:
+  repository: https://github.com/MachinePerceptionLab/SGAD-SLAM
+  commit: 2dca26dcef242edf07c3c361be390d3ca254aa43
+  mode: independent_rgbd_shadow_frontend
+contract:
+  matrix: T_world_camera_m
+  complete_manifest_coverage: true
+  gt_at_inference: false
+  source_audit_required: true
+  identity_fallback: forbidden
+backend:
+  pose_graph: existing
+  refusion: existing
+promotion_gate:
+  require_same_rgbd_inputs: true
+  require_final_sgf_refusion: true
+  require_geometry_improvement: true
