@@ -1,4 +1,9 @@
 {
+  "automated_audit": {
+    "exit_code": 2,
+    "path": "/home/aidenwu/Documents/SGAD-SLAM-sgf-sga-shadow-20260902-source-audit.json",
+    "sha256": "315d0832105619057b50c9a5d591fe1e8bc7ffe4075af61ae532b724cf90ca21"
+  },
   "blockers": [
     {
       "evidence": "mp_Mapper.py:48",
