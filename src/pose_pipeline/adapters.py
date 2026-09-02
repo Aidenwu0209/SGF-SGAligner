@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 import re
 
 import numpy as np
 
-from .contracts import FrameRecord, SequenceManifest
+from .contracts import FrameRecord, ImuSample, SequenceManifest
 
 
 def scannet_manifest(scene: Path, *, frame_period_us: int = 33_333) -> SequenceManifest:
@@ -99,4 +100,48 @@ def orbbec_manifest(journal: Path) -> SequenceManifest:
         dataset="orbbec", sequence_id=sequence_id, root=root,
         depth_scale=1000.0, frames=tuple(frames),
         source="frame_journal_complete_admitted_only",
+    ).validate()
+
+
+def orbbec_capture_manifest(scan_dir: Path) -> SequenceManifest:
+    """Load the create-only macOS RGB-D+IMU capture layout."""
+    scan_dir = Path(scan_dir).resolve()
+    capture = json.loads((scan_dir / "manifest.json").read_text())
+    if capture.get("state") != "complete":
+        raise ValueError("Orbbec capture is not complete")
+    calibration = json.loads((scan_dir / capture["calibration"]).read_text())
+    intrinsic = calibration["camera_parameters"]["rgb_intrinsic"]
+    intrinsics = tuple(float(intrinsic[name]) for name in ("fx", "fy", "cx", "cy"))
+    frames = []
+    with (scan_dir / capture["frames_index"]).open(newline="") as stream:
+        for row in csv.DictReader(stream):
+            frames.append(FrameRecord(
+                frame_id=int(row["frame_index"]),
+                timestamp_us=int(row["color_timestamp_us"]),
+                color_path=(scan_dir / row["color_file"]).resolve(),
+                depth_path=(scan_dir / row["depth_file"]).resolve(),
+                intrinsics=intrinsics,
+            ))
+    imu_samples = []
+    with (scan_dir / capture["imu_index"]).open(newline="") as stream:
+        for row in csv.DictReader(stream):
+            kind = {"accel": 0, "gyro": 1}.get(row["kind"])
+            if kind is None:
+                raise ValueError(f"unknown captured IMU kind: {row['kind']}")
+            imu_samples.append(ImuSample(
+                timestamp_us=int(row["timestamp_us"]),
+                kind=kind,
+                x=float(row["x"]),
+                y=float(row["y"]),
+                z=float(row["z"]),
+            ))
+    imu_samples.sort(key=lambda sample: (sample.timestamp_us, sample.kind))
+    return SequenceManifest(
+        dataset="orbbec",
+        sequence_id=scan_dir.name,
+        root=scan_dir,
+        depth_scale=1000.0,
+        frames=tuple(frames),
+        source="orbbec_mac_rgbd_imu_capture",
+        imu_samples=tuple(imu_samples),
     ).validate()

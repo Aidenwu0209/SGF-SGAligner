@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
+import json
+import tempfile
 
 import numpy as np
 
-from pose_pipeline.replay import _pad_rgbd_to_multiple
+from pose_pipeline.replay import _load_finalized_poses, _pad_rgbd_to_multiple
 
 
 class PoseReplayPaddingTests(unittest.TestCase):
@@ -37,6 +40,29 @@ class PoseReplayPaddingTests(unittest.TestCase):
                 np.zeros((1, 1), dtype=np.uint16),
                 0,
             )
+
+    def test_finalized_pose_sidecar_is_gt_free_and_inverted(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "finalized.jsonl"
+            t_camera_world = np.eye(4)
+            t_camera_world[0, 3] = 2.0
+            row = {
+                "schema": "dpv_finalized_pose.v1",
+                "frame_id": 7,
+                "timestamp_us": 99,
+                "T_camera_world_m": t_camera_world.reshape(-1).tolist(),
+                "source": "DPV-SLAM:warmup_backfill",
+                "finalized_at_frame": 21,
+                "identity_fallback_used": False,
+                "gt_consumed": False,
+            }
+            path.write_text(json.dumps(row) + "\n")
+            poses = _load_finalized_poses(path)
+            self.assertAlmostEqual(poses[7].t_world_camera[0, 3], -2.0)
+            row["gt_consumed"] = True
+            path.write_text(json.dumps(row) + "\n")
+            with self.assertRaisesRegex(ValueError, "GT-free"):
+                _load_finalized_poses(path)
 
 
 if __name__ == "__main__":

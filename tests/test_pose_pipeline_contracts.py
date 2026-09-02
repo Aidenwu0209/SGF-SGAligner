@@ -8,6 +8,7 @@ import numpy as np
 
 from pose_pipeline.contracts import (
     FrameRecord,
+    ImuSample,
     PoseRecord,
     SequenceManifest,
     bind_manifest_trajectory,
@@ -38,11 +39,17 @@ class PosePipelineContractTests(unittest.TestCase):
                 ))
             manifest = SequenceManifest(
                 "scannet", "scene", root, 1000.0, tuple(frames), "test",
+                (
+                    ImuSample(999, 0, 0.0, 9.80665, 0.0),
+                    ImuSample(1000, 1, 0.01, 0.02, 0.03),
+                ),
             )
             manifest_path = root / "manifest.json"
             write_manifest(manifest_path, manifest)
             loaded = load_manifest(manifest_path)
             self.assertEqual(len(loaded.frames), 2)
+            self.assertEqual(len(loaded.imu_samples), 2)
+            self.assertEqual(loaded.imu_samples[1].kind, 1)
             audit = write_input_sha256_audit(root / "inputs.sha256.jsonl", loaded)
             self.assertEqual(audit["frame_count"], 2)
             self.assertEqual(len(audit["records_sha256"]), 64)
@@ -74,6 +81,25 @@ class PosePipelineContractTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, "forbidden GT part"):
                 manifest.validate()
+
+    def test_manifest_rejects_unsorted_or_unknown_imu(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "color").mkdir()
+            (root / "depth").mkdir()
+            color = root / "color" / "0.jpg"
+            depth = root / "depth" / "0.png"
+            color.write_bytes(b"rgb")
+            depth.write_bytes(b"depth")
+            frame = FrameRecord(0, 10, color, depth, (1.0, 1.0, 0.0, 0.0))
+            manifest = SequenceManifest(
+                "orbbec", "scene", root, 1000.0, (frame,), "test",
+                (ImuSample(2, 0, 0.0, 0.0, 9.8), ImuSample(1, 1, 0.0, 0.0, 0.0)),
+            )
+            with self.assertRaisesRegex(ValueError, "monotonic"):
+                manifest.validate()
+            with self.assertRaisesRegex(ValueError, "unsupported IMU kind"):
+                ImuSample(1, 9, 0.0, 0.0, 0.0).validate()
 
     def test_missing_pose_fails_exact_binding(self):
         with tempfile.TemporaryDirectory() as directory:
