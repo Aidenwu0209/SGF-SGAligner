@@ -1,0 +1,26 @@
+{
+  "artifact_audit_sha256": "a35f56e3e858e344c6d84a99ff78aa1018d65b021f4078980c3502a4ff85813e",
+  "artifact_sha256": "61cbf4fbd4ff21699a50a0cc6189844960089d0e34e8fa8518a6d78e8873bbb3",
+  "frame_count": 32,
+  "gt_consumed_at_inference": false,
+  "native_ablation": {
+    "uncertainty_off": {
+      "absolute_rotation_rmse_deg": 0.3082855617106749,
+      "absolute_translation_rmse_m": 0.07041194695521052,
+      "evaluation_sha256": "46184a4e982d8d1a35daa04cee81172a1aab091fef761a3e26d8c90d36485320",
+      "relative_rotation_rmse_deg": 0.25142130863926304,
+      "relative_translation_rmse_m": 0.010462214819728139
+    },
+    "uncertainty_on": {
+      "absolute_rotation_rmse_deg": 0.3373764238883209,
+      "absolute_translation_rmse_m": 0.08088296592498542,
+      "evaluation_sha256": "8920f0a860f4b7fc17cd839c813976ccfbf1cb03bb049a645e5d4be5d249658a",
+      "relative_rotation_rmse_deg": 0.2581809927740907,
+      "relative_translation_rmse_m": 0.01083777665417089
+    }
+  },
+  "provider_commit": "c3414af6047d06bafc1a6645d09f23247f3b2cdc",
+  "promotion_decision": "STOP_BEFORE_PRODUCTION_DPV_MUTATION_AND_REFUSION",
+  "schema": "dpv_dynamic_uncertainty_failfast_summary.v1",
+  "sequence_id": "scene0000_00:frames-0-31"
+}

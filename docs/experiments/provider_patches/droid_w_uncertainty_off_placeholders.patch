@@ -1,0 +1,18 @@
+diff --git a/src/depth_video.py b/src/depth_video.py
+--- a/src/depth_video.py
++++ b/src/depth_video.py
+@@ -79,6 +79,9 @@ class DepthVideo:
+         self.enable_bidirectional_uncer = cfg['tracking']["uncertainty_params"]['enable_bidirectional_uncer']
+         self.enable_affine_transform = False
+         self.uncertainties = torch.ones(buffer, ht//self.down_scale, wd//self.down_scale, device=self.device, dtype=torch.float).share_memory_()
++        self.temp_y_cdot = torch.zeros(buffer, ht//self.down_scale, wd//self.down_scale, device=self.device, dtype=torch.float).share_memory_()
++        self.dino_feats_resize = torch.zeros(buffer, 1, ht//self.down_scale, wd//self.down_scale, device=self.device, dtype=torch.float).share_memory_()
++        self.affine_weights = torch.zeros(1, device=self.device, dtype=torch.float).share_memory_()
+         if self.uncertainty_aware:
+             n_features = self.cfg["tracking"]["uncertainty_params"]['feature_dim']
+ 
+@@ -104,7 +107,6 @@ class DepthVideo:
+             self.temp_y_cdot = torch.zeros(buffer, ht//self.down_scale, wd//self.down_scale, device=self.device, dtype=torch.float).share_memory_()
+         else:
+             self.dino_feats = None
+-            self.dino_feats_resize = None

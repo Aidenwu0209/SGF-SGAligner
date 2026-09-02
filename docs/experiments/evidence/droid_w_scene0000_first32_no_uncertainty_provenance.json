@@ -1,0 +1,11 @@
+{
+  "config_sha256": "b9ab8a8b1ebbd2e3f8e300b49077088d26596dbbe8729f571f1bc2d1cfe1a31d",
+  "feature_checkpoint_sha256": "09db495b0788df23591de1bc9ccb721b182dfb511136398a2caed3896a39c8e4",
+  "gt_consumed": false,
+  "metric_depth_checkpoint_sha256": "b34b2a2be9148054991cef7e417930e1320602ba7bc503b0ee4e7888543728f6",
+  "metric_depth_provider": "Metric3D-v2 metric3d_vit_small",
+  "provider_commit": "c3414af6047d06bafc1a6645d09f23247f3b2cdc",
+  "sim3_alignment_used": false,
+  "tracking_checkpoint_sha256": "46476ef64cde45a97504910d6f3de2eef7b398ec1c6e4e668815c29076024526",
+  "trajectory_stage": "raw_full_trajectory_before_evaluation"
+}

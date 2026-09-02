@@ -42,3 +42,29 @@ The candidate must use the same raw RGB-D and fused-frame list as baseline,
 retain full metric `T_world_camera` coverage, and pass trajectory plus final
 PLY gates. An uncertainty visualization or improved masked residual alone is
 not evidence of a better SGF-SGA integration.
+
+## Fail-fast result (2026-09-02)
+
+DROID-W produced a real, complete 32-frame uncertainty sidecar for
+`scene0000_00`. Its audit reports all 32 frame IDs in order,
+`gt_consumed=false`, and static-confidence coverage at the configured
+threshold. Before modifying the production DPV worker, the uncertainty method
+was tested in its native DROID-W BA on the same RGB stream and seed:
+
+| DROID-W metric RMSE | uncertainty off | uncertainty on |
+| --- | ---: | ---: |
+| relative translation | 0.010462 m | 0.010838 m |
+| relative rotation | 0.251421 deg | 0.258181 deg |
+| absolute translation | 0.070412 m | 0.080883 m |
+| absolute rotation | 0.308286 deg | 0.337376 deg |
+
+All four metrics worsened. The official provider also needed three isolated
+initialization-only patches to make its `activate=false` ablation runnable;
+these patches are recorded under `provider_patches/` and do not alter the
+uncertainty-on candidate. This negative precursor gate stopped the experiment
+before mutating or rerunning the production DPV worker. Consequently, the
+branch supplies the fail-closed sidecar/integration API and reproducible
+evidence, but does **not** claim a DPV pose or final-refusion improvement.
+
+Remote sidecar evidence root:
+`/home/aidenwu/Documents/DPV-uncertainty-shadow-20260902-results`.

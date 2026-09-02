@@ -1,0 +1,11 @@
+diff --git a/src/depth_video.py b/src/depth_video.py
+--- a/src/depth_video.py
++++ b/src/depth_video.py
+@@ -80,6 +80,7 @@ class DepthVideo:
+ 
+         self.uncertainty_aware = cfg['tracking']["uncertainty_params"]['activate']
+         self.enable_bidirectional_uncer = cfg['tracking']["uncertainty_params"]['enable_bidirectional_uncer']
++        self.enable_affine_transform = False
+         if self.uncertainty_aware:
+             n_features = self.cfg["tracking"]["uncertainty_params"]['feature_dim']
+ 

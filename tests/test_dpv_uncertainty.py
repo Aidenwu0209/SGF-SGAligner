@@ -9,6 +9,9 @@ from pose_pipeline.contracts import FrameRecord, SequenceManifest, write_manifes
 from pose_pipeline.dpv_uncertainty import (
     DynamicUncertaintyStore, uncertainty_weighted_metric_scale,
 )
+from scripts.export_droid_w_uncertainty import (
+    droid_uncertainty_to_dynamic, interpolate_keyframes,
+)
 
 
 def _fixture(tmp_path: Path) -> tuple[Path, Path]:
@@ -74,3 +77,17 @@ def test_uncertainty_weighted_scale_ignores_dynamic_outliers():
     assert scale == pytest.approx(1.0)
     assert report["supported_samples"] == 150
 
+
+def test_droid_weight_conversion_matches_udba_kernel():
+    raw = np.asarray([0.70, 0.80, 1.00], dtype=np.float32)
+    dynamic = droid_uncertainty_to_dynamic(raw)
+    np.testing.assert_allclose(dynamic, [0.0, 0.0, 0.9], atol=1e-6)
+
+
+def test_uncertainty_interpolation_covers_every_frame():
+    values = np.asarray([np.zeros((2, 2)), np.ones((2, 2))], dtype=np.float32)
+    full = interpolate_keyframes(np.asarray([1, 3]), values, 5)
+    assert full.shape == (5, 2, 2)
+    np.testing.assert_allclose(full[0], 0.0)
+    np.testing.assert_allclose(full[2], 0.5)
+    np.testing.assert_allclose(full[4], 1.0)

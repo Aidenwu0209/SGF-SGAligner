@@ -1,0 +1,40 @@
+inherit_from: /home/aidenwu/Documents/DROID-W-sgf-sga-shadow-20260902-src/configs/droid_w.yaml
+dataset: youtube
+scene: scene0000_first32_no_uncertainty
+stride: 1
+max_frames: 32
+save_gt_poses: false
+gui: false
+droidvis: false
+fast_mode: true
+data:
+  input_folder: /home/aidenwu/Documents/DROID-W-sgf-sga-shadow-20260902-inputs/scene0000_first32
+  output: /home/aidenwu/Documents/DROID-W-sgf-sga-shadow-20260902-results
+cam:
+  H: 480
+  W: 640
+  H_out: 240
+  W_out: 320
+  fx: 577.590698
+  fy: 578.729797
+  cx: 318.905426
+  cy: 242.683609
+  png_depth_scale: 1000.0
+  H_edge: 0
+  W_edge: 0
+  distortion: [0, 0, 0, 0, 0]
+mapping:
+  enable: false
+  eval_before_final_ba: false
+tracking:
+  buffer: 64
+  force_keyframe_every_n_frames: 6
+  uncertainty_params:
+    activate: false
+    visualize: false
+    vis_uncertainty_online: false
+mono_prior:
+  depth: metric3d_vit_small
+  save_depth: true
+  feature_extractor: dinov2_reg_small_fine
+  save_feature: false
