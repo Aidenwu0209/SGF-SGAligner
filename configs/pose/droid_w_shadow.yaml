@@ -1,0 +1,21 @@
+schema: droid_w_shadow_experiment.v1
+provider:
+  repository: https://github.com/MoyangLi00/DROID-W
+  commit: c3414af6047d06bafc1a6645d09f23247f3b2cdc
+  mode: raw_full_trajectory_before_evaluation
+  mapping_enable: false
+  sim3_alignment_used: false
+contract:
+  matrix: T_world_camera_m
+  complete_manifest_coverage: true
+  metric_scale_source: Metric3D-v2 absolute depth regularization
+  gt_at_inference: false
+  identity_fallback: forbidden
+  maximum_step_translation_m: 1.5
+backend:
+  pose_graph: existing
+  refusion: existing
+promotion_gate:
+  require_same_rgbd_inputs: true
+  require_final_sgf_refusion: true
+  require_geometry_improvement: true
