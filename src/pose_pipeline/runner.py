@@ -29,11 +29,13 @@ from .pose_graph import (
 )
 from .robust_backend import RobustPoseConfig
 from .submaps import (
+    AdaptiveAnchorConfig,
     LoopProposalConfig,
     SubmapConfig,
     build_submap,
     propose_loop_pairs,
     save_submap,
+    select_adaptive_anchor_ordinals,
     select_anchor_ordinals,
 )
 
@@ -86,6 +88,7 @@ def run_sequence(
     robust_config: RobustPoseConfig = RobustPoseConfig(),
     geometry_config: GeometryBootstrapConfig = GeometryBootstrapConfig(),
     loop_weight_config: LoopWeightConfig = LoopWeightConfig(),
+    adaptive_anchor_config: AdaptiveAnchorConfig | None = None,
 ) -> dict[str, Any]:
     if arm not in {"baseline", "candidate"}:
         raise ValueError("arm must be baseline or candidate")
@@ -159,7 +162,53 @@ def run_sequence(
         _write_json(output_dir / "run_result.json", result)
         return result
 
-    anchors = select_anchor_ordinals(len(bound), submap_config.anchor_stride)
+    if adaptive_anchor_config is None:
+        anchors = select_anchor_ordinals(len(bound), submap_config.anchor_stride)
+        anchor_selection = {
+            "mode": "fixed_stride",
+            "anchor_stride": submap_config.anchor_stride,
+            "anchors": anchors,
+            "evidence": None,
+        }
+    else:
+        try:
+            anchors, selection_evidence = select_adaptive_anchor_ordinals(
+                bound, manifest.depth_scale,
+                adaptive_anchor_config, submap_config,
+            )
+        except (OSError, ValueError, RuntimeError) as error:
+            _write_json(output_dir / "loop_evidence.json", {
+                "schema": "pose_pipeline_loop_evidence.v1",
+                "sequence_id": manifest.sequence_id,
+                "correspondence_provider": "geometry_bootstrap_fpfh",
+                "proposal_count": 0,
+                "pre_sparsification_accepted_loop_count": 0,
+                "submap_config": asdict(submap_config),
+                "proposal_config": asdict(proposal_config),
+                "robust_config": asdict(robust_config),
+                "geometry_config": asdict(geometry_config),
+                "loop_weight_config": asdict(loop_weight_config),
+                "anchor_selection": {
+                    "mode": "adaptive_metric_rgbd_reprojection",
+                    "config": asdict(adaptive_anchor_config),
+                },
+                "anchors": [],
+                "evidence": [],
+                "rejection_reason": "adaptive_anchor_selection_failed",
+                "failure": f"{type(error).__name__}: {error}",
+                "gt_consumed": False,
+            })
+            return _retain_candidate_noop(
+                output_dir=output_dir, manifest=manifest,
+                trajectory=trajectory, trajectory_payload=trajectory_payload,
+                frame_count=len(bound), reason="adaptive_anchor_selection_failed",
+            )
+        anchor_selection = {
+            "mode": "adaptive_metric_rgbd_reprojection",
+            "config": asdict(adaptive_anchor_config),
+            "anchors": anchors,
+            "evidence": selection_evidence,
+        }
     submaps = []
     anchor_rows = []
     for anchor_index, ordinal in enumerate(anchors):
@@ -179,6 +228,7 @@ def run_sequence(
                 "robust_config": asdict(robust_config),
                 "geometry_config": asdict(geometry_config),
                 "loop_weight_config": asdict(loop_weight_config),
+                "anchor_selection": anchor_selection,
                 "anchors": anchor_rows,
                 "evidence": [],
                 "rejection_reason": "submap_construction_failed",
@@ -254,6 +304,7 @@ def run_sequence(
         "robust_config": asdict(robust_config),
         "geometry_config": asdict(geometry_config),
         "loop_weight_config": asdict(loop_weight_config),
+        "anchor_selection": anchor_selection,
         "anchors": anchor_rows,
         "evidence": evidence,
         "gt_consumed": False,

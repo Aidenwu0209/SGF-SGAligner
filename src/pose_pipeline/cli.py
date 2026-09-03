@@ -14,7 +14,7 @@ from .evaluation import evaluate_trajectory_files
 from .pose_graph import LoopWeightConfig
 from .replay import replay_manifest
 from .runner import run_sequence
-from .submaps import LoopProposalConfig
+from .submaps import AdaptiveAnchorConfig, LoopProposalConfig, SubmapConfig
 
 
 def _manifest(args: argparse.Namespace) -> None:
@@ -38,11 +38,23 @@ def _replay(args: argparse.Namespace) -> None:
 
 
 def _run(args: argparse.Namespace) -> None:
+    adaptive_anchor_config = None
+    if args.anchor_selection == "adaptive":
+        adaptive_anchor_config = AdaptiveAnchorConfig(
+            minimum_gap=args.adaptive_minimum_gap,
+            maximum_gap=args.adaptive_maximum_gap,
+            pixel_stride=args.adaptive_pixel_stride,
+            flow_threshold_px=args.adaptive_flow_threshold_px,
+            minimum_overlap_fraction=args.adaptive_minimum_overlap_fraction,
+            translation_threshold_m=args.adaptive_translation_threshold_m,
+            rotation_threshold_deg=args.adaptive_rotation_threshold_deg,
+        )
     print(json.dumps(run_sequence(
         arm=args.arm,
         manifest_path=args.manifest,
         trajectory_path=args.trajectory,
         output_dir=args.output,
+        submap_config=SubmapConfig(anchor_stride=args.anchor_stride),
         proposal_config=LoopProposalConfig(maximum_pairs=args.maximum_loop_pairs),
         loop_weight_config=LoopWeightConfig(
             high_leverage_min_span_fraction=(
@@ -50,6 +62,7 @@ def _run(args: argparse.Namespace) -> None:
             ),
             high_leverage_weight_cap=args.high_leverage_loop_weight_cap,
         ),
+        adaptive_anchor_config=adaptive_anchor_config,
     ), indent=2))
 
 
@@ -121,6 +134,24 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--manifest", type=Path, required=True)
     run.add_argument("--trajectory", type=Path, required=True)
     run.add_argument("--output", type=Path, required=True)
+    run.add_argument(
+        "--anchor-selection", choices=("fixed", "adaptive"), default="fixed",
+        help="fixed preserves the production-default stride policy",
+    )
+    run.add_argument("--anchor-stride", type=int, default=80)
+    run.add_argument("--adaptive-minimum-gap", type=int, default=20)
+    run.add_argument("--adaptive-maximum-gap", type=int, default=80)
+    run.add_argument("--adaptive-pixel-stride", type=int, default=8)
+    run.add_argument("--adaptive-flow-threshold-px", type=float, default=24.0)
+    run.add_argument(
+        "--adaptive-minimum-overlap-fraction", type=float, default=0.35,
+    )
+    run.add_argument(
+        "--adaptive-translation-threshold-m", type=float, default=0.25,
+    )
+    run.add_argument(
+        "--adaptive-rotation-threshold-deg", type=float, default=12.0,
+    )
     run.add_argument("--maximum-loop-pairs", type=int, default=36)
     run.add_argument(
         "--high-leverage-loop-min-span-fraction", type=float,

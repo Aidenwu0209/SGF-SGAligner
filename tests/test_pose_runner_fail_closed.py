@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -13,6 +14,7 @@ from pose_pipeline.contracts import (
     write_manifest, write_trajectory,
 )
 from pose_pipeline.runner import run_sequence
+from pose_pipeline.submaps import AdaptiveAnchorConfig
 
 
 class PoseRunnerFailClosedTests(unittest.TestCase):
@@ -122,6 +124,39 @@ class PoseRunnerFailClosedTests(unittest.TestCase):
             self.assertEqual(len(output), len(poses))
             for before, after in zip(poses, output):
                 np.testing.assert_allclose(before.t_world_camera, after.t_world_camera)
+            self.assertEqual(
+                payload["metadata"]["fail_closed_action"],
+                "retain_original_dpv_trajectory",
+            )
+
+    def test_adaptive_anchor_failure_retains_complete_dpv_trajectory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest_path, trajectory_path, poses = self._two_pose_fixture(root)
+            with patch(
+                "pose_pipeline.runner.select_adaptive_anchor_ordinals",
+                side_effect=ValueError("depth evidence unavailable"),
+            ):
+                result = run_sequence(
+                    arm="candidate",
+                    manifest_path=manifest_path,
+                    trajectory_path=trajectory_path,
+                    output_dir=root / "candidate",
+                    adaptive_anchor_config=AdaptiveAnchorConfig(),
+                )
+            self.assertEqual(result["reason"], "adaptive_anchor_selection_failed")
+            self.assertFalse(result["backend_correction_applied"])
+            self.assertFalse(result["identity_fallback_used"])
+            output, payload = load_trajectory(root / "candidate" / "trajectory.json")
+            self.assertEqual(len(output), len(poses))
+            for before, after in zip(poses, output):
+                np.testing.assert_allclose(before.t_world_camera, after.t_world_camera)
+            evidence = json.loads(
+                (root / "candidate" / "loop_evidence.json").read_text()
+            )
+            self.assertEqual(
+                evidence["rejection_reason"], "adaptive_anchor_selection_failed",
+            )
             self.assertEqual(
                 payload["metadata"]["fail_closed_action"],
                 "retain_original_dpv_trajectory",
