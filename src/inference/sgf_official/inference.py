@@ -52,6 +52,14 @@ from matching.sgpgm_enhancements import (
     enhance_node_matching,
     rescore_point_correspondences,
 )
+from pose_pipeline.robust_backend import (
+    RobustPoseConfig,
+    decide_registration_v2,
+    generate_hypotheses,
+    select_cross_solver_consensus,
+    transform_points,
+)
+from pose_pipeline.contracts import stable_json_sha256
 
 OFFICIAL_SNAPSHOT = (
     "/home/aidenwu/Documents/sgaligner-sgf-official/checkpoints/release/"
@@ -692,10 +700,12 @@ def decision_features_full(
 
 def run_pair(pair_id: str, mode: str, output_dir: Path,
              device: str = "cuda", decision_rule: str = "C",
-             enhancement_config: SGPGMEnhancementConfig | None = None) -> dict:
+             enhancement_config: SGPGMEnhancementConfig | None = None,
+             *, evaluate_gt: bool = True,
+             robust_pose_backend: bool = False) -> dict:
     import logging
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=False)
     enhancement_config = enhancement_config or SGPGMEnhancementConfig()
     enhancement_config.validate()
     status = {
@@ -752,19 +762,68 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
             node_scores=node_scores,
             graph_rescore_beta=enhancement_config.graph_rescore_beta,
         )
-        if mode == "official_oracle":
-            src_scan, ref_scan = pair_id.split("_to_")
-            src_segments = OracleGraphSource_anchor_segments(src_scan)
-            ref_segments = OracleGraphSource_anchor_segments(ref_scan)
-            anchors = load_oracle_anchor_ids(
-                src_scan, ref_scan, src_segments, ref_segments
+        robust_evidence = None
+        if robust_pose_backend and registration is not None:
+            robust_config = RobustPoseConfig()
+            hypothesis_set = generate_hypotheses(
+                registration["src_corr_points"],
+                registration["ref_corr_points"],
+                robust_config,
             )
-            gt = oracle_gt_transform(  # evaluation only (PLY frame)
-                src_scan, ref_scan, src_segments, ref_segments
+            consensus = select_cross_solver_consensus(
+                hypothesis_set["hypotheses"], robust_config,
             )
-        else:
-            gt = load_gt_transform(pair_id)  # evaluation only
-            anchors = load_anchor_ids(pair_id)
+            robust_evidence = {
+                "schema": "sgaligner_robust_pose_backend.v1",
+                "hypothesis_set": hypothesis_set,
+                "consensus": consensus,
+                "gt_consumed": False,
+            }
+            (output_dir / "robust_pose_hypotheses.json").write_text(
+                json.dumps(robust_evidence, indent=2, allow_nan=False) + "\n"
+            )
+            if consensus["accepted"]:
+                selected = np.asarray(
+                    consensus["selected_transform"], dtype=np.float64,
+                )
+                residual = np.linalg.norm(
+                    transform_points(
+                        registration["src_corr_points"], selected,
+                    ) - registration["ref_corr_points"],
+                    axis=1,
+                )
+                registration["transform"] = selected
+                registration["inliers"] = int((residual <= 0.10).sum())
+                registration["inlier_ratio"] = (
+                    registration["inliers"] / max(len(residual), 1)
+                )
+                registration["robust_pose_consensus"] = consensus
+            else:
+                node_failures.append({
+                    "pair_id": pair_id,
+                    "stage": "robust_pose_consensus",
+                    "reason": consensus["reason"],
+                })
+                registration = None
+
+        # Ground truth and anchor labels are opened only when explicitly
+        # requested for the separate evaluation part of this command.
+        gt = None
+        anchors = []
+        if evaluate_gt:
+            if mode == "official_oracle":
+                src_scan, ref_scan = pair_id.split("_to_")
+                src_segments = OracleGraphSource_anchor_segments(src_scan)
+                ref_segments = OracleGraphSource_anchor_segments(ref_scan)
+                anchors = load_oracle_anchor_ids(
+                    src_scan, ref_scan, src_segments, ref_segments
+                )
+                gt = oracle_gt_transform(
+                    src_scan, ref_scan, src_segments, ref_segments
+                )
+            else:
+                gt = load_gt_transform(pair_id)
+                anchors = load_anchor_ids(pair_id)
 
         # node metrics against GT anchors (original-id space)
         src_map = data_dict["src_object_id2idx"]
@@ -778,28 +837,87 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
             for a, b in node_corrs
         )
         predicted_idx = set(node_corrs)
-        tp = len(predicted_idx & anchor_pairs_idx)
-        node_p = tp / len(predicted_idx) if predicted_idx else 0.0
-        node_r = tp / len(anchor_pairs_idx) if anchor_pairs_idx else 0.0
+        tp = len(predicted_idx & anchor_pairs_idx) if evaluate_gt else 0
+        node_p = (
+            tp / len(predicted_idx) if evaluate_gt and predicted_idx else None
+        )
+        node_r = (
+            tp / len(anchor_pairs_idx)
+            if evaluate_gt and anchor_pairs_idx else None
+        )
         node_f1 = (
             2 * node_p * node_r / max(node_p + node_r, 1e-12)
+            if node_p is not None and node_r is not None else None
         )
 
         strict = relaxed = False
         rre = rte = None
-        if registration is not None and gt is not None:
-
+        if registration is not None:
             t_world = registration["transform"]
-            cos_r = (np.trace(t_world[:3, :3].T @ gt[:3, :3]) - 1) / 2
-            rre = float(np.degrees(np.arccos(np.clip(cos_r, -1, 1))))
-            rte = float(np.linalg.norm(t_world[:3, 3] - gt[:3, 3]))
-            strict = rre <= STRICT[0] and rte <= STRICT[1]
-            relaxed = rre <= RELAXED[0] and rte <= RELAXED[1]
+            if gt is not None:
+                cos_r = (
+                    np.trace(t_world[:3, :3].T @ gt[:3, :3]) - 1
+                ) / 2
+                rre = float(np.degrees(np.arccos(np.clip(cos_r, -1, 1))))
+                rte = float(np.linalg.norm(t_world[:3, 3] - gt[:3, 3]))
+                strict = rre <= STRICT[0] and rte <= STRICT[1]
+                relaxed = rre <= RELAXED[0] and rte <= RELAXED[1]
 
             features, decision, icp_result = decision_features_full(
                 data_dict, registration, node_corrs, pair_id,
                 device=device, rule=decision_rule,
             )
+            if robust_pose_backend:
+                # A pair plus its independently estimated reverse direction is
+                # the smallest closed SE(3) cycle.  Reuse that measured
+                # discrepancy for both the bidirectional and two-edge cycle
+                # checks; unavailable reverse evidence must reject rather than
+                # silently pass.
+                unavailable = 1e9
+                bidirectional_translation = features.get(
+                    "bidirectional_translation_m",
+                )
+                bidirectional_rotation = features.get(
+                    "bidirectional_rotation_deg",
+                )
+                if bidirectional_translation is None:
+                    bidirectional_translation = unavailable
+                if bidirectional_rotation is None:
+                    bidirectional_rotation = unavailable
+                decision = decide_registration_v2(
+                    consensus,
+                    {
+                        "spatial_extent_m": features["spatial_extent_m"],
+                        "spatial_second_axis_m": features[
+                            "spatial_second_axis_m"
+                        ],
+                        "icp_update_translation_m": features[
+                            "icp_update_translation_m"
+                        ],
+                        "icp_update_rotation_deg": features[
+                            "icp_update_rotation_deg"
+                        ],
+                        "bidirectional_translation_m": (
+                            bidirectional_translation
+                        ),
+                        "bidirectional_rotation_deg": bidirectional_rotation,
+                        "cycle_translation_m": bidirectional_translation,
+                        "cycle_rotation_deg": bidirectional_rotation,
+                        "overlap_ratio": features["overlap_ratio"],
+                    },
+                    robust_config,
+                )
+                decision["cycle_definition"] = (
+                    "independent_forward_reverse_two_edge_cycle"
+                )
+                decision["dense_feature_provenance"] = features[
+                    "_provenance"
+                ]
+                decision_unsigned = dict(decision)
+                decision_unsigned.pop("decision_sha256", None)
+                decision["decision_sha256"] = stable_json_sha256(
+                    decision_unsigned
+                )
             # final transform = ICP-refined (ICP update within bounds is
             # enforced by the rule; rejected pairs never write it)
             final_transform = (
@@ -826,6 +944,10 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
                         data_dict["pcl_center_definition"],
                     "matching_enhancements":
                         enhancement_config.provenance(),
+                    "robust_pose_backend": robust_pose_backend,
+                    "robust_pose_evidence_written": robust_evidence is not None,
+                    "evaluation_enabled": evaluate_gt,
+                    "gt_at_inference": False,
                 }, indent=2) + "\n"
             )
             status.update({
@@ -836,6 +958,9 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
                 "node_f1": node_f1,
                 "accepted": decision["usable_for_reconstruction"],
                 "rejection_reasons": decision["rejection_reasons"],
+                "robust_pose_backend": robust_pose_backend,
+                "evaluation_enabled": evaluate_gt,
+                "gt_at_inference": False,
             })
         else:
             (output_dir / "failure.json").write_text(json.dumps({
@@ -855,6 +980,9 @@ def run_pair(pair_id: str, mode: str, output_dir: Path,
                 "status": "failed", "failed_stage": "registration",
                 "node_precision": node_p, "node_recall": node_r,
                 "node_f1": node_f1, "strict": False, "relaxed": False,
+                "robust_pose_backend": robust_pose_backend,
+                "evaluation_enabled": evaluate_gt,
+                "gt_at_inference": False,
             })
         return status
     except Exception as exc:  # noqa: BLE001 - structured failure
@@ -957,6 +1085,15 @@ def main() -> None:
     parser.add_argument("--geometry-fusion-alpha", type=float, default=0.0)
     parser.add_argument("--graph-rescore-beta", type=float, default=0.0)
     parser.add_argument("--adaptive-k-min-matches", type=int, default=1)
+    parser.add_argument(
+        "--robust-pose-backend", action="store_true",
+        help=("Require PAGOR-style compatibility, pyGCRANSAC and optional "
+              "TEASER++ cross-family pose consensus before dense gates"),
+    )
+    parser.add_argument(
+        "--no-gt-evaluation", action="store_true",
+        help="Do not open GT transforms or anchor labels in this process",
+    )
     args = parser.parse_args()
 
     if args.sgpgm_experimental_preset:
@@ -989,6 +1126,8 @@ def main() -> None:
     status = run_pair(
         args.pair_id, args.mode, Path(args.output), args.device,
         enhancement_config=enhancement_config,
+        evaluate_gt=not args.no_gt_evaluation,
+        robust_pose_backend=args.robust_pose_backend,
     )
     (Path(args.output) / "status.json").write_text(
         json.dumps(status, indent=2) + "\n"

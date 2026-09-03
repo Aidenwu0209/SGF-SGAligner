@@ -1,0 +1,49 @@
+{
+  "schema": "posefix_causal_rerun_summary.v1",
+  "date": "2026-09-01",
+  "sequence_id": "scene0030_00",
+  "authoritative_host": "100.72.138.33",
+  "input_frames": 2498,
+  "metric_config_sha256": "cd8f4fd4e163e00546d3855ad0e7e2ad62edf795784d4ab8940f89c2469eebe1",
+  "input_records_sha256": "d9867383e872d0a42ec725907c9c23cb582e1d648fa93d80886628a6adb04a4a",
+  "inference_consumed_gt": false,
+  "frontend": {
+    "original_default_metric_valid_poses": 238,
+    "posefix_valid_poses": 2277,
+    "posefix_coverage_fraction": 0.911529223378703,
+    "earlier_demo_valid_poses": 2275
+  },
+  "backend": {
+    "anchors": 30,
+    "proposals": 36,
+    "accepted_loops": 1,
+    "catastrophic_edges": 0,
+    "accepted_edge_rotation_error_deg": 0.7633333359423177,
+    "accepted_edge_translation_error_m": 0.01860595608170209
+  },
+  "pose": {
+    "baseline_translation_ate_rmse_m": 0.6075577453746962,
+    "candidate_translation_ate_rmse_m": 0.4772686570882977,
+    "translation_ate_rmse_improvement_fraction": 0.214447250945745,
+    "baseline_rotation_ate_rmse_deg": 7.482742847385957,
+    "candidate_rotation_ate_rmse_deg": 4.369795762929131,
+    "rotation_ate_rmse_improvement_fraction": 0.4160168467561747
+  },
+  "no_gt_geometry": {
+    "layer_conflict_improvement_fraction": 0.061500241799899054,
+    "dominant_plane_thickness_improvement_fraction": 0.10940770169561946,
+    "point_count_ratio": 0.9259594827931678,
+    "ground_tilt_delta_deg": 1.6573424486160073,
+    "passes_scene_safety": true,
+    "passes_scene_improvement": false
+  },
+  "evaluation_only_gt_geometry": {
+    "baseline_symmetric_mean_m": 0.23769750399579048,
+    "candidate_symmetric_mean_m": 0.18150925652993619,
+    "symmetric_mean_improvement_fraction": 0.23638551739630118,
+    "baseline_horizontal_spread_median_m": 0.5034304722687599,
+    "candidate_horizontal_spread_median_m": 0.254582787994883,
+    "horizontal_spread_improvement_fraction": 0.49430397638112744
+  },
+  "decision": "retain_metric_config_fix_keep_backend_opt_in"
+}

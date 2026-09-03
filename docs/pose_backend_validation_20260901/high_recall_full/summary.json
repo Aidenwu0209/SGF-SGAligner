@@ -1,0 +1,204 @@
+{
+  "acceptance": {
+    "orbbec_all_safe": false,
+    "orbbec_at_least_4_of_5_improved": false,
+    "overall": false,
+    "scan3r_candidate_no_catastrophic_accepts": false,
+    "scan3r_pair_gate": false,
+    "scannet_held_out_pose_rotation": true,
+    "scannet_held_out_pose_translation": true,
+    "scannet_no_catastrophic_or_unevaluable_edges": false
+  },
+  "loop_weight_cap_audit": {
+    "accepted_scannet_loops": 38,
+    "cap_triggered": false,
+    "loops_capped_at_or_below_0_3": 0
+  },
+  "orbbec": {
+    "accepted_loops": 5,
+    "catastrophic_edges": 0,
+    "completed_sequences": 5,
+    "corrected_sequences": 4,
+    "failed_sequences": 0,
+    "geometry_improved_sequences": 0,
+    "geometry_safe_sequences": 3,
+    "known_input_frames_in_progress_rows": 4126,
+    "pose_bootstrap_all_completed": {
+      "paired_scene_count": 0,
+      "rotation": null,
+      "translation": null
+    },
+    "pose_coverage": 1.0,
+    "processed_sequences": 5,
+    "reason_counts": {
+      "no_verified_loop": 1,
+      "verified_sparse_loops_optimized": 4
+    },
+    "requested_sequences": 5,
+    "sequences_at_least_80pct_coverage": 5,
+    "total_input_frames": 4126,
+    "unevaluable_edges": 0,
+    "valid_poses": 4126
+  },
+  "preset": {
+    "high_leverage_loop_min_span_fraction": 1.0,
+    "high_leverage_loop_weight_cap": 0.3,
+    "maximum_loop_pairs": 120
+  },
+  "protocol_audit": {
+    "matches_planned_scannet_split_count": false,
+    "planned_development_scenes": 4,
+    "planned_held_out_scenes": 12,
+    "scannet_development_scenes_observed": 5,
+    "scannet_held_out_scenes_observed": 11
+  },
+  "rows_sha256": "2c9af87e94a8c7ed03e19cbce35a7aa04fea83f7a9aff97abdde795ebcb97bcc",
+  "scan3r": {
+    "accepted_loops": 0,
+    "catastrophic_edges": 0,
+    "completed_sequences": 86,
+    "corrected_sequences": 0,
+    "failed_sequences": 93,
+    "geometry_improved_sequences": 0,
+    "geometry_safe_sequences": 7,
+    "known_input_frames_in_progress_rows": 26717,
+    "pose_bootstrap_all_completed": {
+      "paired_scene_count": 86,
+      "rotation": {
+        "ci95_fraction": [
+          0.0,
+          0.0
+        ],
+        "observed_fraction": 0.0,
+        "passes_10pct_and_positive_ci": false,
+        "samples": 10000,
+        "seed": 42
+      },
+      "translation": {
+        "ci95_fraction": [
+          0.0,
+          0.0
+        ],
+        "observed_fraction": 0.0,
+        "passes_10pct_and_positive_ci": false,
+        "samples": 10000,
+        "seed": 42
+      }
+    },
+    "pose_coverage": 0.003350447128016005,
+    "processed_sequences": 179,
+    "reason_counts": {
+      "RuntimeError: DPV-SLAM produced no valid pose": 93,
+      "insufficient_valid_poses_for_sparse_backend": 73,
+      "no_verified_loop": 9,
+      "submap_construction_failed": 4
+    },
+    "requested_sequences": 179,
+    "sequences_at_least_80pct_coverage": 0,
+    "total_input_frames": 41487,
+    "unevaluable_edges": 0,
+    "valid_poses": 139
+  },
+  "scan3r_pair_evaluation": {
+    "baseline": {
+      "accepted": 1,
+      "all_validation_accepted": 2,
+      "all_validation_catastrophic_accepts": 2,
+      "catastrophic_accepts": 1,
+      "cycle_available": 0,
+      "recall_5deg_02m": 0.0
+    },
+    "candidate": {
+      "accepted": 1,
+      "all_validation_accepted": 1,
+      "all_validation_catastrophic_accepts": 1,
+      "catastrophic_accepts": 1,
+      "cycle_available": 0,
+      "recall_5deg_02m": 0.0
+    },
+    "gt_role": "evaluation_only",
+    "metadata_sha256": "674a00f50f76b198b9de44efd86c390fea3da37ba8f12cf8ccd00045e265fa64",
+    "official_pairs": 109,
+    "official_pairs_with_completed_inference": 28,
+    "paired_primary_bootstrap": {
+      "ci95_fraction": [
+        -6.541090061879002e-06,
+        0.0
+      ],
+      "observed_fraction": -2.1452268353669316e-06,
+      "passes_10pct_and_positive_ci": false,
+      "samples": 10000,
+      "seed": 42
+    },
+    "passes_gate": false,
+    "validation_pair_count": 266
+  },
+  "scannet": {
+    "accepted_loops": 38,
+    "catastrophic_edges": 0,
+    "completed_sequences": 16,
+    "corrected_sequences": 12,
+    "failed_sequences": 0,
+    "geometry_improved_sequences": 1,
+    "geometry_safe_sequences": 10,
+    "known_input_frames_in_progress_rows": 37296,
+    "pose_bootstrap_all_completed": {
+      "paired_scene_count": 16,
+      "rotation": {
+        "ci95_fraction": [
+          0.16145813730541753,
+          0.42282516603619535
+        ],
+        "observed_fraction": 0.2863909440044571,
+        "passes_10pct_and_positive_ci": true,
+        "samples": 10000,
+        "seed": 42
+      },
+      "translation": {
+        "ci95_fraction": [
+          0.11518005606822605,
+          0.411742926224447
+        ],
+        "observed_fraction": 0.25401300951039524,
+        "passes_10pct_and_positive_ci": true,
+        "samples": 10000,
+        "seed": 42
+      }
+    },
+    "pose_coverage": 0.9396986271986272,
+    "processed_sequences": 16,
+    "reason_counts": {
+      "no_verified_loop": 4,
+      "verified_sparse_loops_optimized": 12
+    },
+    "requested_sequences": 16,
+    "sequences_at_least_80pct_coverage": 16,
+    "total_input_frames": 37296,
+    "unevaluable_edges": 1,
+    "valid_poses": 35047
+  },
+  "scannet_held_out_pose": {
+    "paired_scene_count": 11,
+    "rotation": {
+      "ci95_fraction": [
+        0.1381167164769168,
+        0.48433986995701833
+      ],
+      "observed_fraction": 0.33661896223469184,
+      "passes_10pct_and_positive_ci": true,
+      "samples": 10000,
+      "seed": 42
+    },
+    "translation": {
+      "ci95_fraction": [
+        0.1354402163460772,
+        0.4579413899116915
+      ],
+      "observed_fraction": 0.313205495409106,
+      "passes_10pct_and_positive_ci": true,
+      "samples": 10000,
+      "seed": 42
+    }
+  },
+  "schema": "highrecall_full_matrix_summary.v1"
+}

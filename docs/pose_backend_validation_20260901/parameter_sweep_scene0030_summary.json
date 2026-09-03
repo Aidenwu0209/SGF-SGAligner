@@ -1,0 +1,60 @@
+{
+  "schema": "pose_parameter_sweep_summary.v1",
+  "date": "2026-09-01",
+  "dataset": "scannet",
+  "sequence_id": "scene0030_00",
+  "sequence_role": "development_after_parameter_selection",
+  "frontend_pose_count": 2277,
+  "baseline": {
+    "ate_translation_rmse_m": 0.6075577453746962,
+    "ate_rotation_rmse_deg": 7.482742847385957,
+    "gt_consumed_at_inference": false
+  },
+  "selected_experimental_setting": {
+    "maximum_loop_pairs": 120,
+    "high_leverage_loop_min_span_fraction": 1.0,
+    "high_leverage_loop_weight_cap": 0.3,
+    "accepted_loop_count": 4,
+    "ate_translation_rmse_m": 0.23665788844,
+    "ate_rotation_rmse_deg": 3.86959975997,
+    "translation_improvement_fraction": 0.6104767156016633,
+    "rotation_improvement_fraction": 0.4828634581072344,
+    "no_gt_geometry": {
+      "layer_conflict_improvement_fraction": 0.19225169662354166,
+      "dominant_plane_thickness_improvement_fraction": 0.05046202012782955,
+      "ground_tilt_delta_deg": 1.1783884946513814,
+      "point_count_ratio": 0.8375199719825972,
+      "bbox_axis_ratios": [
+        0.9758524195226048,
+        0.8558648450875226,
+        0.9656932316655087
+      ],
+      "passes_scene_safety": true,
+      "passes_scene_improvement": true
+    },
+    "gt_only_geometry_control": {
+      "symmetric_mean_distance_m": 0.12213667083,
+      "symmetric_mean_improvement_fraction": 0.4862,
+      "horizontal_spread_median_m": 0.20540222914,
+      "horizontal_spread_improvement_fraction": 0.5920
+    },
+    "catastrophic_edge_count": 0
+  },
+  "rejected_settings": [
+    {
+      "maximum_loop_pairs": 120,
+      "high_leverage_loop_weight_cap": 1.5,
+      "ground_tilt_delta_deg": 2.65548,
+      "reason": "no_gt_ground_tilt_safety_gate_failed"
+    },
+    {
+      "maximum_loop_pairs": 120,
+      "high_leverage_loop_weight_cap": 0.7,
+      "ground_tilt_delta_deg": 2.19809,
+      "reason": "no_gt_ground_tilt_safety_gate_failed"
+    }
+  ],
+  "safe_default_changed": false,
+  "promotion_status": "opt_in_pending_independent_validation",
+  "gt_consumed_at_inference": false
+}
