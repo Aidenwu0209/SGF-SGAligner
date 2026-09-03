@@ -133,3 +133,6 @@ remote create-only root remains
 `/home/ai3d/Documents/sgf_sga_model_validation_20260902`. Multi-GB weights and
 temporary dependencies were deleted from `/dev/shm` after inference; the
 persistent validation root is about 1.6 GB and `/` still has about 2.0 GB free.
+
+The matched RTX 5070 Ti and RTX 4060 runtime follow-up is recorded in
+[`GPU_RUNTIME_BENCHMARK_20260903.md`](GPU_RUNTIME_BENCHMARK_20260903.md).

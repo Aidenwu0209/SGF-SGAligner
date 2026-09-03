@@ -1,0 +1,56 @@
+{
+  "schema": "mapanything_gpu_runtime_comparison.v1",
+  "date": "2026-09-03",
+  "model_commit": "3d10cf7a3016fc0f9bb13a071ee66c47b10be0d9",
+  "checkpoint_sha256": "981f060c64664dff3272b5f5a823d350abe71a2f144444db4cfc325f3ed5a3a0",
+  "sequence_id": "scene0030_00",
+  "gt_consumed": false,
+  "resolution": [518, 392],
+  "amp_dtype": "bf16",
+  "memory_efficient_inference": true,
+  "minibatch_size": 1,
+  "results": {
+    "rtx5070ti_16gb": {
+      "torch": "2.7.1+cu128",
+      "status": "completed",
+      "independent_8": {
+        "frame_ids": [2334, 2335, 2336, 2337, 2338, 2339, 2340, 2341],
+        "inference_seconds": [1.8655174689999967, 1.5531379739998101, 1.4346701950000806],
+        "steady_median_seconds": 1.4939040844999454,
+        "steady_input_fps": 5.355096142385768,
+        "peak_cuda_allocated_bytes": 8340910080,
+        "peak_cuda_reserved_bytes": 8759803904,
+        "output_sha256": "fe5e5ea5cf8961158672834da56fc8b4210f86869b92ce0e53253d63a439b486"
+      },
+      "conditioned_8": {
+        "frame_ids": [2334, 2335, 2336, 2337, 2338, 2339, 2340, 2341],
+        "pose_trajectory_sha256": "56a184d696caf7cd6d85ad0759d832e50b9693c416b81dc28d5dad93d23a54d7",
+        "inference_seconds": [1.8922031519999933, 1.6221457790000215, 1.6043310940000026],
+        "steady_median_seconds": 1.613238436500012,
+        "steady_input_fps": 4.958969374270757,
+        "peak_cuda_allocated_bytes": 8340918272,
+        "peak_cuda_reserved_bytes": 8759803904,
+        "output_sha256": "9288a77f9a331b85d790b1d77ec8b204033cc89971a60aeed48465554e8e5f86"
+      },
+      "independent_16": {
+        "frame_ids": [2334, 2335, 2336, 2337, 2338, 2339, 2340, 2341, 2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349],
+        "inference_seconds": [3.0157704260000173, 2.8894262960000106],
+        "median_seconds": 2.952598361000014,
+        "input_fps": 5.418955795457723,
+        "peak_cuda_allocated_bytes": 8998410752,
+        "peak_cuda_reserved_bytes": 9340715008,
+        "output_sha256": "f4a89d9ba4a5749928438d08a311cdb0b30de19d0a396a88be89d1e58b39bb58"
+      }
+    },
+    "rtx4060_laptop_8gb": {
+      "torch": "2.5.1+cu121",
+      "status": "failed_capacity_gate",
+      "official_8_frame_518": "cuda_oom",
+      "expandable_segments_retry": "cuda_oom",
+      "adapted_504_diagnostic": "cuda_oom",
+      "adapted_6_frame_diagnostic": "cuda_oom",
+      "valid_inference_seconds": null,
+      "valid_input_fps": null
+    }
+  }
+}
