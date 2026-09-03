@@ -97,6 +97,24 @@ contract is:
 np.savez(path, frame_ids=np.asarray(frame_ids), camera_poses=c2w_opencv)
 ```
 
+The official-window runner keeps FP32 model storage by default.  On an 8 GB
+GPU, enable the audited selective-storage mode explicitly; it casts only the
+`info_sharing` weights and retains the official 518 preprocessing resolution:
+
+```bash
+python scripts/run_mapanything_rgbd_window.py \
+  --input-root inference_rgbd_no_gt \
+  --checkpoint mapanything_checkpoint \
+  --output mapanything/window_000.npz \
+  --frame-ids 0,1,2,3,4,5,6,7 \
+  --pose-trajectory dpv.trajectory.json \
+  --model-storage-dtype info-sharing-bf16
+```
+
+Omit `--model-storage-dtype` for the official FP32-storage arm.  Do not use a
+whole-model BF16 cast: MapAnything's geometric-input path requires mixed stored
+precision and fails closed under that modification.
+
 ## Runtime, revision and refusion
 
 Write latency samples as a JSON list in milliseconds, then create the runtime

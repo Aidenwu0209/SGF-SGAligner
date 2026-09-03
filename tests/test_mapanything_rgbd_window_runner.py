@@ -63,3 +63,36 @@ def test_prepare_raw_views_adds_pose_conditioning(tmp_path: Path) -> None:
 
     assert set(views[0]) == {"img", "intrinsics", "depth_z", "camera_poses"}
     np.testing.assert_array_equal(views[0]["camera_poses"], pose)
+
+
+def test_selective_bf16_storage_casts_only_info_sharing() -> None:
+    calls = []
+
+    class Module:
+        def to(self, **kwargs):
+            calls.append(kwargs)
+
+    class Model:
+        info_sharing = Module()
+
+    class Torch:
+        bfloat16 = object()
+
+    model = Model()
+    RUNNER.apply_model_storage_dtype(model, Torch, "fp32")
+    assert calls == []
+
+    RUNNER.apply_model_storage_dtype(model, Torch, "info-sharing-bf16")
+    assert calls == [{"dtype": Torch.bfloat16}]
+
+
+def test_selective_bf16_storage_fails_closed_on_model_drift() -> None:
+    class Torch:
+        bfloat16 = object()
+
+    try:
+        RUNNER.apply_model_storage_dtype(object(), Torch, "info-sharing-bf16")
+    except AttributeError as exc:
+        assert "info_sharing" in str(exc)
+    else:
+        raise AssertionError("missing info_sharing module was accepted")

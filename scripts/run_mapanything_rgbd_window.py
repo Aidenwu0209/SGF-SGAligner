@@ -35,6 +35,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--amp-dtype", choices=("bf16", "fp16"), default="bf16")
     parser.add_argument(
+        "--model-storage-dtype",
+        choices=("fp32", "info-sharing-bf16"),
+        default="fp32",
+        help=(
+            "Stored model-weight precision. info-sharing-bf16 is an opt-in "
+            "8 GB mode that keeps the geometric input path in FP32."
+        ),
+    )
+    parser.add_argument(
         "--cuda-alloc-conf",
         help="Optional PYTORCH_CUDA_ALLOC_CONF override; leave unset on Jetson",
     )
@@ -117,6 +126,19 @@ def load_pose_conditioning(path: Path, frame_ids: list[int]) -> dict[int, np.nda
     return {frame_id: available[frame_id] for frame_id in frame_ids}
 
 
+def apply_model_storage_dtype(model: object, torch_module: object, mode: str) -> None:
+    """Apply the audited low-memory cast without changing the default model."""
+    if mode == "fp32":
+        return
+    if mode == "info-sharing-bf16":
+        info_sharing = getattr(model, "info_sharing", None)
+        if info_sharing is None:
+            raise AttributeError("MapAnything model has no info_sharing module")
+        info_sharing.to(dtype=torch_module.bfloat16)
+        return
+    raise ValueError(f"unsupported model storage dtype: {mode}")
+
+
 def main() -> None:
     args = parse_args()
     if args.output.exists():
@@ -156,6 +178,7 @@ def main() -> None:
     started = time.perf_counter()
     model_started = time.perf_counter()
     model = MapAnything.from_pretrained(str(checkpoint)).to(args.device).eval()
+    apply_model_storage_dtype(model, torch, args.model_storage_dtype)
     model_load_seconds = time.perf_counter() - model_started
     if args.device.startswith("cuda"):
         torch.cuda.reset_peak_memory_stats()
@@ -230,6 +253,7 @@ def main() -> None:
         "memory_efficient_inference": True,
         "minibatch_size": 1,
         "amp_dtype": args.amp_dtype,
+        "model_storage_dtype": args.model_storage_dtype,
         "torch_version": torch.__version__,
         "cuda_version": torch.version.cuda,
         "device": torch.cuda.get_device_name(0) if args.device.startswith("cuda") else args.device,

@@ -40,17 +40,102 @@
         "peak_cuda_allocated_bytes": 8998410752,
         "peak_cuda_reserved_bytes": 9340715008,
         "output_sha256": "f4a89d9ba4a5749928438d08a311cdb0b30de19d0a396a88be89d1e58b39bb58"
+      },
+      "conditioned_8_info_sharing_bf16_storage": {
+        "frame_ids": [
+          2334,
+          2335,
+          2336,
+          2337,
+          2338,
+          2339,
+          2340,
+          2341
+        ],
+        "model_storage_dtype": "info-sharing-bf16",
+        "inference_seconds": 1.846855213,
+        "input_fps": 4.331687694675825,
+        "peak_cuda_allocated_bytes": 6487874048,
+        "peak_cuda_reserved_bytes": 6962544640,
+        "same_hardware_delta_vs_full_weights": {
+          "camera_translation_mean_m": 0.000433,
+          "camera_translation_p95_m": 0.000608,
+          "camera_rotation_mean_deg": 0.01839,
+          "camera_rotation_p95_deg": 0.02421,
+          "valid_depth_0_to_4_5m_fraction": 0.9021,
+          "valid_depth_mean_abs_delta_m": 0.0003168,
+          "valid_depth_p95_abs_delta_m": 0.001196,
+          "valid_point_mean_delta_m": 0.000655,
+          "valid_point_p95_delta_m": 0.001924
+        }
       }
     },
     "rtx4060_laptop_8gb": {
       "torch": "2.5.1+cu121",
-      "status": "failed_capacity_gate",
+      "status": "completed_opt_in_low_memory_mode",
       "official_8_frame_518": "cuda_oom",
       "expandable_segments_retry": "cuda_oom",
       "adapted_504_diagnostic": "cuda_oom",
       "adapted_6_frame_diagnostic": "cuda_oom",
-      "valid_inference_seconds": null,
-      "valid_input_fps": null
+      "adapted_490_diagnostic": "cuda_oom",
+      "adapted_476_diagnostic": "cuda_oom",
+      "adapted_448_diagnostic": "cuda_oom",
+      "selective_storage_policy": "info-sharing-bf16",
+      "independent_8": {
+        "frame_ids": [
+          2334,
+          2335,
+          2336,
+          2337,
+          2338,
+          2339,
+          2340,
+          2341
+        ],
+        "inference_seconds": [
+          3.974950562,
+          3.487939156
+        ],
+        "median_seconds": 3.731444859,
+        "input_fps": 2.1439416371662374,
+        "peak_cuda_allocated_bytes": 6438224896,
+        "peak_cuda_reserved_bytes": 6603931648,
+        "output_sha256": "50fe108be1d8715242a4746daa10e6400144df02e75ec312ca210b5c3afc93e9"
+      },
+      "conditioned_8": {
+        "frame_ids": [
+          2334,
+          2335,
+          2336,
+          2337,
+          2338,
+          2339,
+          2340,
+          2341
+        ],
+        "inference_seconds": [
+          3.580448989989236,
+          3.543064080993645
+        ],
+        "median_seconds": 3.5617565354914404,
+        "input_fps": 2.2460827741265543,
+        "peak_cuda_allocated_bytes": 6489373184,
+        "peak_cuda_reserved_bytes": 7031750656,
+        "output_sha256": "e5d4f5110ba6df8bf8cbb8734d68b88fda488e2d252ff4ebbdc498fedb7cee5e",
+        "pose_coverage": 1.0,
+        "metric_se3_ate_rmse_m": 0.0054948657458420945,
+        "relative_translation_median_m": 0.004395985103356503,
+        "relative_rotation_median_deg": 0.12519445461700213,
+        "refusion": {
+          "integrated_frames": 8,
+          "identity_fallback_used": false,
+          "gt_consumed": false,
+          "surface_vs_gt_pose_refusion_mean_m": 0.010327216417563288,
+          "surface_vs_gt_pose_refusion_fscore": 0.9867086710249241,
+          "surface_vs_full_weight_refusion_mean_m": 0.0008681831991102045
+        }
+      },
+      "fresh_process_model_load_seconds": 22.711178756027948
     }
   }
 }
