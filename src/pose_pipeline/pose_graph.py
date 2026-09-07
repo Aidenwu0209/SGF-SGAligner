@@ -30,6 +30,7 @@ class PoseGraphEdge:
 @dataclass(frozen=True)
 class PoseGraphOptimizationConfig:
     robustifier: str = "huber"
+    huber_information_policy: str = "scalar"
     gnc_iterations: int = 6
     gnc_initial_mu: float = 32.0
     gnc_decay: float = 0.5
@@ -38,6 +39,8 @@ class PoseGraphOptimizationConfig:
     calculate_leave_one_out: bool = False
 
     def __post_init__(self) -> None:
+        if self.huber_information_policy not in {"scalar", "local_normalized"}:
+            raise ValueError("unsupported Huber information policy")
         if self.robustifier not in {"huber", "adaptive_gnc"}:
             raise ValueError("robustifier must be huber or adaptive_gnc")
         if self.gnc_iterations < 1:
@@ -355,6 +358,26 @@ def _solve_adaptive_gnc(
     return parameters, result, robust_weights, history
 
 
+def normalized_local_information_root(information: np.ndarray, rotation_scale: float,
+                                      translation_scale: float) -> np.ndarray:
+    """Whiten dimensionless right/source-frame tangents without boosting any axis.
+
+    Only the new local RGB-D factors use this policy. Their source-frame
+    point-to-plane Jacobians match log(inv(measurement) @ prediction).
+    """
+    h = np.asarray(information, dtype=float)
+    if h.shape != (6, 6) or not np.isfinite(h).all() or not np.allclose(h, h.T):
+        raise ValueError("local information must be finite symmetric 6x6")
+    if min(rotation_scale, translation_scale) <= 0:
+        raise ValueError("residual scales must be positive")
+    scales = np.diag([rotation_scale] * 3 + [translation_scale] * 3)
+    eigenvalues, vectors = np.linalg.eigh(scales @ h @ scales)
+    if eigenvalues[0] < -1e-10 or eigenvalues[-1] <= 0:
+        raise ValueError("local information must be nonzero positive semidefinite")
+    values = np.clip(eigenvalues / eigenvalues[-1], 0.05, 1.0)
+    return vectors @ np.diag(np.sqrt(values)) @ vectors.T
+
+
 def optimize_pose_graph(
     initial_world_camera: Sequence[np.ndarray],
     loop_edges: Sequence[PoseGraphEdge],
@@ -379,16 +402,22 @@ def optimize_pose_graph(
         return _pose_values(parameters, initial)
 
     rotation_scale = math.radians(rotation_sigma_deg)
+    local_roots = [
+        normalized_local_information_root(edge.information, rotation_scale, translation_sigma_m)
+        if optimization_config.huber_information_policy == "local_normalized"
+        and edge.kind == "local_rgbd" and edge.information is not None else np.eye(6)
+        for edge in edges
+    ]
 
     def residual(parameters: np.ndarray) -> np.ndarray:
         values = poses(parameters)
         rows = []
-        for edge in edges:
+        for edge, root in zip(edges, local_roots):
             predicted = np.linalg.inv(values[edge.target]) @ values[edge.source]
             error = np.linalg.inv(validate_se3(edge.source_to_target)) @ predicted
             tangent = _log_se3(error)
-            rows.extend((tangent[:3] / rotation_scale * edge.weight).tolist())
-            rows.extend((tangent[3:] / translation_sigma_m * edge.weight).tolist())
+            scaled = np.r_[tangent[:3] / rotation_scale, tangent[3:] / translation_sigma_m]
+            rows.extend((root @ scaled * edge.weight).tolist())
         return np.asarray(rows, dtype=np.float64)
 
     zero = np.zeros(dimension, dtype=np.float64)
@@ -514,6 +543,7 @@ def optimize_pose_graph(
         "maximum_anchor_correction_translation_m": float(max(np.linalg.norm(value[3:]) for value in corrections)),
         "maximum_anchor_correction_rotation_deg": float(max(np.degrees(np.linalg.norm(value[:3])) for value in corrections)),
         "robustifier": optimization_config.robustifier,
+        "huber_information_policy": optimization_config.huber_information_policy,
         "robust_history": robust_history,
         "edges": report_edges,
         "gt_consumed": False,

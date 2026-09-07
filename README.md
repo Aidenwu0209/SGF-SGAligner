@@ -6,6 +6,9 @@ Run it explicitly with `python -m pose_pipeline run-unified`; the guide includes
 Follow-up experiments: [controlled scaling ablation, registration recovery, and geometry audit](docs/unified_pose_followup_zh.md).
 Optional profiles improve some candidate metrics; all four final results still roll back to DPV. The original profile remains unchanged.
 
+CPU-only follow-up: [local geometric ICP, overlap ROI, colored ICP, and directional weights](docs/lightweight_rgbd_trials_zh.md).
+The 24-run ablation adds no ColorPCR/PointDSC model; plain local ICP has the best mean candidate F-score, with remaining regressions and no promoted output.
+
 ![Version](https://img.shields.io/badge/version-v0.1.0--research--preview-3b82f6)
 ![Stage](https://img.shields.io/badge/stage-research%20preview-f59e0b)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)
