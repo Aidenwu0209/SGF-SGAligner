@@ -1,5 +1,10 @@
 # SGF-SGAligner
 
+New develop profile: [depth-first RGB-D loop recovery and full-frame validation](docs/depth_first_pipeline_zh.md).
+Use `configs/pose/unified_backend_depth_first.yaml` with `run-unified`. Four public-entry runs adopted improved final outputs in three scenes and retained the original DPV result in one; scene0030_00's major double-table ghost is removed in the adopted full refusion. This remains development-only; the guide separates candidate gains, final results, and remaining accuracy limits.
+
+Earlier integration reports (historical configurations and results):
+
 Development integration: [Hybrid36 + RGB-D PnP + bounded Huber + full-frame Guard](docs/unified_pose_backend_zh.md).
 Run it explicitly with `python -m pose_pipeline run-unified`; the guide includes the tested configuration, artifacts, and accuracy limitations.
 

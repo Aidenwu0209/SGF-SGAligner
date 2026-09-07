@@ -1,0 +1,1034 @@
+{
+  "schema": "depth_first_validation.v1",
+  "source_commit": "5b6bdd9d34e1eda3cc8293866fbf84fbb819f703",
+  "config": "configs/pose/unified_backend_depth_first.yaml",
+  "gt_role": "post_inference_evaluation_only",
+  "scenes": [
+    {
+      "scene": "scene0030_00",
+      "accepted": true,
+      "frames": 2271,
+      "integrated_frames": 2271,
+      "extra_edges": 7,
+      "baseline": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2271,
+          "estimate_frame_count": 2271,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2271,
+            "available": true,
+            "median": 0.5692820753526165,
+            "mean": 0.5241067558175979,
+            "rmse": 0.560821857189006,
+            "p95": 0.9040631069592111,
+            "max": 0.9744305214244304
+          },
+          "absolute_rotation_deg": {
+            "count": 2271,
+            "available": true,
+            "median": 6.710658338520039,
+            "mean": 6.290074235489374,
+            "rmse": 6.72335298176181,
+            "p95": 9.604674801962922,
+            "max": 10.18205657925816
+          },
+          "relative_translation_m": {
+            "count": 2270,
+            "available": true,
+            "median": 0.004561164100857834,
+            "mean": 0.006155668059894954,
+            "rmse": 0.008745491331764093,
+            "p95": 0.01590393962891296,
+            "max": 0.11146653057180153
+          },
+          "relative_rotation_deg": {
+            "count": 2270,
+            "available": true,
+            "median": 0.10364074957610359,
+            "mean": 0.13688728280840598,
+            "rmse": 0.19109323421493518,
+            "p95": 0.3635345251484841,
+            "max": 1.7366390006031258
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "16cd9d7d513c19066ac8ed5c4ce9898a41d99a25ea6424b86e869f6f544b1162",
+        "trajectory_sha256": "a27eeb31a80b7974e17eadb11fc7ce1ee751fe639925a700ada2a14651880705",
+        "cd_m": 0.3939325034610133,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 197432,
+          "reference_points": 113637,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.24063620947486464,
+          "reference_to_estimate_mean_m": 0.1483553992423716,
+          "symmetric_chamfer_mean_m": 0.19449580435861813,
+          "symmetric_chamfer_rmse_m": 0.25983876237656056,
+          "precision": 0.17169455812634224,
+          "recall": 0.2676769010093544,
+          "fscore": 0.2092018782004489,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 116
+      },
+      "committed": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2271,
+          "estimate_frame_count": 2271,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2271,
+            "available": true,
+            "median": 0.23730657371306135,
+            "mean": 0.23900724236279355,
+            "rmse": 0.2700363117743106,
+            "p95": 0.42487827147771406,
+            "max": 0.5312201701681842
+          },
+          "absolute_rotation_deg": {
+            "count": 2271,
+            "available": true,
+            "median": 2.8269961595668565,
+            "mean": 3.3744054984263254,
+            "rmse": 3.777640703010822,
+            "p95": 6.893594220347776,
+            "max": 7.5344577254927065
+          },
+          "relative_translation_m": {
+            "count": 2270,
+            "available": true,
+            "median": 0.004531990872804535,
+            "mean": 0.006134667119495244,
+            "rmse": 0.00872650732472259,
+            "p95": 0.015975255463714397,
+            "max": 0.11140980827933636
+          },
+          "relative_rotation_deg": {
+            "count": 2270,
+            "available": true,
+            "median": 0.10289160652288462,
+            "mean": 0.13655305460566977,
+            "rmse": 0.19079961795094522,
+            "p95": 0.3613813687473826,
+            "max": 1.7411856758612703
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "c8d6283f552acd70753c7dd398b5149298ae749f7c1a6425570ea7740b32d600",
+        "trajectory_sha256": "ecf689e8768ba1911717e893ddf57ec21b5cc94da1e1b13b83c15682b3b17276",
+        "cd_m": 0.21331229351602488,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 163806,
+          "reference_points": 113637,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.11714819246374583,
+          "reference_to_estimate_mean_m": 0.08582771098172627,
+          "symmetric_chamfer_mean_m": 0.10148795172273606,
+          "symmetric_chamfer_rmse_m": 0.14717053800734717,
+          "precision": 0.3886609770093892,
+          "recall": 0.4958332233339493,
+          "fscore": 0.43575418570270286,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 116
+      },
+      "candidate": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2271,
+          "estimate_frame_count": 2271,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2271,
+            "available": true,
+            "median": 0.23730657371306135,
+            "mean": 0.23900724236279355,
+            "rmse": 0.2700363117743106,
+            "p95": 0.42487827147771406,
+            "max": 0.5312201701681842
+          },
+          "absolute_rotation_deg": {
+            "count": 2271,
+            "available": true,
+            "median": 2.8269961595668565,
+            "mean": 3.3744054984263254,
+            "rmse": 3.777640703010822,
+            "p95": 6.893594220347776,
+            "max": 7.5344577254927065
+          },
+          "relative_translation_m": {
+            "count": 2270,
+            "available": true,
+            "median": 0.004531990872804535,
+            "mean": 0.006134667119495244,
+            "rmse": 0.00872650732472259,
+            "p95": 0.015975255463714397,
+            "max": 0.11140980827933636
+          },
+          "relative_rotation_deg": {
+            "count": 2270,
+            "available": true,
+            "median": 0.10289160652288462,
+            "mean": 0.13655305460566977,
+            "rmse": 0.19079961795094522,
+            "p95": 0.3613813687473826,
+            "max": 1.7411856758612703
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "c8d6283f552acd70753c7dd398b5149298ae749f7c1a6425570ea7740b32d600",
+        "trajectory_sha256": "ecf689e8768ba1911717e893ddf57ec21b5cc94da1e1b13b83c15682b3b17276",
+        "cd_m": 0.21331229351602488,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 163806,
+          "reference_points": 113637,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.11714819246374583,
+          "reference_to_estimate_mean_m": 0.08582771098172627,
+          "symmetric_chamfer_mean_m": 0.10148795172273606,
+          "symmetric_chamfer_rmse_m": 0.14717053800734717,
+          "precision": 0.3886609770093892,
+          "recall": 0.4958332233339493,
+          "fscore": 0.43575418570270286,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 116
+      },
+      "old_develop_candidate": {
+        "trajectory": {
+          "absolute_rotation_deg": {
+            "available": true,
+            "count": 2271,
+            "max": 7.392534720954189,
+            "mean": 4.5533365449339485,
+            "median": 4.582652467779872,
+            "p95": 6.622362294972321,
+            "rmse": 4.739423251566125
+          },
+          "absolute_translation_m": {
+            "available": true,
+            "count": 2271,
+            "max": 0.7034981124828026,
+            "mean": 0.41980695032365456,
+            "median": 0.4587365295989989,
+            "p95": 0.650857610784966,
+            "rmse": 0.444641368919983
+          },
+          "estimate_frame_count": 2271,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "frame_count": 2271,
+          "gt_role": "evaluation_only",
+          "relative_rotation_deg": {
+            "available": true,
+            "count": 2270,
+            "max": 1.7366390004268097,
+            "mean": 0.1365043060785454,
+            "median": 0.10319749598310632,
+            "p95": 0.3613151840169009,
+            "rmse": 0.1907808084727721
+          },
+          "relative_translation_m": {
+            "available": true,
+            "count": 2270,
+            "max": 0.11146653056713986,
+            "mean": 0.0061454498560299855,
+            "median": 0.004557677787874897,
+            "p95": 0.015900315550764692,
+            "rmse": 0.008739667869136878
+          },
+          "schema": "pose_trajectory_evaluation.v1"
+        },
+        "cd_m": 0.33196690016651476,
+        "geometry": {
+          "estimate_points": 187532,
+          "estimate_to_reference_mean_m": 0.2002083350328288,
+          "fscore": 0.23859512326039153,
+          "gt_role": "evaluation_only",
+          "precision": 0.20135763496363288,
+          "recall": 0.29273036070998004,
+          "reference_points": 113637,
+          "reference_to_estimate_mean_m": 0.1283349365335956,
+          "schema": "reconstruction_surface_evaluation.v1",
+          "symmetric_chamfer_mean_m": 0.1642716357832122,
+          "symmetric_chamfer_rmse_m": 0.21722006587626294,
+          "threshold_m": 0.05,
+          "voxel_m": 0.03
+        }
+      },
+      "relative_to_old_final": {
+        "cd_reduction_pct": 45.85054758317602,
+        "ate_reduction_pct": 51.849895236286415,
+        "fscore_gain_pp": 22.655230750225396
+      },
+      "relative_to_old_candidate": {
+        "cd_reduction_pct": 35.74290285898163,
+        "ate_reduction_pct": 39.268738662302496,
+        "fscore_gain_pp": 19.71590624423113
+      }
+    },
+    {
+      "scene": "scene0046_00",
+      "accepted": true,
+      "frames": 2383,
+      "integrated_frames": 2383,
+      "extra_edges": 3,
+      "baseline": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2382,
+          "estimate_frame_count": 2383,
+          "evaluation_coverage": 0.9995803608896349,
+          "excluded_estimate_frame_count": 1,
+          "absolute_translation_m": {
+            "count": 2382,
+            "available": true,
+            "median": 0.5424910801223843,
+            "mean": 0.4882604458758594,
+            "rmse": 0.5244538344277394,
+            "p95": 0.7108328916388585,
+            "max": 0.7574529524449372
+          },
+          "absolute_rotation_deg": {
+            "count": 2382,
+            "available": true,
+            "median": 6.718160227191305,
+            "mean": 7.284389496837846,
+            "rmse": 8.111209689641589,
+            "p95": 12.646665810353541,
+            "max": 16.55422631134575
+          },
+          "relative_translation_m": {
+            "count": 2381,
+            "available": true,
+            "median": 0.003958647407277798,
+            "mean": 0.0057958794022023126,
+            "rmse": 0.010026125196107299,
+            "p95": 0.015637856617629592,
+            "max": 0.16811473022083911
+          },
+          "relative_rotation_deg": {
+            "count": 2381,
+            "available": true,
+            "median": 0.13479856549174715,
+            "mean": 0.18083876605235857,
+            "rmse": 0.2530682682019946,
+            "p95": 0.4708605561777562,
+            "max": 2.530218492981556
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "2de13dd788e913814d24de68686f763b1460c24c2ef0edd42b160b681819de7f",
+        "trajectory_sha256": "50924f885accb578bce7b9fb0a3e4b89f139bb0256b6a344938d7ebc9bc2ced0",
+        "cd_m": 0.3770682138704839,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 113894,
+          "reference_points": 72472,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.2173999898279678,
+          "reference_to_estimate_mean_m": 0.14193335816238697,
+          "symmetric_chamfer_mean_m": 0.17966667399517738,
+          "symmetric_chamfer_rmse_m": 0.2607768114855944,
+          "precision": 0.20580539800165065,
+          "recall": 0.2833370129153328,
+          "fscore": 0.23842662345439342,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 93
+      },
+      "committed": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2382,
+          "estimate_frame_count": 2383,
+          "evaluation_coverage": 0.9995803608896349,
+          "excluded_estimate_frame_count": 1,
+          "absolute_translation_m": {
+            "count": 2382,
+            "available": true,
+            "median": 0.24426566084427476,
+            "mean": 0.21612927141723282,
+            "rmse": 0.2333407483654785,
+            "p95": 0.33044637367301866,
+            "max": 0.3576718079886798
+          },
+          "absolute_rotation_deg": {
+            "count": 2382,
+            "available": true,
+            "median": 5.914927865180466,
+            "mean": 6.193168610057526,
+            "rmse": 6.739641386475903,
+            "p95": 10.592483848839263,
+            "max": 13.70068259374687
+          },
+          "relative_translation_m": {
+            "count": 2381,
+            "available": true,
+            "median": 0.003928933818230256,
+            "mean": 0.005779593803944074,
+            "rmse": 0.009999600647156721,
+            "p95": 0.015309578077771736,
+            "max": 0.16762073334079527
+          },
+          "relative_rotation_deg": {
+            "count": 2381,
+            "available": true,
+            "median": 0.13488941269833435,
+            "mean": 0.1806650073079783,
+            "rmse": 0.2527892964413854,
+            "p95": 0.46740309074637015,
+            "max": 2.5521479628889145
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "be9f752956ce77f3e9b832075075ac4d8679f3e45bc6e88d2c9895c6ece17278",
+        "trajectory_sha256": "0366dbaadccfe35c19be28159951c62131d0f89f20fb6def678ee106e3e5834f",
+        "cd_m": 0.2639871998974118,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 93834,
+          "reference_points": 72472,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.14965672438936814,
+          "reference_to_estimate_mean_m": 0.09322758884148978,
+          "symmetric_chamfer_mean_m": 0.12144215661542895,
+          "symmetric_chamfer_rmse_m": 0.21301815469675783,
+          "precision": 0.3246264680179892,
+          "recall": 0.3884120763881223,
+          "fscore": 0.35366626806529433,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 93
+      },
+      "candidate": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2382,
+          "estimate_frame_count": 2383,
+          "evaluation_coverage": 0.9995803608896349,
+          "excluded_estimate_frame_count": 1,
+          "absolute_translation_m": {
+            "count": 2382,
+            "available": true,
+            "median": 0.24426566084427476,
+            "mean": 0.21612927141723282,
+            "rmse": 0.2333407483654785,
+            "p95": 0.33044637367301866,
+            "max": 0.3576718079886798
+          },
+          "absolute_rotation_deg": {
+            "count": 2382,
+            "available": true,
+            "median": 5.914927865180466,
+            "mean": 6.193168610057526,
+            "rmse": 6.739641386475903,
+            "p95": 10.592483848839263,
+            "max": 13.70068259374687
+          },
+          "relative_translation_m": {
+            "count": 2381,
+            "available": true,
+            "median": 0.003928933818230256,
+            "mean": 0.005779593803944074,
+            "rmse": 0.009999600647156721,
+            "p95": 0.015309578077771736,
+            "max": 0.16762073334079527
+          },
+          "relative_rotation_deg": {
+            "count": 2381,
+            "available": true,
+            "median": 0.13488941269833435,
+            "mean": 0.1806650073079783,
+            "rmse": 0.2527892964413854,
+            "p95": 0.46740309074637015,
+            "max": 2.5521479628889145
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "be9f752956ce77f3e9b832075075ac4d8679f3e45bc6e88d2c9895c6ece17278",
+        "trajectory_sha256": "0366dbaadccfe35c19be28159951c62131d0f89f20fb6def678ee106e3e5834f",
+        "cd_m": 0.2639871998974118,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 93834,
+          "reference_points": 72472,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.14965672438936814,
+          "reference_to_estimate_mean_m": 0.09322758884148978,
+          "symmetric_chamfer_mean_m": 0.12144215661542895,
+          "symmetric_chamfer_rmse_m": 0.21301815469675783,
+          "precision": 0.3246264680179892,
+          "recall": 0.3884120763881223,
+          "fscore": 0.35366626806529433,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 93
+      },
+      "old_develop_candidate": {
+        "trajectory": {
+          "absolute_rotation_deg": {
+            "available": true,
+            "count": 2382,
+            "max": 12.532188367495067,
+            "mean": 5.735867593547037,
+            "median": 5.997128558384997,
+            "p95": 9.12063262441668,
+            "rmse": 6.158921836698247
+          },
+          "absolute_translation_m": {
+            "available": true,
+            "count": 2382,
+            "max": 0.544520766562114,
+            "mean": 0.3328225093626603,
+            "median": 0.33993695690312736,
+            "p95": 0.4862545567407778,
+            "rmse": 0.35578080111508703
+          },
+          "estimate_frame_count": 2383,
+          "evaluation_coverage": 0.9995803608896349,
+          "excluded_estimate_frame_count": 1,
+          "frame_count": 2382,
+          "gt_role": "evaluation_only",
+          "relative_rotation_deg": {
+            "available": true,
+            "count": 2381,
+            "max": 2.541331133082345,
+            "mean": 0.18058780023347196,
+            "median": 0.13495348436765509,
+            "p95": 0.467408868356972,
+            "rmse": 0.2528375524104773
+          },
+          "relative_translation_m": {
+            "available": true,
+            "count": 2381,
+            "max": 0.16796381296814694,
+            "mean": 0.005787469988164378,
+            "median": 0.0039213019629404195,
+            "p95": 0.015466814128280503,
+            "rmse": 0.010017038950320842
+          },
+          "schema": "pose_trajectory_evaluation.v1"
+        },
+        "cd_m": 0.2867707024104543,
+        "geometry": {
+          "estimate_points": 105869,
+          "estimate_to_reference_mean_m": 0.16344256327418158,
+          "fscore": 0.3298556516345002,
+          "gt_role": "evaluation_only",
+          "precision": 0.29555393930234536,
+          "recall": 0.3731648084777569,
+          "reference_points": 72472,
+          "reference_to_estimate_mean_m": 0.10554082403243487,
+          "schema": "reconstruction_surface_evaluation.v1",
+          "symmetric_chamfer_mean_m": 0.1344916936533082,
+          "symmetric_chamfer_rmse_m": 0.22020810924587933,
+          "threshold_m": 0.05,
+          "voxel_m": 0.03
+        }
+      },
+      "relative_to_old_final": {
+        "cd_reduction_pct": 29.98953765217488,
+        "ate_reduction_pct": 55.507857308338785,
+        "fscore_gain_pp": 11.523964461090092
+      },
+      "relative_to_old_candidate": {
+        "cd_reduction_pct": 7.944850126437442,
+        "ate_reduction_pct": 34.41446316548203,
+        "fscore_gain_pp": 2.3810616430794127
+      }
+    },
+    {
+      "scene": "scene0046_01",
+      "accepted": true,
+      "frames": 2338,
+      "integrated_frames": 2338,
+      "extra_edges": 11,
+      "baseline": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2338,
+          "estimate_frame_count": 2338,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2338,
+            "available": true,
+            "median": 0.33138267045503433,
+            "mean": 0.2971264170184921,
+            "rmse": 0.3212094057487757,
+            "p95": 0.46025444620715544,
+            "max": 0.523646783550716
+          },
+          "absolute_rotation_deg": {
+            "count": 2338,
+            "available": true,
+            "median": 12.310020115162878,
+            "mean": 10.854408052588575,
+            "rmse": 11.728438278837338,
+            "p95": 16.307117134435483,
+            "max": 17.699827694107928
+          },
+          "relative_translation_m": {
+            "count": 2337,
+            "available": true,
+            "median": 0.003926370812263745,
+            "mean": 0.00541080053578243,
+            "rmse": 0.007613760947499432,
+            "p95": 0.01402067764490989,
+            "max": 0.08595754359577201
+          },
+          "relative_rotation_deg": {
+            "count": 2337,
+            "available": true,
+            "median": 0.13173999455237628,
+            "mean": 0.17638954996743628,
+            "rmse": 0.2533634130042081,
+            "p95": 0.44940741596131306,
+            "max": 3.2082822320311624
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "f190f12b82d31110ea0118604fa1ffc4b3ffc38ed48246a56711eea67ea8489e",
+        "trajectory_sha256": "4fd670df3e2f4fd8b3a5b9b3a16aff465ffcbfac684a0734bf759671790e85f7",
+        "cd_m": 0.26706942288057006,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 114259,
+          "reference_points": 78284,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.15976176546067372,
+          "reference_to_estimate_mean_m": 0.0939708699794651,
+          "symmetric_chamfer_mean_m": 0.1268663177200694,
+          "symmetric_chamfer_rmse_m": 0.20361797740403428,
+          "precision": 0.29563535476417613,
+          "recall": 0.3909994379438966,
+          "fscore": 0.3366950197593106,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 131
+      },
+      "committed": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2338,
+          "estimate_frame_count": 2338,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2338,
+            "available": true,
+            "median": 0.1262400160307101,
+            "mean": 0.13708001656411828,
+            "rmse": 0.16090693060062555,
+            "p95": 0.3572009886573257,
+            "max": 0.4384728727050051
+          },
+          "absolute_rotation_deg": {
+            "count": 2338,
+            "available": true,
+            "median": 5.231036039358998,
+            "mean": 5.291575404922569,
+            "rmse": 5.707131427069389,
+            "p95": 8.347064574692684,
+            "max": 10.15434202595553
+          },
+          "relative_translation_m": {
+            "count": 2337,
+            "available": true,
+            "median": 0.0038573335178759337,
+            "mean": 0.005351587480864783,
+            "rmse": 0.0075681975385352845,
+            "p95": 0.013927098123176423,
+            "max": 0.08594342535211721
+          },
+          "relative_rotation_deg": {
+            "count": 2337,
+            "available": true,
+            "median": 0.1308586284442631,
+            "mean": 0.1758797036146785,
+            "rmse": 0.25265006505039117,
+            "p95": 0.44883995935275167,
+            "max": 3.1898052121367013
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "e0eb9e1f4b0dab7e06186836d016101995ca77b20d501a147532dfa099c75e33",
+        "trajectory_sha256": "dfa92e695d92715795969ee174bf45638d573f3d06744d52e38d24838d9d00b9",
+        "cd_m": 0.16517493604013364,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 95668,
+          "reference_points": 78284,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.0958523001917308,
+          "reference_to_estimate_mean_m": 0.05274220558064552,
+          "symmetric_chamfer_mean_m": 0.07429725288618816,
+          "symmetric_chamfer_rmse_m": 0.17732342861662098,
+          "precision": 0.5470063135008572,
+          "recall": 0.6009784885800419,
+          "fscore": 0.5727236579013862,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 131
+      },
+      "candidate": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 2338,
+          "estimate_frame_count": 2338,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 2338,
+            "available": true,
+            "median": 0.1262400160307101,
+            "mean": 0.13708001656411828,
+            "rmse": 0.16090693060062555,
+            "p95": 0.3572009886573257,
+            "max": 0.4384728727050051
+          },
+          "absolute_rotation_deg": {
+            "count": 2338,
+            "available": true,
+            "median": 5.231036039358998,
+            "mean": 5.291575404922569,
+            "rmse": 5.707131427069389,
+            "p95": 8.347064574692684,
+            "max": 10.15434202595553
+          },
+          "relative_translation_m": {
+            "count": 2337,
+            "available": true,
+            "median": 0.0038573335178759337,
+            "mean": 0.005351587480864783,
+            "rmse": 0.0075681975385352845,
+            "p95": 0.013927098123176423,
+            "max": 0.08594342535211721
+          },
+          "relative_rotation_deg": {
+            "count": 2337,
+            "available": true,
+            "median": 0.1308586284442631,
+            "mean": 0.1758797036146785,
+            "rmse": 0.25265006505039117,
+            "p95": 0.44883995935275167,
+            "max": 3.1898052121367013
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "e0eb9e1f4b0dab7e06186836d016101995ca77b20d501a147532dfa099c75e33",
+        "trajectory_sha256": "dfa92e695d92715795969ee174bf45638d573f3d06744d52e38d24838d9d00b9",
+        "cd_m": 0.16517493604013364,
+        "geometry": {
+          "schema": "reconstruction_surface_evaluation.v1",
+          "estimate_points": 95668,
+          "reference_points": 78284,
+          "voxel_m": 0.03,
+          "threshold_m": 0.05,
+          "estimate_to_reference_mean_m": 0.0958523001917308,
+          "reference_to_estimate_mean_m": 0.05274220558064552,
+          "symmetric_chamfer_mean_m": 0.07429725288618816,
+          "symmetric_chamfer_rmse_m": 0.17732342861662098,
+          "precision": 0.5470063135008572,
+          "recall": 0.6009784885800419,
+          "fscore": 0.5727236579013862,
+          "gt_role": "evaluation_only"
+        },
+        "alignment_frame": 131
+      },
+      "old_develop_candidate": {
+        "trajectory": {
+          "absolute_rotation_deg": {
+            "available": true,
+            "count": 2338,
+            "max": 13.78505792446266,
+            "mean": 7.645457570400125,
+            "median": 8.409000418319309,
+            "p95": 11.76430298629864,
+            "rmse": 8.224410042881923
+          },
+          "absolute_translation_m": {
+            "available": true,
+            "count": 2338,
+            "max": 0.46479365918134735,
+            "mean": 0.22523952477427742,
+            "median": 0.2289516471604191,
+            "p95": 0.39089826638552083,
+            "rmse": 0.2428997925263426
+          },
+          "estimate_frame_count": 2338,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "frame_count": 2338,
+          "gt_role": "evaluation_only",
+          "relative_rotation_deg": {
+            "available": true,
+            "count": 2337,
+            "max": 3.2092936823652702,
+            "mean": 0.17619195650325192,
+            "median": 0.1308992713559588,
+            "p95": 0.4485221876907209,
+            "rmse": 0.2532517131699082
+          },
+          "relative_translation_m": {
+            "available": true,
+            "count": 2337,
+            "max": 0.08600164479548865,
+            "mean": 0.005394199750293313,
+            "median": 0.003917863000671987,
+            "p95": 0.014070095119963929,
+            "rmse": 0.007599068674146301
+          },
+          "schema": "pose_trajectory_evaluation.v1"
+        },
+        "cd_m": 0.22343114452992602,
+        "geometry": {
+          "estimate_points": 107062,
+          "estimate_to_reference_mean_m": 0.13086100607281312,
+          "fscore": 0.38749017263660784,
+          "gt_role": "evaluation_only",
+          "precision": 0.35007752517233004,
+          "recall": 0.4338562158295437,
+          "reference_points": 78284,
+          "reference_to_estimate_mean_m": 0.07690470957596057,
+          "schema": "reconstruction_surface_evaluation.v1",
+          "symmetric_chamfer_mean_m": 0.10388285782438685,
+          "symmetric_chamfer_rmse_m": 0.18819546484033794,
+          "threshold_m": 0.05,
+          "voxel_m": 0.03
+        }
+      },
+      "relative_to_old_final": {
+        "cd_reduction_pct": 38.15280901176107,
+        "ate_reduction_pct": 49.90590944074842,
+        "fscore_gain_pp": 23.602863814207563
+      },
+      "relative_to_old_candidate": {
+        "cd_reduction_pct": 26.073450329566583,
+        "ate_reduction_pct": 33.75583860032523,
+        "fscore_gain_pp": 18.52334852647784
+      }
+    },
+    {
+      "scene": "scene0000_00",
+      "accepted": false,
+      "frames": 5429,
+      "integrated_frames": 5429,
+      "extra_edges": 6,
+      "baseline": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 5429,
+          "estimate_frame_count": 5429,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 5429,
+            "available": true,
+            "median": 0.7844320950799869,
+            "mean": 0.8910499933887069,
+            "rmse": 1.054880649833064,
+            "p95": 1.8427314991496304,
+            "max": 2.1343869004232494
+          },
+          "absolute_rotation_deg": {
+            "count": 5429,
+            "available": true,
+            "median": 26.97162996950747,
+            "mean": 26.91813294476936,
+            "rmse": 29.823499911438727,
+            "p95": 44.491537622794304,
+            "max": 45.390284121986504
+          },
+          "relative_translation_m": {
+            "count": 5428,
+            "available": true,
+            "median": 0.005611850108882377,
+            "mean": 0.007375407209312567,
+            "rmse": 0.011307394526283562,
+            "p95": 0.017934893566478715,
+            "max": 0.4243754841287146
+          },
+          "relative_rotation_deg": {
+            "count": 5428,
+            "available": true,
+            "median": 0.1330056181068553,
+            "mean": 0.171793548865066,
+            "rmse": 0.22753474389324824,
+            "p95": 0.4390402668572949,
+            "max": 1.5907349179980832
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "1ac3cf9978129b37d643d7d53f691a2efe52160a69bc74db628db89d4e08a3fe",
+        "trajectory_sha256": "fc63c45de68c7f7e7e6eafffcdf6989ef764d92e9367800ee3c8777eaada00d0",
+        "mesh_status": "missing_reference_mesh"
+      },
+      "committed": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 5429,
+          "estimate_frame_count": 5429,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 5429,
+            "available": true,
+            "median": 0.7844320950799869,
+            "mean": 0.8910499933887069,
+            "rmse": 1.054880649833064,
+            "p95": 1.8427314991496304,
+            "max": 2.1343869004232494
+          },
+          "absolute_rotation_deg": {
+            "count": 5429,
+            "available": true,
+            "median": 26.97162996950747,
+            "mean": 26.91813294476936,
+            "rmse": 29.823499911438727,
+            "p95": 44.491537622794304,
+            "max": 45.390284121986504
+          },
+          "relative_translation_m": {
+            "count": 5428,
+            "available": true,
+            "median": 0.005611850108882377,
+            "mean": 0.007375407209312567,
+            "rmse": 0.011307394526283562,
+            "p95": 0.017934893566478715,
+            "max": 0.4243754841287146
+          },
+          "relative_rotation_deg": {
+            "count": 5428,
+            "available": true,
+            "median": 0.1330056181068553,
+            "mean": 0.171793548865066,
+            "rmse": 0.22753474389324824,
+            "p95": 0.4390402668572949,
+            "max": 1.5907349179980832
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "1ac3cf9978129b37d643d7d53f691a2efe52160a69bc74db628db89d4e08a3fe",
+        "trajectory_sha256": "fc63c45de68c7f7e7e6eafffcdf6989ef764d92e9367800ee3c8777eaada00d0",
+        "mesh_status": "missing_reference_mesh"
+      },
+      "candidate": {
+        "trajectory": {
+          "schema": "pose_trajectory_evaluation.v1",
+          "frame_count": 5429,
+          "estimate_frame_count": 5429,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "absolute_translation_m": {
+            "count": 5429,
+            "available": true,
+            "median": 0.3468996304333492,
+            "mean": 0.49745975006208115,
+            "rmse": 0.6340226950945594,
+            "p95": 1.274378244986729,
+            "max": 1.426327111402825
+          },
+          "absolute_rotation_deg": {
+            "count": 5429,
+            "available": true,
+            "median": 12.66595525360867,
+            "mean": 14.238916139323964,
+            "rmse": 17.185100290807394,
+            "p95": 29.501344055201333,
+            "max": 30.395815129100118
+          },
+          "relative_translation_m": {
+            "count": 5428,
+            "available": true,
+            "median": 0.005609187165939103,
+            "mean": 0.007365973151815437,
+            "rmse": 0.01129371968712785,
+            "p95": 0.017849015608447802,
+            "max": 0.423942472634492
+          },
+          "relative_rotation_deg": {
+            "count": 5428,
+            "available": true,
+            "median": 0.13285874739202347,
+            "mean": 0.17147985202852253,
+            "rmse": 0.22721192642535948,
+            "p95": 0.4422133124580613,
+            "max": 1.5909662655023582
+          },
+          "gt_role": "evaluation_only"
+        },
+        "cloud_sha256": "c195177f5255851c4379eaaf881bd492d10b14d8740765bf302e1e2893161817",
+        "trajectory_sha256": "26f6021d8b19ef1ab287f2a97a23fb35341fc225b4b452880b3b6aa9b7d1ac9e",
+        "mesh_status": "missing_reference_mesh"
+      },
+      "old_develop_candidate": {
+        "trajectory": {
+          "absolute_rotation_deg": {
+            "available": true,
+            "count": 5429,
+            "max": 40.39143174049654,
+            "mean": 22.35942943716754,
+            "median": 22.01737008370718,
+            "p95": 39.4938344051811,
+            "rmse": 25.436629742454247
+          },
+          "absolute_translation_m": {
+            "available": true,
+            "count": 5429,
+            "max": 1.9051550987623858,
+            "mean": 0.7576221898482375,
+            "median": 0.649209631662634,
+            "p95": 1.6649610681079634,
+            "rmse": 0.9139730802203594
+          },
+          "estimate_frame_count": 5429,
+          "evaluation_coverage": 1.0,
+          "excluded_estimate_frame_count": 0,
+          "frame_count": 5429,
+          "gt_role": "evaluation_only",
+          "relative_rotation_deg": {
+            "available": true,
+            "count": 5428,
+            "max": 1.590459642610757,
+            "mean": 0.17165336315603374,
+            "median": 0.13311801307260704,
+            "p95": 0.4378566733914477,
+            "rmse": 0.22739772049850387
+          },
+          "relative_translation_m": {
+            "available": true,
+            "count": 5428,
+            "max": 0.4242376452810279,
+            "mean": 0.007371401922158545,
+            "median": 0.005613961091348374,
+            "p95": 0.017907856492643356,
+            "rmse": 0.011301900265573626
+          },
+          "schema": "pose_trajectory_evaluation.v1"
+        }
+      }
+    }
+  ],
+  "table_diagnostic": {
+    "control": 0.4102546572523701,
+    "committed": -0.012368590492041753
+  }
+}
