@@ -189,7 +189,11 @@ def arm_configuration(arm: str, settings: dict):
     from pose_pipeline.bounded_backend import BoundedBackendConfig
     if arm not in ARMS:
         raise ValueError(f"unknown replay arm: {arm}")
-    bounded = BoundedBackendConfig(**{"enabled": True, **settings.get("bounded", {})})
+    bounded_settings = {"enabled": True, **settings.get("bounded", {})}
+    if "correction_backtracking_scales" in bounded_settings:
+        bounded_settings["correction_backtracking_scales"] = tuple(
+            bounded_settings["correction_backtracking_scales"])
+    bounded = BoundedBackendConfig(**bounded_settings)
     correction = CorrectionAuditConfig(**{
         "maximum_absolute_correction_translation_m": 0.25,
         "maximum_absolute_correction_rotation_deg": 5.0,
@@ -306,6 +310,8 @@ def infer_scene(scene: dict, spec_base: Path, output: Path, arms: list[str],
             "correction_applied": applied, "applied_loop_count": report.get("applied_loop_count", 0),
             "strict_correction_guard": strict_guard,
             "selected_correction_scale": report.get("selected_correction_scale"),
+            "correction_scaling_policy": bounded.correction_scaling_policy,
+            "selected_anchor_correction_scales": report.get("selected_anchor_correction_scales"),
             "strict_leave_one_out_enabled": bounded.enforce_leave_one_out,
             "candidate_trajectory_sha256": sha256_file(candidate),
             "committed_trajectory_sha256": sha256_file(committed),

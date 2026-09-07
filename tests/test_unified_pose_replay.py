@@ -161,6 +161,14 @@ class ReplayContractTests(unittest.TestCase):
         self.assertFalse(combined.enforce_leave_one_out)
         self.assertTrue(loo.enforce_leave_one_out)
 
+    def test_json_settings_preserve_declared_local_policy_and_scale_grid(self):
+        settings = json.loads('{"bounded": {"correction_scaling_policy": '
+                              '"smooth_local", "correction_backtracking_scales": '
+                              '[1.0, 0.5, 0.25]}}')
+        bounded, _, _ = replay.arm_configuration("combined_bounded", settings)
+        self.assertEqual(bounded.correction_scaling_policy, "smooth_local")
+        self.assertEqual(bounded.correction_backtracking_scales, (1.0, .5, .25))
+
     def test_create_only_copy_and_json(self):
         destination = self.root / "copy.ply"
         replay.copy_exact(self.paths["baseline_cloud"], destination)

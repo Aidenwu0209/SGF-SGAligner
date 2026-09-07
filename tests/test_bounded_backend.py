@@ -17,6 +17,7 @@ from pose_pipeline.pose_graph import (
     CorrectionAuditConfig,
     PoseGraphEdge,
     PoseGraphOptimizationConfig,
+    interpolate_transform,
     optimize_pose_graph,
     propagate_anchor_corrections,
 )
@@ -45,6 +46,7 @@ class BoundedConfigTests(unittest.TestCase):
     def test_config_is_frozen_and_opt_in(self):
         config = BoundedBackendConfig()
         self.assertFalse(config.enabled)
+        self.assertEqual(config.correction_scaling_policy, "global")
         with self.assertRaises(FrozenInstanceError):
             config.enabled = True
 
@@ -52,7 +54,7 @@ class BoundedConfigTests(unittest.TestCase):
         for name in (
             "maximum_loop_weight", "high_leverage_min_span_fraction",
             "high_leverage_weight_cap", "maximum_leave_one_out_translation_m",
-            "maximum_leave_one_out_rotation_deg",
+            "maximum_leave_one_out_rotation_deg", "local_scaling_smoothness",
         ):
             for value in (float("nan"), float("inf"), -1.0, 0.0):
                 with self.subTest(name=name, value=value), self.assertRaises(ValueError):
@@ -65,10 +67,149 @@ class BoundedConfigTests(unittest.TestCase):
                 BoundedBackendConfig(correction_backtracking_scales=value)
         with self.assertRaises(ValueError):
             BoundedBackendConfig(high_leverage_min_span_fraction=1.01)
+        for value in ("clip", "", None, []):
+            with self.subTest(policy=value), self.assertRaises(ValueError):
+                BoundedBackendConfig(correction_scaling_policy=value)
 
 
 @unittest.skipUnless(importlib.util.find_spec("scipy"), "SciPy runtime required")
 class BoundedBackendTests(unittest.TestCase):
+    def test_smooth_local_preserves_distant_corrections_around_large_anchor(self):
+        rows = trajectory(61, 0.01)
+        anchors = list(range(0, 61, 10))
+        changes = [0, 0.10, 0.10, 2.0, 0.10, 0.10, 0.10]
+        optimized = [pose(change) @ rows[index].t_world_camera
+                     for change, index in zip(changes, anchors)]
+        bounds = CorrectionAuditConfig(
+            maximum_absolute_correction_translation_m=0.25,
+            maximum_absolute_correction_rotation_deg=5.0,
+            maximum_adjacent_correction_translation_m=0.03,
+        )
+        with patch("pose_pipeline.bounded_backend.optimize_pose_graph", return_value=(optimized, {"success": True})):
+            global_output, global_report = optimize_bounded_trajectory(
+                rows, anchors, [PoseGraphEdge(0, 6, pose(-0.6), "loop")],
+                config=BoundedBackendConfig(enabled=True), correction_config=bounds,
+            )
+            local_output, local_report = optimize_bounded_trajectory(
+                rows, anchors, [PoseGraphEdge(0, 6, pose(-0.6), "loop")],
+                config=BoundedBackendConfig(enabled=True, correction_scaling_policy="smooth_local"),
+                correction_config=bounds,
+            )
+        self.assertTrue(global_report["success"])
+        self.assertEqual(global_report["selected_correction_scale"], 0.125)
+        self.assertTrue(local_report["success"])
+        self.assertTrue(local_report["local_scaling"]["success"])
+        self.assertEqual(local_report["selected_correction_scale"], 1.0)
+        self.assertEqual(local_report["correction_audit"]["pose_count"], len(rows))
+        for ordinal in (10, 50, 60):
+            retained = local_output[ordinal].t_world_camera[0, 3] - rows[ordinal].t_world_camera[0, 3]
+            global_retained = global_output[ordinal].t_world_camera[0, 3] - rows[ordinal].t_world_camera[0, 3]
+            self.assertGreater(retained, 0.09)
+            self.assertGreater(retained, 7 * global_retained)
+        self.assertLessEqual(local_report["correction_audit"]["maximum_absolute_correction_translation_m"], 0.25)
+        self.assertLessEqual(local_report["correction_audit"]["maximum_adjacent_correction_translation_m"], 0.03)
+        self.assertFalse(local_report["gt_consumed"])
+        json.dumps(local_report, allow_nan=False)
+
+    def test_smooth_local_constrains_dense_opposite_rotations_and_all_frames(self):
+        from scipy.spatial.transform import Rotation
+
+        rows = trajectory(11, 0.02)
+        anchors = [0, 1, 3, 4, 8, 10]
+        optimized = []
+        for ordinal, angle, translation_x in zip(anchors, (0, 30, -30, 20, 4, 4), (0, 1, -1, 1, 0.1, 0.1)):
+            delta = pose(translation_x)
+            delta[:3, :3] = Rotation.from_euler("z", angle, degrees=True).as_matrix()
+            optimized.append(delta @ rows[ordinal].t_world_camera)
+        bounds = CorrectionAuditConfig(
+            maximum_absolute_correction_translation_m=0.25,
+            maximum_absolute_correction_rotation_deg=5.0,
+            maximum_adjacent_correction_translation_m=0.05,
+            maximum_adjacent_correction_rotation_deg=2.0,
+        )
+        with patch("pose_pipeline.bounded_backend.optimize_pose_graph", return_value=(optimized, {"success": True})):
+            output, report = optimize_bounded_trajectory(
+                rows, anchors, [PoseGraphEdge(0, 5, pose(-0.2), "loop")],
+                config=BoundedBackendConfig(enabled=True, correction_scaling_policy="smooth_local"),
+                correction_config=bounds,
+            )
+        self.assertTrue(report["success"], report)
+        self.assertEqual(report["selected_correction_scale"], 1.0)
+        self.assertTrue(all(report["correction_audit"]["gates"].values()))
+        self.assertEqual([(r.frame_id, r.timestamp_us) for r in output],
+                         [(r.frame_id, r.timestamp_us) for r in rows])
+        scales = report["selected_anchor_correction_scales"]
+        # Intermediate frames use the original SLERP/linear propagation of
+        # jointly fitted anchor corrections, with no individual frame clipping.
+        fitted = []
+        for original_index, optimized_pose, scale in zip(anchors, optimized, scales):
+            delta = optimized_pose @ np.linalg.inv(rows[original_index].t_world_camera)
+            fitted.append(interpolate_transform(np.eye(4), delta, scale) @ rows[original_index].t_world_camera)
+        expected = propagate_anchor_corrections(rows, anchors, fitted)
+        for actual, wanted in zip(output, expected):
+            np.testing.assert_allclose(actual.t_world_camera, wanted.t_world_camera, atol=1e-12)
+
+    def test_smooth_local_solver_failure_returns_original(self):
+        from types import SimpleNamespace
+
+        rows = trajectory(3, 0.1)
+        with patch("scipy.optimize.minimize", return_value=SimpleNamespace(
+            x=np.zeros(3), success=False, message="iteration limit", nit=200,
+        )):
+            output, report = optimize_bounded_trajectory(
+                rows, [0, 1, 2], [PoseGraphEdge(0, 2, pose(-0.18), "loop")],
+                config=BoundedBackendConfig(enabled=True, correction_scaling_policy="smooth_local"),
+                correction_config=LOOSE_AUDIT,
+            )
+        self.assertFalse(report["success"])
+        self.assertEqual(report["failure_reason"], "smooth_local_scale_optimization_failed")
+        self.assertTrue(report["requires_byte_rollback"])
+        self.assertTrue(all(left is right for left, right in zip(rows, output)))
+
+    def test_smooth_local_real_pgo_preserves_more_of_known_drift_correction(self):
+        rows = trajectory()
+        anchors = [0, 4, 8, 12]
+        loops = [PoseGraphEdge(0, 3, pose(-3.0), "loop", 1.5)]
+        bounds = CorrectionAuditConfig(
+            maximum_adjacent_correction_translation_m=0.015,
+            maximum_adjacent_correction_rotation_deg=2.0,
+            maximum_absolute_correction_translation_m=0.15,
+            maximum_absolute_correction_rotation_deg=3.0,
+        )
+        global_output, _ = optimize_bounded_trajectory(
+            rows, anchors, loops, config=BoundedBackendConfig(enabled=True),
+            correction_config=bounds,
+        )
+        output, report = optimize_bounded_trajectory(
+            rows, anchors, loops,
+            config=BoundedBackendConfig(enabled=True, correction_scaling_policy="smooth_local"),
+            correction_config=bounds,
+        )
+        self.assertTrue(report["success"])
+        self.assertTrue(report["pose_graph"]["optimizer_success"])
+        self.assertEqual(report["selected_correction_scale"], 1.0)
+        self.assertTrue(report["correction_audit"]["passes"])
+        # The fixture drifts to 3.3 m despite a verified 3.0 m loop endpoint.
+        # Both methods retain safety; the local fit spends more of its allowed
+        # correction budget on that physical error without consulting GT.
+        self.assertLess(abs(output[-1].t_world_camera[0, 3] - 3.0),
+                        abs(global_output[-1].t_world_camera[0, 3] - 3.0) - 0.03)
+
+    def test_smooth_local_never_bypasses_complete_trajectory_audit(self):
+        rows = trajectory(3, 0.1)
+        with patch("pose_pipeline.bounded_backend.audit_corrected_trajectory", return_value={"passes": False}):
+            output, report = optimize_bounded_trajectory(
+                rows, [0, 1, 2], [PoseGraphEdge(0, 2, pose(-0.18), "loop")],
+                config=BoundedBackendConfig(enabled=True, correction_scaling_policy="smooth_local"),
+                correction_config=LOOSE_AUDIT,
+            )
+        self.assertTrue(report["local_scaling"]["success"])
+        self.assertFalse(report["success"])
+        self.assertEqual(len(report["scale_trials"]), 5)
+        self.assertEqual(report["failure_reason"], "no_declared_correction_scale_passed")
+        self.assertTrue(report["requires_byte_rollback"])
+        self.assertTrue(all(left is right for left, right in zip(rows, output)))
+
     def test_backtracking_reduces_drift_and_scales_whole_trajectory(self):
         rows = trajectory()
         anchors = [0, 4, 8, 12]
@@ -155,14 +296,20 @@ class BoundedBackendTests(unittest.TestCase):
         rows = trajectory()
         anchors = [0, 4, 8, 12]
         loops = [PoseGraphEdge(0, 3, pose(-3.0), "loop", 1.5)]
-        output, report = optimize_bounded_trajectory(rows, anchors, loops, correction_config=LOOSE_AUDIT)
         anchors_expected, _ = optimize_pose_graph([rows[i].t_world_camera for i in anchors], loops)
         expected = propagate_anchor_corrections(rows, anchors, anchors_expected)
-        self.assertTrue(report["success"])
-        self.assertEqual(report["selected_correction_scale"], 1.0)
-        self.assertEqual(report["loop_selection"]["weights"][0]["effective_weight"], 1.5)
-        for actual, wanted in zip(output, expected):
-            np.testing.assert_allclose(actual.t_world_camera, wanted.t_world_camera, atol=1e-10)
+        for policy in ("global", "smooth_local"):
+            with self.subTest(disabled_policy=policy):
+                output, report = optimize_bounded_trajectory(
+                    rows, anchors, loops, correction_config=LOOSE_AUDIT,
+                    config=BoundedBackendConfig(correction_scaling_policy=policy),
+                )
+                self.assertTrue(report["success"])
+                self.assertEqual(report["selected_correction_scale"], 1.0)
+                self.assertNotIn("local_scaling", report)
+                self.assertEqual(report["loop_selection"]["weights"][0]["effective_weight"], 1.5)
+                for actual, wanted in zip(output, expected):
+                    np.testing.assert_allclose(actual.t_world_camera, wanted.t_world_camera, atol=1e-10)
 
     def test_leave_one_out_removes_bad_edge_and_rechecks_good_edges(self):
         rows = trajectory(5, 1.0)

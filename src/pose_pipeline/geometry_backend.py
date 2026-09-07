@@ -40,6 +40,9 @@ class GeometryBootstrapConfig:
     regeneration_pool_multiplier: int = 4
     regeneration_compatibility_m: float = 0.10
     decision_version: int = 2
+    preconsensus_geometric_icp: bool = False
+    preconsensus_maximum_translation_m: float = 0.10
+    preconsensus_maximum_rotation_deg: float = 5.0
 
     def __post_init__(self) -> None:
         if self.correspondence_policy not in {
@@ -54,6 +57,12 @@ class GeometryBootstrapConfig:
             raise ValueError("regeneration compatibility must be positive")
         if self.decision_version not in {2, 3}:
             raise ValueError("decision_version must be 2 or 3")
+        if not isinstance(self.preconsensus_geometric_icp, bool):
+            raise ValueError("preconsensus_geometric_icp must be boolean")
+        for value in (self.preconsensus_maximum_translation_m,
+                      self.preconsensus_maximum_rotation_deg):
+            if not np.isfinite(value) or value <= 0.0:
+                raise ValueError("preconsensus ICP limits must be finite and positive")
 
 
 def _cloud_and_fpfh(points: np.ndarray, config: GeometryBootstrapConfig):
@@ -383,6 +392,95 @@ def dense_verification(
     }
 
 
+def _refine_independent_geometric_hypotheses(
+    hypothesis_set: dict,
+    source_xyz: np.ndarray,
+    reference_xyz: np.ndarray,
+    source_corr: np.ndarray,
+    reference_corr: np.ndarray,
+    robust_config: RobustPoseConfig,
+    geometry_config: GeometryBootstrapConfig,
+) -> dict:
+    """Refine independently initialized 3-D estimates without adding a family.
+
+    The visual estimate is appended only after this function. A converged ICP
+    basin is not independent evidence: a winning clique must also contain the
+    unchanged visual family, which is enforced by ``_one_direction``.
+    """
+    retained, records = [], []
+    for hypothesis in hypothesis_set["hypotheses"]:
+        record = {
+            "raw_hypothesis_sha256": hypothesis["hypothesis_sha256"],
+            "solver_family": hypothesis["solver_family"],
+            "accepted": False,
+        }
+        if hypothesis["solver_family"] == "rgbd_pnp":
+            raise ValueError("visual hypotheses must never enter geometric ICP refinement")
+        try:
+            raw = validate_se3(hypothesis["transform"])
+            refined = validate_se3(_icp(
+                source_xyz, reference_xyz, raw,
+                geometry_config.icp_distance_m,
+            ))
+            rotation, translation = transform_distance(raw, refined)
+            record.update(update_rotation_deg=rotation,
+                          update_translation_m=translation)
+            if (rotation > geometry_config.preconsensus_maximum_rotation_deg
+                    or translation > geometry_config.preconsensus_maximum_translation_m):
+                record["reason"] = "preconsensus_icp_update_limit"
+            else:
+                residual = np.linalg.norm(
+                    transform_points(source_corr, refined) - reference_corr,
+                    axis=1,
+                )
+                support = int(np.count_nonzero(
+                    residual <= robust_config.residual_threshold_m,
+                ))
+                record["support_count"] = support
+                if support < robust_config.minimum_support:
+                    record["reason"] = "preconsensus_icp_support_limit"
+                else:
+                    refined_hypothesis = _hypothesis(
+                        family=hypothesis["solver_family"],
+                        solver=hypothesis["solver"] + "_bounded_icp",
+                        transform=refined,
+                        support_count=support,
+                        correspondence_count=len(source_corr),
+                        threshold_m=robust_config.residual_threshold_m,
+                        certificate={
+                            "original_certificate": hypothesis.get("certificate", {}),
+                            "preconsensus_geometric_icp": {
+                                "raw_hypothesis_sha256": hypothesis["hypothesis_sha256"],
+                                "raw_transform": raw.tolist(),
+                                "update_rotation_deg": rotation,
+                                "update_translation_m": translation,
+                                "solver_family_unchanged": True,
+                                "gt_consumed": False,
+                            },
+                        },
+                    )
+                    retained.append(refined_hypothesis)
+                    record.update(accepted=True, reason="bounded_geometric_icp_pass",
+                                  refined_hypothesis_sha256=refined_hypothesis["hypothesis_sha256"])
+        except (ValueError, RuntimeError, np.linalg.LinAlgError) as error:
+            record.update(reason="preconsensus_icp_failed", error_type=type(error).__name__)
+        records.append(record)
+    return {
+        **hypothesis_set,
+        "hypotheses": retained,
+        "preconsensus_refinement": {
+            "schema": "bounded_preconsensus_geometric_icp.v1",
+            "maximum_translation_m": geometry_config.preconsensus_maximum_translation_m,
+            "maximum_rotation_deg": geometry_config.preconsensus_maximum_rotation_deg,
+            "input_hypothesis_count": len(hypothesis_set["hypotheses"]),
+            "retained_hypothesis_count": len(retained),
+            "requires_unchanged_visual_family": True,
+            "gt_consumed": False,
+            "records": records,
+        },
+    }
+
+
 def _one_direction(
     source: np.ndarray,
     reference: np.ndarray,
@@ -415,6 +513,14 @@ def _one_direction(
             geometry_config.correspondence_policy != "spatial_balanced_v2"
         ),
     )
+    if geometry_config.preconsensus_geometric_icp:
+        if visual_hypothesis is None:
+            return {
+                "accepted": False,
+                "reason": "preconsensus_icp_requires_visual_witness",
+                "hypothesis_set": hypothesis_set,
+                "gt_consumed": False,
+            }
     if visual_hypothesis is not None:
         # An RGB-D estimate is one independent family, never two votes merely
         # because it was solved in both directions. The original unique-clique
@@ -432,6 +538,41 @@ def _one_direction(
             hypothesis_set["hypotheses"], robust_config,
         )
     )
+    preconsensus_applied = False
+    if geometry_config.preconsensus_geometric_icp and consensus.get("accepted") is not True:
+        # Preserve every original accepted path. Only rejected raw hypotheses
+        # receive the bounded recovery attempt, with unchanged visual evidence.
+        raw_consensus = consensus
+        geometric_set = {
+            **hypothesis_set,
+            "hypotheses": [row for row in hypothesis_set["hypotheses"]
+                           if row["solver_family"] != "rgbd_pnp"],
+        }
+        hypothesis_set = _refine_independent_geometric_hypotheses(
+            geometric_set, source_xyz, reference_xyz, source_corr,
+            reference_corr, robust_config, geometry_config,
+        )
+        hypothesis_set["hypotheses"].append(visual_hypothesis)
+        hypothesis_set["preconsensus_refinement"]["raw_consensus"] = raw_consensus
+        consensus = (
+            _select_distribution_aware_consensus(
+                hypothesis_set["hypotheses"], source_corr, reference_corr, robust_config,
+            )
+            if geometry_config.correspondence_policy == "spatial_balanced_v2"
+            else select_cross_solver_consensus(hypothesis_set["hypotheses"], robust_config)
+        )
+        preconsensus_applied = True
+    if preconsensus_applied and consensus.get("accepted") is True:
+        winning_families = {
+            hypothesis_set["hypotheses"][index]["solver_family"]
+            for index in consensus["winning_indices"]
+        }
+        if "rgbd_pnp" not in winning_families or len(winning_families) < 2:
+            consensus = {
+                **consensus,
+                "accepted": False,
+                "reason": "preconsensus_icp_requires_visual_family_in_winning_cluster",
+            }
     result = {
         "provider": "geometry_bootstrap_fpfh",
         "hypothesis_set": hypothesis_set,
@@ -447,6 +588,26 @@ def _one_direction(
         source_xyz, reference_xyz, initial, geometry_config.icp_distance_m,
     )
     update_rotation, update_translation = transform_distance(initial, refined)
+    if preconsensus_applied:
+        selected = hypothesis_set["hypotheses"][consensus["selected_index"]]
+        preconsensus = selected.get("certificate", {}).get("preconsensus_geometric_icp")
+        if preconsensus is not None:
+            cumulative_rotation, cumulative_translation = transform_distance(
+                validate_se3(preconsensus["raw_transform"]), refined,
+            )
+            # Preserve the original final-ICP cap relative to the raw estimate,
+            # as well as relative to the refined estimate. Staging ICP must not
+            # create an additional correction allowance.
+            update_rotation = max(update_rotation, cumulative_rotation)
+            update_translation = max(update_translation, cumulative_translation)
+        if (update_rotation > robust_config.maximum_icp_update_rotation_deg
+                or update_translation > robust_config.maximum_icp_update_translation_m):
+            return {
+                **result,
+                "reason": "preconsensus_cumulative_icp_update_limit",
+                "icp_update_rotation_deg": update_rotation,
+                "icp_update_translation_m": update_translation,
+            }
     verification = dense_verification(
         source_xyz, reference_xyz, refined,
         geometry_config.verification_distance_m,
@@ -493,6 +654,8 @@ def register_submaps_bidirectional(
     *, visual_evidence: dict | None = None,
 ) -> dict[str, Any]:
     visual_forward, visual_reverse = None, None
+    if geometry_config.preconsensus_geometric_icp and visual_evidence is None:
+        raise ValueError("preconsensus geometric ICP requires an independent visual witness")
     if visual_evidence is not None:
         if (
             visual_evidence.get("schema") != "rgbd_visual_loop_estimate.v1"

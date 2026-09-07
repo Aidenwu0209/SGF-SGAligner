@@ -1,9 +1,11 @@
 """GT-free, bounded Huber correction of a complete frontend trajectory.
 
 Weights and the loop-degree selection are frozen before influence testing.
-Correction backtracking scales every anchor correction by the same factor;
-it never clips individual frames.  An unsuccessful result returns the input
-records, and callers must retain their original serialized trajectory bytes.
+The default backtracking scales every anchor correction by the same factor.
+An optional constrained local scale field preserves more correction away from
+an overlarge anchor; neither policy clips individual frames.  An unsuccessful
+result returns the input records, and callers must retain their original
+serialized trajectory bytes.
 """
 
 from __future__ import annotations
@@ -52,6 +54,8 @@ class BoundedBackendConfig:
     correction_backtracking_scales: tuple[float, ...] = (
         1.0, 0.5, 0.25, 0.125, 0.0625,
     )
+    correction_scaling_policy: str = "global"
+    local_scaling_smoothness: float = 0.1
     enforce_leave_one_out: bool = False
     maximum_leave_one_out_translation_m: float = 0.10
     maximum_leave_one_out_rotation_deg: float = 3.0
@@ -68,6 +72,9 @@ class BoundedBackendConfig:
             if threshold > 1:
                 raise ValueError("high_leverage_min_span_fraction must be in (0, 1]")
         _positive_finite(self.high_leverage_weight_cap, "high_leverage_weight_cap")
+        if not isinstance(self.correction_scaling_policy, str) or self.correction_scaling_policy not in {"global", "smooth_local"}:
+            raise ValueError("correction_scaling_policy must be global or smooth_local")
+        _positive_finite(self.local_scaling_smoothness, "local_scaling_smoothness")
         _positive_finite(self.maximum_leave_one_out_translation_m, "maximum_leave_one_out_translation_m")
         _positive_finite(self.maximum_leave_one_out_rotation_deg, "maximum_leave_one_out_rotation_deg")
         scales = self.correction_backtracking_scales
@@ -200,6 +207,117 @@ def _select_loops(
     }
 
 
+def _smooth_local_scales(
+    corrections: Sequence[np.ndarray], anchors: Sequence[int],
+    config: BoundedBackendConfig, correction: CorrectionAuditConfig,
+) -> tuple[np.ndarray, dict]:
+    """Fit a bounded temporal scale field without optimizing against GT.
+
+    The variable for each anchor scales its *whole* rotation and translation.
+    Absolute bounds give independent scalar upper bounds.  Adjacent scaled
+    translations and rotation vectors obey per-frame bounds times the anchor
+    gap.  Translation interpolation makes the former exact.  The norm of the
+    rotation-vector difference bounds the SO(3) geodesic distance, making the
+    latter conservative for legacy SLERP.  The original complete-trajectory
+    audit remains authoritative, including for absolute rotation bounds.
+
+    This is a convex bounded quadratic objective with convex norm constraints,
+    solved by SLSQP.  Temporal regularization couples neighboring coefficients;
+    it neither edits individual frame poses nor changes the loop measurements.
+    """
+    from scipy.optimize import minimize
+    from scipy.spatial.transform import Rotation
+
+    translations = np.stack([value[:3, 3] for value in corrections])
+    rotations = Rotation.from_matrix(
+        np.stack([value[:3, :3] for value in corrections]),
+    ).as_rotvec()
+    translation_norms = np.linalg.norm(translations, axis=1)
+    rotation_norms = np.linalg.norm(rotations, axis=1)
+    upper = np.ones(len(anchors), dtype=np.float64)
+    # Leave numerical room for the independent SE(3) reconstruction/audit.
+    margin = 1.0 - 1e-7
+    for norms, limit in (
+        (translation_norms, correction.maximum_absolute_correction_translation_m),
+        (rotation_norms, None if correction.maximum_absolute_correction_rotation_deg is None
+         else np.radians(correction.maximum_absolute_correction_rotation_deg)),
+    ):
+        if limit is not None:
+            nonzero = norms > 0.0
+            upper[nonzero] = np.minimum(upper[nonzero], margin * limit / norms[nonzero])
+
+    gaps = np.diff(np.asarray(anchors, dtype=np.float64))
+    support = np.r_[gaps[0] / 2, (gaps[:-1] + gaps[1:]) / 2, gaps[-1] / 2]
+    support /= np.mean(support)
+    smooth_weights = config.local_scaling_smoothness * np.median(gaps) / gaps
+
+    def objective(scales: np.ndarray) -> tuple[float, np.ndarray]:
+        residual = scales - 1.0
+        differences = np.diff(scales)
+        loss = 0.5 * (np.dot(support, residual * residual)
+                      + np.dot(smooth_weights, differences * differences))
+        gradient = support * residual
+        gradient[:-1] -= smooth_weights * differences
+        gradient[1:] += smooth_weights * differences
+        return float(loss), gradient
+
+    vectors_and_limits = (
+        (translations, margin * correction.maximum_adjacent_correction_translation_m * gaps),
+        (rotations, margin * np.radians(correction.maximum_adjacent_correction_rotation_deg) * gaps),
+    )
+
+    def constraints(scales: np.ndarray) -> np.ndarray:
+        return np.concatenate([
+            1.0 - np.linalg.norm(np.diff(scales[:, None] * vectors, axis=0), axis=1) / limits
+            for vectors, limits in vectors_and_limits
+        ])
+
+    def constraint_jacobian(scales: np.ndarray) -> np.ndarray:
+        output = []
+        for vectors, limits in vectors_and_limits:
+            differences = np.diff(scales[:, None] * vectors, axis=0)
+            norms = np.linalg.norm(differences, axis=1)
+            direction = np.zeros_like(differences)
+            nonzero = norms > 1e-14
+            direction[nonzero] = differences[nonzero] / norms[nonzero, None]
+            jacobian = np.zeros((len(gaps), len(anchors)), dtype=np.float64)
+            row = np.arange(len(gaps))
+            jacobian[row, row] = np.einsum("ij,ij->i", direction, vectors[:-1]) / limits
+            jacobian[row, row + 1] = -np.einsum("ij,ij->i", direction, vectors[1:]) / limits
+            output.append(jacobian)
+        return np.concatenate(output, axis=0)
+
+    # Zero is feasible even if every unscaled anchor violates a limit.  Solver
+    # failure is explicit; no unvalidated clipping or substitute optimizer runs.
+    result = minimize(
+        objective, np.zeros(len(anchors)), jac=True, method="SLSQP",
+        bounds=[(0.0, float(value)) for value in upper],
+        constraints={"type": "ineq", "fun": constraints, "jac": constraint_jacobian},
+        options={"maxiter": 200, "ftol": 1e-10},
+    )
+    scales = np.asarray(result.x, dtype=np.float64)
+    feasible = bool(
+        np.isfinite(scales).all() and np.all(scales >= 0.0)
+        and np.all(scales <= upper) and np.min(constraints(scales)) >= -1e-7
+    )
+    success = bool(result.success and feasible)
+    report = {
+        "schema": "smooth_local_correction_scales.v1",
+        "success": success, "optimizer_success": bool(result.success),
+        "optimizer_message": str(result.message), "iterations": int(result.nit),
+        "objective": float(objective(scales)[0]) if np.isfinite(scales).all() else None,
+        "minimum_constraint_margin": float(np.min(constraints(scales))) if np.isfinite(scales).all() else None,
+        "anchor_ordinals": [int(value) for value in anchors],
+        "anchor_scale_upper_bounds": upper.tolist(),
+        "anchor_scales": scales.tolist() if np.isfinite(scales).all() else None,
+        "anchor_support_weights": support.tolist(),
+        "regularization": config.local_scaling_smoothness,
+        "constraints": "absolute_anchor_bounds_and_conservative_adjacent_frame_bounds",
+        "gt_consumed": False,
+    }
+    return scales, report
+
+
 def _solve_and_audit(
     trajectory: Sequence[PoseRecord], anchors: Sequence[int],
     loops: Sequence[PoseGraphEdge], config: BoundedBackendConfig,
@@ -228,14 +346,24 @@ def _solve_and_audit(
             validate_se3(after @ np.linalg.inv(before))
             for before, after in zip(initial, optimized)
         ]
+        local_scales = None
+        if config.enabled and config.correction_scaling_policy == "smooth_local":
+            local_scales, local_report = _smooth_local_scales(
+                corrections, anchors, config, correction,
+            )
+            report["local_scaling"] = local_report
+            if not local_report["success"]:
+                report["failure_reason"] = "smooth_local_scale_optimization_failed"
+                return list(trajectory), raw, report
         scales = config.correction_backtracking_scales if config.enabled else (1.0,)
         for scale in scales:
-            if scale == 1.0:
+            anchor_scales = np.full(len(anchors), scale) if local_scales is None else scale * local_scales
+            if scale == 1.0 and local_scales is None:
                 candidate = raw
             else:
                 scaled_anchors = [
-                    interpolate_transform(np.eye(4), delta, scale) @ before
-                    for delta, before in zip(corrections, initial)
+                    interpolate_transform(np.eye(4), delta, anchor_scale) @ before
+                    for delta, before, anchor_scale in zip(corrections, initial, anchor_scales)
                 ]
                 candidate = propagate_anchor_corrections(
                     trajectory, anchors, scaled_anchors,
@@ -247,6 +375,8 @@ def _solve_and_audit(
             if audit["passes"]:
                 report["success"] = True
                 report["selected_correction_scale"] = float(scale)
+                if local_scales is not None:
+                    report["selected_anchor_correction_scales"] = anchor_scales.tolist()
                 return candidate, raw, report
         report["failure_reason"] = "no_declared_correction_scale_passed"
         return list(trajectory), raw, report
@@ -309,7 +439,11 @@ def optimize_bounded_trajectory(
         "schema": "bounded_trajectory_backend.v1", "config": asdict(config),
         "loop_selection": selection, "influence": influence,
         "gt_consumed": False, "fallback_used": False,
-        "correction_scaling": "single_global_factor_on_all_anchor_corrections",
+        "correction_scaling": (
+            "constrained_smooth_local_anchor_factors_with_global_audit_backtracking"
+            if config.enabled and config.correction_scaling_policy == "smooth_local"
+            else "single_global_factor_on_all_anchor_corrections"
+        ),
     }
     while True:
         corrected, raw, solution = _solve_and_audit(
@@ -335,6 +469,9 @@ def optimize_bounded_trajectory(
                 "selected_correction_scale": omitted_report["selected_correction_scale"],
                 "scale_trials": omitted_report["scale_trials"],
             }
+            if "local_scaling" in omitted_report:
+                check["local_scaling"] = omitted_report["local_scaling"]
+                check["selected_anchor_correction_scales"] = omitted_report.get("selected_anchor_correction_scales")
             reasons = []
             if not omitted_report["success"] or omitted_raw is None:
                 reasons.append("leave_one_out_solve_or_audit_failed")
