@@ -1,0 +1,47 @@
+schema: unified_pose_backend.v1
+development_only: true
+promotion_eligible: false
+submap: {}
+proposal:
+  policy: hybrid36
+  maximum_pairs: 36
+  appearance_mutual_top_k: 2
+  maximum_pairs_per_anchor: 4
+  temporal_bin_count: 3
+appearance:
+  provider: openai_clip
+  model_name: ViT-B/32
+  device: auto
+registration:
+  correspondence_policy: baseline_mutual_fpfh
+  decision_version: 2
+optimization:
+  robustifier: huber
+visual:
+  enabled: true
+bounded:
+  enabled: true
+  maximum_loop_degree: 2
+  maximum_loop_weight: 1.5
+  high_leverage_min_span_fraction: 0.75
+  high_leverage_weight_cap: 1.0
+  correction_backtracking_scales: [1.0, 0.5, 0.25, 0.125, 0.0625]
+  enforce_leave_one_out: false
+correction:
+  propagation: legacy_slerp_linear
+  maximum_absolute_correction_translation_m: 0.25
+  maximum_absolute_correction_rotation_deg: 5.0
+  maximum_adjacent_correction_translation_m: 0.05
+  maximum_adjacent_correction_rotation_deg: 2.0
+geometry:
+  enabled: true
+  require_scene_improvement: true
+  frame_stride: 1
+  voxel_length_m: 0.02
+  sdf_trunc_m: 0.08
+  depth_trunc_m: 4.5
+  minimum_occupied_voxel_ratio: 0.80
+  minimum_each_robust_extent_ratio: 0.85
+  maximum_matched_plane_tilt_regression_deg: 2.0
+  maximum_thickness_ratio: 1.10
+  maximum_layer_conflict_ratio: 1.10

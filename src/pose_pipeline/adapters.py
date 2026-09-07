@@ -43,8 +43,22 @@ def _parse_3rscan_info(path: Path) -> dict[str, str]:
 
 
 def scan3r_manifest(
-    sequence: Path, *, frame_period_us: int = 33_333, rotate_ccw: bool = True,
+    sequence: Path, *, frame_period_us: int = 33_333,
+    rotate_ccw: bool | None = None,
+    preprocessing: str = "rotated_ccw",
 ) -> SequenceManifest:
+    """Build a transform-free 3RScan manifest with an explicit image basis.
+
+    ``rotated_ccw`` preserves the historical behavior. ``native`` keeps the
+    sensor orientation and native depth intrinsics.  ``rotate_ccw`` remains a
+    backwards-compatible override for older callers.
+    """
+    if preprocessing not in {"rotated_ccw", "native"}:
+        raise ValueError("3RScan preprocessing must be rotated_ccw or native")
+    requested_rotation = preprocessing == "rotated_ccw"
+    if rotate_ccw is not None:
+        requested_rotation = bool(rotate_ccw)
+        preprocessing = "rotated_ccw" if requested_rotation else "native"
     sequence = Path(sequence).resolve()
     info = _parse_3rscan_info(sequence / "_info.txt")
     raw = [float(value) for value in info["m_calibrationDepthIntrinsic"].split()]
@@ -62,12 +76,12 @@ def scan3r_manifest(
         color_path=sequence / f"frame-{frame_id:06d}.color.jpg",
         depth_path=sequence / f"frame-{frame_id:06d}.depth.pgm",
         intrinsics=intrinsics,
-        rotate_ccw=rotate_ccw,
+        rotate_ccw=requested_rotation,
     ) for ordinal, frame_id in enumerate(ids))
     return SequenceManifest(
         dataset="3rscan", sequence_id=sequence.parent.name, root=sequence,
         depth_scale=float(info.get("m_depthShift", "1000")), frames=frames,
-        source="raw_rgbd_info_only",
+        source=f"raw_rgbd_info_only+camera_basis_{preprocessing}",
     ).validate()
 
 

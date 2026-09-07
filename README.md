@@ -1,5 +1,8 @@
 # SGF-SGAligner
 
+Development integration: [Hybrid36 + RGB-D PnP + bounded Huber + full-frame Guard](docs/unified_pose_backend_zh.md).
+Run it explicitly with `python -m pose_pipeline run-unified`; the guide includes the tested configuration, artifacts, and accuracy limitations.
+
 ![Version](https://img.shields.io/badge/version-v0.1.0--research--preview-3b82f6)
 ![Stage](https://img.shields.io/badge/stage-research%20preview-f59e0b)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)

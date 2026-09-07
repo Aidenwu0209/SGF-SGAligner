@@ -10,8 +10,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from itertools import combinations
 import hashlib
-import json
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 import numpy as np
 
@@ -20,6 +19,7 @@ from .contracts import stable_json_sha256, validate_se3
 
 HYPOTHESIS_SCHEMA = "relative_pose_hypothesis.v1"
 DECISION_SCHEMA = "registration_decision.v2"
+DECISION_SCHEMA_V3 = "registration_decision.v3"
 
 
 @dataclass(frozen=True)
@@ -46,6 +46,10 @@ class RobustPoseConfig:
     maximum_cycle_rotation_deg: float = 5.0
     minimum_spatial_extent_m: float = 2.0
     minimum_spatial_second_axis_m: float = 0.10
+    minimum_spatial_third_axis_m: float = 0.01
+    maximum_trimmed_rmse_m: float = 0.08
+    minimum_correspondence_confidence: float = 0.01
+    maximum_information_condition_number: float = 1.0e12
 
 
 def _points(value: object, name: str) -> np.ndarray:
@@ -653,6 +657,85 @@ def decide_registration_v2(
         "consensus": dict(consensus),
         "metrics": numeric,
         "config": asdict(config),
+        "gt_consumed": False,
+        "fallback_used": False,
+    }
+    return {**unsigned, "decision_sha256": stable_json_sha256(unsigned)}
+
+
+def decide_registration_v3(
+    consensus: Mapping[str, Any],
+    metrics: Mapping[str, object],
+    config: RobustPoseConfig = RobustPoseConfig(),
+) -> dict[str, Any]:
+    """Extend v2 with residual, degeneracy, confidence, and uncertainty gates."""
+    forbidden = sorted(
+        key for key in metrics
+        if key.lower().startswith("gt") or "ground_truth" in key.lower()
+    )
+    if forbidden:
+        raise ValueError(f"GT fields are forbidden in registration decision: {forbidden}")
+    base = decide_registration_v2(consensus, metrics, config)
+    required = {
+        "trimmed_rmse_m", "forward_overlap", "reverse_overlap",
+        "correspondence_confidence", "spatial_third_axis_m",
+        "information_condition_number", "information_matrix",
+    }
+    missing = sorted(required - set(metrics))
+    if missing:
+        raise ValueError(f"registration decision v3 metrics missing: {missing}")
+    numeric_keys = required - {"information_matrix"}
+    numeric = {key: float(metrics[key]) for key in numeric_keys}
+    if not np.isfinite(list(numeric.values())).all():
+        raise ValueError("registration decision v3 metrics must be finite")
+    information = np.asarray(metrics["information_matrix"], dtype=np.float64)
+    if information.shape != (6, 6) or not np.isfinite(information).all():
+        raise ValueError("information_matrix must be finite 6x6")
+    if not np.allclose(information, information.T, atol=1e-8):
+        raise ValueError("information_matrix must be symmetric")
+    eigenvalues = np.linalg.eigvalsh(information)
+    if eigenvalues[0] <= 0.0:
+        raise ValueError("information_matrix must be positive definite")
+    reasons = list(base["rejection_reasons"])
+    checks = (
+        (
+            numeric["trimmed_rmse_m"] <= config.maximum_trimmed_rmse_m,
+            "trimmed_rmse_too_large",
+        ),
+        (
+            numeric["correspondence_confidence"]
+            >= config.minimum_correspondence_confidence,
+            "correspondence_confidence_too_low",
+        ),
+        (
+            numeric["spatial_third_axis_m"]
+            >= config.minimum_spatial_third_axis_m,
+            "spatial_third_axis_too_small",
+        ),
+        (
+            numeric["information_condition_number"]
+            <= config.maximum_information_condition_number,
+            "information_matrix_ill_conditioned",
+        ),
+    )
+    reasons.extend(reason for passed, reason in checks if not passed)
+    accepted = not reasons
+    all_metrics = {
+        **dict(base["metrics"]),
+        **numeric,
+        "information_matrix": information.tolist(),
+        "information_eigenvalues": eigenvalues.tolist(),
+    }
+    unsigned = {
+        "schema": DECISION_SCHEMA_V3,
+        "status": "accepted" if accepted else "rejected",
+        "usable_for_reconstruction": accepted,
+        "rejection_reasons": reasons,
+        "selected_transform": consensus.get("selected_transform") if accepted else None,
+        "consensus": dict(consensus),
+        "metrics": all_metrics,
+        "config": asdict(config),
+        "parent_decision_schema": DECISION_SCHEMA,
         "gt_consumed": False,
         "fallback_used": False,
     }

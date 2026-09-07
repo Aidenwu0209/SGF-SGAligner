@@ -26,11 +26,17 @@ class SubmapConfig:
 
 @dataclass(frozen=True)
 class LoopProposalConfig:
+    policy: str = "distance_topk"
     minimum_anchor_gap: int = 4
     maximum_initial_distance_m: float = 2.25
     maximum_pairs: int = 36
+    appearance_mutual_top_k: int = 2
+    maximum_pairs_per_anchor: int = 4
+    temporal_bin_count: int = 3
 
     def __post_init__(self) -> None:
+        if self.policy not in {"distance_topk", "hybrid36"}:
+            raise ValueError("loop proposal policy must be distance_topk or hybrid36")
         if self.minimum_anchor_gap < 1:
             raise ValueError("minimum anchor gap must be positive")
         if (
@@ -40,6 +46,12 @@ class LoopProposalConfig:
             raise ValueError("maximum initial distance must be finite and positive")
         if self.maximum_pairs < 1:
             raise ValueError("maximum loop pairs must be positive")
+        if self.appearance_mutual_top_k < 1:
+            raise ValueError("appearance mutual top-k must be positive")
+        if self.maximum_pairs_per_anchor < 1:
+            raise ValueError("maximum pairs per anchor must be positive")
+        if self.temporal_bin_count < 1:
+            raise ValueError("temporal bin count must be positive")
 
 
 @dataclass(frozen=True)
@@ -177,7 +189,13 @@ def propose_loop_pairs(
     bound: Sequence[tuple[FrameRecord, PoseRecord]],
     anchors: Sequence[int],
     config: LoopProposalConfig = LoopProposalConfig(),
+    *,
+    appearance_descriptors: np.ndarray | None = None,
 ) -> list[dict]:
+    if config.policy == "hybrid36":
+        return _propose_hybrid_pairs(
+            bound, anchors, config, appearance_descriptors,
+        )
     centres = [bound[ordinal][1].t_world_camera[:3, 3] for ordinal in anchors]
     proposals = []
     for source in range(len(anchors)):
@@ -203,3 +221,135 @@ def propose_loop_pairs(
         row["source_frame_id"], row["target_frame_id"],
     ))
     return proposals[:config.maximum_pairs]
+
+
+def _mutual_appearance_pairs(
+    descriptors: np.ndarray, minimum_gap: int, top_k: int,
+) -> tuple[np.ndarray, set[tuple[int, int]]]:
+    values = np.asarray(descriptors, dtype=np.float64)
+    if values.ndim != 2 or len(values) < 2 or not np.isfinite(values).all():
+        raise ValueError("appearance descriptors must be finite anchor_count x D")
+    length = np.linalg.norm(values, axis=1, keepdims=True)
+    if np.any(length <= 1e-12):
+        raise ValueError("appearance descriptors must have non-zero norm")
+    values = values / length
+    similarity = values @ values.T
+    neighbours: list[set[int]] = []
+    for source in range(len(values)):
+        eligible = [
+            target for target in range(len(values))
+            if abs(target - source) >= minimum_gap
+        ]
+        eligible.sort(key=lambda target: (-float(similarity[source, target]), target))
+        neighbours.append(set(eligible[:top_k]))
+    pairs = {
+        (source, target)
+        for source in range(len(values))
+        for target in neighbours[source]
+        if source < target and source in neighbours[target]
+    }
+    return similarity, pairs
+
+
+def _propose_hybrid_pairs(
+    bound: Sequence[tuple[FrameRecord, PoseRecord]],
+    anchors: Sequence[int],
+    config: LoopProposalConfig,
+    appearance_descriptors: np.ndarray | None,
+) -> list[dict]:
+    if appearance_descriptors is None:
+        raise ValueError("hybrid36 requires appearance descriptors")
+    if len(appearance_descriptors) != len(anchors):
+        raise ValueError("appearance descriptor count must match anchors")
+    similarity, appearance_pairs = _mutual_appearance_pairs(
+        appearance_descriptors,
+        config.minimum_anchor_gap,
+        config.appearance_mutual_top_k,
+    )
+    centres = [bound[ordinal][1].t_world_camera[:3, 3] for ordinal in anchors]
+    candidates = []
+    denominator = max(1, len(anchors) - 1)
+    for source in range(len(anchors)):
+        for target in range(source + config.minimum_anchor_gap, len(anchors)):
+            distance = float(np.linalg.norm(centres[source] - centres[target]))
+            distance_eligible = distance <= config.maximum_initial_distance_m
+            appearance_eligible = (source, target) in appearance_pairs
+            if not distance_eligible and not appearance_eligible:
+                continue
+            sources = []
+            if distance_eligible:
+                sources.append("trajectory_distance")
+            if appearance_eligible:
+                sources.append("clip_mutual_topk")
+            distance_score = max(
+                0.0, 1.0 - distance / config.maximum_initial_distance_m,
+            )
+            appearance_score = float((similarity[source, target] + 1.0) / 2.0)
+            span_fraction = (target - source) / denominator
+            combined = (
+                max(distance_score, appearance_score)
+                + (0.15 if len(sources) == 2 else 0.0)
+                + 0.05 * span_fraction
+            )
+            temporal_bin = min(
+                config.temporal_bin_count - 1,
+                int(span_fraction * config.temporal_bin_count),
+            )
+            candidates.append({
+                "schema": "loop_proposal.v2",
+                "proposal_policy": "hybrid36",
+                "proposal_sources": sources,
+                "source_anchor_index": source,
+                "target_anchor_index": target,
+                "source_ordinal": int(anchors[source]),
+                "target_ordinal": int(anchors[target]),
+                "source_frame_id": int(bound[anchors[source]][0].frame_id),
+                "target_frame_id": int(bound[anchors[target]][0].frame_id),
+                "initial_centre_distance_m": distance,
+                "appearance_cosine_similarity": float(similarity[source, target]),
+                "distance_score": distance_score,
+                "appearance_score": appearance_score,
+                "combined_score": combined,
+                "span_fraction": span_fraction,
+                "temporal_bin": temporal_bin,
+                "frame_gap": int(abs(
+                    bound[anchors[target]][0].frame_id
+                    - bound[anchors[source]][0].frame_id
+                )),
+                "ranking_reason": "union_score_then_temporal_diversity",
+            })
+    buckets: list[list[dict]] = [[] for _ in range(config.temporal_bin_count)]
+    for row in candidates:
+        buckets[int(row["temporal_bin"])].append(row)
+    for bucket in buckets:
+        bucket.sort(key=lambda row: (
+            -float(row["combined_score"]),
+            -int(len(row["proposal_sources"])),
+            -int(row["frame_gap"]),
+            int(row["source_frame_id"]),
+            int(row["target_frame_id"]),
+        ))
+    selected: list[dict] = []
+    degrees = [0] * len(anchors)
+    while len(selected) < config.maximum_pairs:
+        progressed = False
+        for bucket in reversed(buckets):
+            while bucket:
+                row = bucket.pop(0)
+                source = int(row["source_anchor_index"])
+                target = int(row["target_anchor_index"])
+                if (
+                    degrees[source] >= config.maximum_pairs_per_anchor
+                    or degrees[target] >= config.maximum_pairs_per_anchor
+                ):
+                    continue
+                selected.append(row)
+                degrees[source] += 1
+                degrees[target] += 1
+                progressed = True
+                break
+            if len(selected) >= config.maximum_pairs:
+                break
+        if not progressed:
+            break
+    return selected

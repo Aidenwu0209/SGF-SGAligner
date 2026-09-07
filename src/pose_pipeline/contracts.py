@@ -124,6 +124,13 @@ class SequenceManifest:
         return self
 
     def as_dict(self) -> dict:
+        rotations = {bool(frame.rotate_ccw) for frame in self.frames}
+        if len(rotations) != 1:
+            raise ValueError("a manifest cannot mix native and rotated camera bases")
+        camera_basis = (
+            "image_rotated_ccw_from_native"
+            if next(iter(rotations)) else "native_sensor_camera"
+        )
         unsigned = {
             "schema": MANIFEST_SCHEMA,
             "dataset": self.dataset,
@@ -132,6 +139,7 @@ class SequenceManifest:
             "depth_scale": self.depth_scale,
             "source": self.source,
             "matrix_convention": "T_world_camera_m",
+            "camera_basis": camera_basis,
             "gt_at_inference": False,
             "forbidden_inputs": sorted(FORBIDDEN_PARTS),
             "frames": [frame.as_dict() for frame in self.frames],

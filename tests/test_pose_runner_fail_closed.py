@@ -10,8 +10,9 @@ import numpy as np
 
 from pose_pipeline.contracts import (
     FrameRecord, PoseRecord, SequenceManifest, load_trajectory,
-    write_manifest, write_trajectory,
+    sha256_file, write_manifest, write_trajectory,
 )
+from pose_pipeline.pose_graph import PoseGraphOptimizationConfig
 from pose_pipeline.runner import run_sequence
 
 
@@ -59,6 +60,35 @@ class PoseRunnerFailClosedTests(unittest.TestCase):
             self.assertEqual(len(output), len(poses))
             evidence = (root / "candidate" / "loop_evidence.json").read_text()
             self.assertIn("anchor produced only 176 points", evidence)
+
+    def test_v2_failure_retains_source_trajectory_byte_for_byte(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            manifest_path, trajectory_path, _poses = self._two_pose_fixture(root)
+            before = sha256_file(trajectory_path)
+            with patch(
+                "pose_pipeline.runner.build_submap",
+                side_effect=ValueError("synthetic v2 failure"),
+            ):
+                result = run_sequence(
+                    arm="candidate", manifest_path=manifest_path,
+                    trajectory_path=trajectory_path,
+                    output_dir=root / "candidate",
+                    pose_graph_config=PoseGraphOptimizationConfig(
+                        robustifier="adaptive_gnc",
+                    ),
+                )
+            self.assertFalse(result["backend_correction_applied"])
+            self.assertTrue(result["fail_closed_byte_identical_to_source"])
+            self.assertEqual(
+                result["resource_telemetry_path"], "resource_telemetry.json",
+            )
+            self.assertTrue(
+                (root / "candidate" / "resource_telemetry.json").is_file(),
+            )
+            self.assertEqual(
+                before, sha256_file(root / "candidate" / "trajectory.json"),
+            )
 
     def test_single_valid_pose_is_an_explicit_noop(self):
         with tempfile.TemporaryDirectory() as directory:

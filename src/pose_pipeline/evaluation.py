@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 from typing import Mapping, Sequence
 
 import numpy as np
 
-from .contracts import PoseRecord, load_trajectory, sha256_file, validate_se3
+from .contracts import (
+    PoseRecord, load_manifest, load_trajectory, sha256_file,
+    stable_json_sha256, validate_se3,
+)
 from .robust_backend import transform_distance
 
 
@@ -172,6 +176,121 @@ def reconstruction_surface_metrics(
         "precision": precision,
         "recall": recall,
         "fscore": fscore,
+        "gt_role": "evaluation_only",
+    }
+
+
+def build_scannet_common_observed_surface(
+    scene: Path, manifest_path: Path, baseline_trajectory_path: Path,
+    candidate_trajectory_path: Path, reference_surface: Path,
+    output_path: Path, *, pixel_stride: int = 8,
+    visibility_distance_m: float = 0.08,
+) -> dict:
+    """Cull the sealed reference surface to RGB-D support common to both arms.
+
+    This function belongs to the evaluation process: it opens ScanNet GT poses
+    and never feeds any result back into inference.
+    """
+    import cv2
+    import open3d as o3d
+    from scipy.spatial import cKDTree
+
+    if pixel_stride < 1 or visibility_distance_m <= 0.0:
+        raise ValueError("invalid common-observation sampling config")
+    scene = Path(scene).resolve()
+    manifest = load_manifest(manifest_path)
+    if manifest.dataset != "scannet":
+        raise ValueError("common observed surface currently supports ScanNet")
+    baseline, _ = load_trajectory(baseline_trajectory_path)
+    candidate, _ = load_trajectory(candidate_trajectory_path)
+    common_ids = sorted(
+        {row.frame_id for row in baseline}
+        & {row.frame_id for row in candidate}
+        & {frame.frame_id for frame in manifest.frames}
+    )
+    if not common_ids:
+        raise ValueError("baseline/candidate have no common admitted frames")
+    frame_by_id = {frame.frame_id: frame for frame in manifest.frames}
+    observed = []
+    gt_pose_hashes = []
+    for frame_id in common_ids:
+        frame = frame_by_id[frame_id]
+        pose_path = scene / "pose" / f"{frame_id}.txt"
+        try:
+            truth = validate_se3(
+                np.loadtxt(pose_path), f"ScanNet GT frame {frame_id}",
+            )
+        except ValueError:
+            continue
+        depth = cv2.imread(str(frame.depth_path), cv2.IMREAD_UNCHANGED)
+        if depth is None or depth.ndim != 2 or depth.dtype != np.uint16:
+            raise ValueError(f"invalid ScanNet depth frame {frame_id}")
+        vv, uu = np.mgrid[
+            0:depth.shape[0]:pixel_stride,
+            0:depth.shape[1]:pixel_stride,
+        ]
+        z = depth[::pixel_stride, ::pixel_stride].astype(np.float64) / manifest.depth_scale
+        valid = np.isfinite(z) & (z >= 0.30) & (z <= 4.50)
+        fx, fy, cx, cy = frame.intrinsics
+        camera = np.column_stack([
+            (uu[valid] - cx) * z[valid] / fx,
+            (vv[valid] - cy) * z[valid] / fy,
+            z[valid],
+        ])
+        world = camera @ truth[:3, :3].T + truth[:3, 3]
+        observed.append(world)
+        gt_pose_hashes.append({
+            "frame_id": frame_id,
+            "pose_sha256": sha256_file(pose_path),
+            "depth_sha256": sha256_file(frame.depth_path),
+        })
+    if not observed:
+        raise ValueError("common admitted frames have no finite GT poses")
+    observed_points = np.concatenate(observed, axis=0)
+    observed_cloud = o3d.geometry.PointCloud(
+        o3d.utility.Vector3dVector(observed_points),
+    ).voxel_down_sample(0.03)
+    observed_points = np.asarray(observed_cloud.points, dtype=np.float64)
+    reference = o3d.io.read_point_cloud(str(reference_surface))
+    if not reference.has_points():
+        mesh = o3d.io.read_triangle_mesh(str(reference_surface))
+        reference = o3d.geometry.PointCloud(mesh.vertices)
+    reference = reference.voxel_down_sample(0.02)
+    reference_points = np.asarray(reference.points, dtype=np.float64)
+    distances = cKDTree(observed_points).query(
+        reference_points, k=1, workers=-1,
+    )[0]
+    visible_mask = distances <= visibility_distance_m
+    visible_points = reference_points[visible_mask]
+    if len(visible_points) < 500:
+        raise RuntimeError(
+            f"common visibility mask retained only {len(visible_points)} points"
+        )
+    output_path = Path(output_path).resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_cloud = o3d.geometry.PointCloud(
+        o3d.utility.Vector3dVector(visible_points),
+    )
+    if not o3d.io.write_point_cloud(str(output_path), output_cloud, write_ascii=False):
+        raise RuntimeError("failed to write common observed ScanNet surface")
+    mask_hash = hashlib.sha256(
+        np.ascontiguousarray(visible_mask, dtype=np.uint8).tobytes(),
+    ).hexdigest()
+    return {
+        "schema": "scannet_common_observed_surface.v1",
+        "surface": str(output_path),
+        "surface_sha256": sha256_file(output_path),
+        "reference_surface": str(Path(reference_surface).resolve()),
+        "reference_surface_sha256": sha256_file(reference_surface),
+        "admitted_frame_count": len(common_ids),
+        "evaluable_frame_count": len(gt_pose_hashes),
+        "admitted_frame_sha256": stable_json_sha256(common_ids),
+        "evaluation_input_sha256": stable_json_sha256(gt_pose_hashes),
+        "common_visibility_mask_sha256": mask_hash,
+        "reference_point_count": len(reference_points),
+        "visible_reference_point_count": len(visible_points),
+        "pixel_stride": pixel_stride,
+        "visibility_distance_m": visibility_distance_m,
         "gt_role": "evaluation_only",
     }
 
