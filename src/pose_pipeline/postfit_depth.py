@@ -57,3 +57,35 @@ def audit_postfit_depth(manifest,baseline,candidate,ordinals,depth_edges,config=
     return dict(schema='postfit_depth_audit.v1',gt_consumed=False,passes=accepted,loop_count=len(rows),passed_loops=passed,
         no_loop_mean_depth_regression=no_regression,config=asdict(config),depth_thresholds=asdict(checks),
         rows=rows,rgbd_sha256=bindings,scope='new RGBD views; geometry correspondence and local DPV errors may remain correlated')
+
+
+def relative_improvement_decision(audit):
+    """Decide relative improvement, separately from the absolute 5 cm audit.
+
+    A final trajectory need not perfectly satisfy every loop to improve the
+    reconstruction. Require new-view depth loss reduction, retained observable
+    support, and no loop with a material mean-depth regression. Callers must
+    additionally enforce full-map safety and trajectory bounds.
+    """
+    if audit.get('gt_consumed') is not False:raise ValueError('GT-free audit required')
+    rows=audit['rows'];checks=audit['depth_thresholds'];config=audit['config']
+    ratios=[r['mean_depth_loss_ratio'] for r in rows]
+    improved=sum(v is not None and v<=1-checks['minimum_loss_improvement'] for v in ratios)
+    coverage=[]
+    for row in rows:
+        for view in row['views']:
+            for direction in view['directions']:
+                a=direction['candidate'];b=direction['baseline']
+                coverage.append(a['projected_points']>=checks['minimum_points']
+                    and a['visible_points']>=checks['minimum_points']
+                    and a['projection_fraction']>=checks['minimum_projection_fraction']
+                    and a['projection_fraction']>=checks['minimum_coverage_retention']*b['projection_fraction']
+                    and a['visible_fraction']>=checks['minimum_visible_fraction'])
+    support=bool(coverage) and np.mean(coverage)>=config['minimum_loop_pass_fraction']
+    gains=bool(rows) and improved>=int(np.ceil(config['minimum_loop_pass_fraction']*len(rows)))
+    nonregression=bool(rows) and all(v is not None and np.isfinite(v) and v<=config['maximum_loop_loss_ratio'] for v in ratios)
+    return dict(schema='postfit_relative_improvement.v1',gt_consumed=False,
+        passes=bool(support and gains and nonregression),loop_count=len(rows),improved_loops=improved,
+        adequate_projection_fraction=float(np.mean(coverage)) if coverage else 0.,
+        support_retained=bool(support),sufficient_relative_gain=bool(gains),no_loop_loss_regression=bool(nonregression),
+        absolute_alignment_passed=audit['passes'],mean_loss_ratios=ratios)

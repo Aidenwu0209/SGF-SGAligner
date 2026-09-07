@@ -48,6 +48,7 @@ from .submaps import (
     select_anchor_ordinals,
 )
 from .telemetry import collect_resource_telemetry
+from .depth_first_loops import DepthFirstPipelineConfig
 
 
 @dataclass(frozen=True)
@@ -63,8 +64,11 @@ class PrecommitGeometryConfig:
     maximum_matched_plane_tilt_regression_deg: float = 2.0
     maximum_thickness_ratio: float = 1.10
     maximum_layer_conflict_ratio: float = 1.10
+    improvement_policy: str = "legacy_planes"
 
     def __post_init__(self) -> None:
+        if self.improvement_policy not in {"legacy_planes", "postfit_depth_relative"}:
+            raise ValueError("unsupported geometry improvement policy")
         if self.frame_stride < 1:
             raise ValueError("precommit refusion frame stride must be positive")
         positive = (
@@ -178,11 +182,20 @@ def run_sequence(
     precommit_geometry_config: PrecommitGeometryConfig = PrecommitGeometryConfig(),
     visual_config: VisualVerificationConfig = VisualVerificationConfig(),
     bounded_config: BoundedBackendConfig = BoundedBackendConfig(),
+    depth_first_config: DepthFirstPipelineConfig = DepthFirstPipelineConfig(),
 ) -> dict[str, Any]:
     if arm not in {"baseline", "candidate"}:
         raise ValueError("arm must be baseline or candidate")
     if precommit_geometry_config.require_scene_improvement and not precommit_geometry_config.enabled:
         raise ValueError("geometry improvement requires the geometry gate to be enabled")
+    if precommit_geometry_config.improvement_policy == "postfit_depth_relative" and not depth_first_config.enabled:
+        raise ValueError("postfit improvement requires depth-first recovery")
+    if depth_first_config.enabled and (
+        not bounded_config.enabled or bounded_config.maximum_loop_degree != 4
+        or bounded_config.correction_scaling_policy != "smooth_local"
+        or not precommit_geometry_config.enabled
+    ):
+        raise ValueError("depth-first recovery requires full geometry checks and degree-4 smooth-local backend")
     unified_mode = visual_config.enabled or bounded_config.enabled
     if unified_mode and not (
         visual_config.enabled and bounded_config.enabled
@@ -476,6 +489,16 @@ def run_sequence(
         "evidence": evidence,
         "gt_consumed": False,
     })
+    depth_first_edges = []
+    if depth_first_config.enabled:
+        from .depth_first_loops import build_depth_first_edges
+        stage_started = time.perf_counter()
+        loop_edges, depth_first_edges, depth_first_evidence = build_depth_first_edges(
+            manifest, trajectory, anchors, evidence, loop_edges,
+            robust_config, geometry_config,
+        )
+        _write_json(output_dir / "depth_first_evidence.json", depth_first_evidence)
+        stage_runtime["depth_first_recovery"] = time.perf_counter() - stage_started
     if not loop_edges:
         return _retain_candidate_noop(
             output_dir=output_dir, manifest=manifest,
@@ -547,6 +570,13 @@ def run_sequence(
         time.perf_counter() - stage_started
     )
     _write_json(output_dir / "correction_audit.json", correction_audit)
+    postfit_depth = None
+    if depth_first_config.enabled:
+        from .postfit_depth import audit_postfit_depth
+        postfit_depth = audit_postfit_depth(
+            manifest, trajectory, corrected, anchors, depth_first_edges,
+        )
+        _write_json(output_dir / "postfit_depth_audit.json", postfit_depth)
     if not correction_audit["passes"]:
         return _retain_candidate_noop(
             output_dir=output_dir, manifest=manifest,
@@ -634,6 +664,15 @@ def run_sequence(
                 "admitted_frame_sha256": frame_hash,
                 "gt_consumed": False,
             }
+        if precommit_geometry_config.improvement_policy == "postfit_depth_relative":
+            from .postfit_depth import relative_improvement_decision
+            improvement = relative_improvement_decision(postfit_depth)
+            precommit_geometry["legacy_passes_scene_improvement"] = precommit_geometry.get("passes_scene_improvement", False)
+            precommit_geometry["improvement_policy"] = "postfit_depth_relative"
+            precommit_geometry["postfit_relative_improvement"] = improvement
+            precommit_geometry["passes_scene_improvement"] = bool(
+                precommit_geometry.get("passes_scene_safety", False) and improvement["passes"]
+            )
         _write_json(
             output_dir / "precommit_refusion" / "geometry_comparison.json",
             precommit_geometry,

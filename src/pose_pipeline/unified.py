@@ -19,6 +19,7 @@ from .pose_graph import CorrectionAuditConfig, PoseGraphOptimizationConfig
 from .runner import PrecommitGeometryConfig, _write_json, run_sequence
 from .submaps import LoopProposalConfig, SubmapConfig
 from .visual_verification import VisualVerificationConfig
+from .depth_first_loops import DepthFirstPipelineConfig
 
 
 def load_unified_config(path: Path, *, clip_download_root: Path) -> dict:
@@ -30,7 +31,7 @@ def load_unified_config(path: Path, *, clip_download_root: Path) -> dict:
         "proposal", "appearance", "registration", "optimization",
         "visual", "bounded", "correction", "geometry",
     }
-    if not isinstance(value, dict) or set(value) != expected:
+    if not isinstance(value, dict) or set(value) - {"depth_first"} != expected:
         raise ValueError("unified config has missing or unknown sections")
     if value["schema"] != "unified_pose_backend.v1":
         raise ValueError("unsupported unified config schema")
@@ -51,6 +52,7 @@ def load_unified_config(path: Path, *, clip_download_root: Path) -> dict:
         "bounded_config": BoundedBackendConfig(**bounded),
         "correction_config": CorrectionAuditConfig(**value["correction"]),
         "precommit_geometry_config": PrecommitGeometryConfig(**value["geometry"]),
+        "depth_first_config": DepthFirstPipelineConfig(**value.get("depth_first", {})),
     }
     if (
         config["proposal_config"].policy != "hybrid36"

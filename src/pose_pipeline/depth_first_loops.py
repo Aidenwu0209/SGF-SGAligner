@@ -15,6 +15,14 @@ from .robust_backend import RobustPoseConfig, transform_distance
 
 
 @dataclass(frozen=True)
+class DepthFirstPipelineConfig:
+    enabled: bool = False
+
+    def __post_init__(self):
+        if not isinstance(self.enabled,bool):raise ValueError('enabled must be boolean')
+
+
+@dataclass(frozen=True)
 class DepthFirstConfig:
     icp_distances_m: tuple[float,...] = (.60,.30,.15,.075)
     icp_voxels_m: tuple[float,...] = (.10,.075,.05,.025)
@@ -132,3 +140,37 @@ def recover_pair(manifest,poses,ordinals,source,target,clouds,bindings,
         pnp_consumed=False,local_pose_transport='cached_DPV_not_independent_motion_estimator',
         selected_provider=None if selected is None else selected['provider'],
         transform=None if selected is None else selected['transform'],fit_frame_ids=sorted(fit_ids))
+
+
+def build_depth_first_edges(manifest,poses,ordinals,evidence,original_edges,robust_config,geometry_config):
+    """Public-runner integration of the same frozen experimental recipe."""
+    from .lightweight_rgbd import refine_pair
+    from .pose_graph import PoseGraphEdge
+    from .depth_loop_witness import inconsistent_triangles
+    clouds,checks,bindings=compact_clouds(manifest,poses,ordinals)
+    fixed=list(original_edges);local_rows=[]
+    for i in range(len(ordinals)-1):
+        j=i+1;initial=np.linalg.inv(poses[ordinals[j]].t_world_camera)@poses[ordinals[i]].t_world_camera
+        row=refine_pair(clouds[i],clouds[j],checks[i],checks[j],initial,roi=False,colored=False)
+        local_rows.append(dict(source=i,target=j,result=row))
+        if row['accepted']:fixed.append(PoseGraphEdge(i,j,np.asarray(row['transform']),kind='local_rgbd',
+            information=np.asarray(row['information']),provenance='lightweight_heldout_checked_plain'))
+    rows=[];new=[]
+    for proposal in evidence:
+        if proposal['edge_verified']:continue
+        r=recover_pair(manifest,poses,ordinals,proposal['source_anchor_index'],proposal['target_anchor_index'],
+            clouds,bindings,robust_config,geometry_config)
+        rows.append(r)
+        if r['accepted']:new.append(PoseGraphEdge(r['source'],r['target'],np.asarray(r['transform']),kind='depth_first_loop',
+            weight=1.,provenance='independent_depth_first_plus_disjoint_multiview'))
+    bad,cycles=inconsistent_triangles(fixed+new,{(e.source,e.target) for e in new})
+    degree={i:0 for i in range(len(ordinals))}
+    for e in fixed:degree[e.source]+=1;degree[e.target]+=1
+    retained=[];dropped=[]
+    for e in new:
+        if (e.source,e.target) in bad:reason='inconsistent_measured_triangle'
+        elif max(degree[e.source],degree[e.target])>=4:reason='degree_budget'
+        else:retained.append(e);degree[e.source]+=1;degree[e.target]+=1;continue
+        dropped.append(dict(source=e.source,target=e.target,reason=reason))
+    return fixed+retained,retained,dict(gt_consumed=False,rows=rows,local_rows=local_rows,rgbd_bindings=bindings,
+        proposed_depth_edges=len(new),retained_depth_edges=len(retained),dropped=dropped,cycle_check=cycles)
