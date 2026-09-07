@@ -1,7 +1,7 @@
 # SGF-SGAligner
 
 New develop profile: [depth-first RGB-D loop recovery and full-frame validation](docs/depth_first_pipeline_zh.md).
-Use `configs/pose/unified_backend_depth_first.yaml` with `run-unified`. [Expanded validation across 16 sequences](docs/depth_first_expanded_validation_zh.md) records eight adopted outputs and eight DPV rollbacks. Final CD averages 45.84 cm over the 15 sequences with reference meshes; the eight adopted outputs alone average 24.43 cm. These are different populations. Only two of seven previously untested sequences benefited, and the one new physical room rolled back. Scene0030_00's major double-table ghost is removed in its adopted full refusion. This remains development-only; the reports distinguish candidates, actual final outputs, and remaining accuracy limits.
+Use `configs/pose/unified_backend_depth_first.yaml` with `run-unified`. Four public-entry runs adopted improved final outputs in three scenes and retained the original DPV result in one; scene0030_00's major double-table ghost is removed in the adopted full refusion. This remains development-only; the guide separates candidate gains, final results, and remaining accuracy limits.
 
 Earlier integration reports (historical configurations and results):
 
