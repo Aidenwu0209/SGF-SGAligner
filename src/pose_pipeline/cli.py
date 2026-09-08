@@ -137,6 +137,17 @@ def _run_unified(args: argparse.Namespace) -> None:
     ), indent=2))
 
 
+def _run_rgbd(args: argparse.Namespace) -> None:
+    from .rgbd_mapping import run_rgbd_mapping
+
+    print(json.dumps(run_rgbd_mapping(
+        manifest_path=args.manifest, output_dir=args.output,
+        provider_root=args.provider_root, gpu_python=args.gpu_python,
+        cpu_python=args.cpu_python, stage_timeout_s=args.stage_timeout,
+        device=args.device, threads=args.threads,
+    ), indent=2))
+
+
 def _refuse(args: argparse.Namespace) -> None:
     from reconstruction.rgbd_refusion import (
         FullRefusionRequest, run_full_rgbd_refusion,
@@ -164,6 +175,18 @@ def _refuse(args: argparse.Namespace) -> None:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pose_pipeline")
     commands = parser.add_subparsers(dest="command", required=True)
+    rgbd = commands.add_parser(
+        "run-rgbd", help="full raw RGB-D tracking, measured SVD graph, visual refill and fusion",
+    )
+    rgbd.add_argument("--manifest", type=Path, required=True)
+    rgbd.add_argument("--output", type=Path, required=True)
+    rgbd.add_argument("--provider-root", type=Path, required=True, help="DROID-W source checkout")
+    rgbd.add_argument("--gpu-python", type=Path, required=True)
+    rgbd.add_argument("--cpu-python", type=Path, required=True)
+    rgbd.add_argument("--stage-timeout", type=float, default=7200)
+    rgbd.add_argument("--device", default="0")
+    rgbd.add_argument("--threads", type=int, default=2)
+    rgbd.set_defaults(handler=_run_rgbd)
     unified = commands.add_parser(
         "run-unified", help="development Hybrid36 + PnP + bounded Huber + full-frame Guard",
     )
