@@ -172,9 +172,21 @@ def _refuse(args: argparse.Namespace) -> None:
     )), indent=2))
 
 
+def _run_semantic(args):
+    from .semantic_mapping import run
+    run(args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pose_pipeline")
     commands = parser.add_subparsers(dest="command", required=True)
+    semantic = commands.add_parser('run-semantic', help='SGF/SGA labels on frozen RGB-D geometry')
+    for flag in ('manifest','trajectory','baseline','model','relation-vocab','output','sga-python'):
+        semantic.add_argument('--'+flag,type=Path,required=True)
+    semantic.add_argument('--submap-frames',type=int,default=120)
+    semantic.add_argument('--overlap',type=int,default=30)
+    semantic.add_argument('--device',choices=('cpu','cuda'),default='cuda')
+    semantic.set_defaults(handler=_run_semantic)
     rgbd = commands.add_parser(
         "run-rgbd", help="full raw RGB-D tracking, measured SVD graph, visual refill and fusion",
     )

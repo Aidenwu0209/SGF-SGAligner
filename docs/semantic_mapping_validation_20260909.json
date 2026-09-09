@@ -1,0 +1,82 @@
+{
+  "schema": "semantic_mapping_trial.v1",
+  "branch": "developnew",
+  "base_commit": "1cf90f785edfddfb2382e66a159a74f94775c92f",
+  "status": "FUNCTIONAL_INTEGRATION_VERIFIED_QUALITY_NOT_ACCEPTED",
+  "scope": "three complete scenes, one per dataset, frozen geometric trajectories; not a full dataset sweep",
+  "unique_frames": 5363,
+  "tests_passed": 18,
+  "scenes": [
+    {
+      "dataset": "scannet",
+      "scene": "scene0050_00",
+      "frames": 4652,
+      "points": 348841,
+      "coverage": 0.18638004133688413,
+      "instances": 1165,
+      "initial_coverage": 0.1666661888940807,
+      "initial_instances": 1746,
+      "sga_pairs": 51,
+      "sga_associations": 216,
+      "same_part_merges": 1391,
+      "geometry_fields_identical": true,
+      "local_directory": "/Users/wu/Desktop/wu/SGF-SGA/comparisons/developnew_semantic_20260909_v1/final/scannet/scene0050_00",
+      "ply_sha256": "f7b5923086dc9f46a8182bc3b9b4b91014a087220f4315cff2b9be8f7d45bfce",
+      "quality_accepted": false,
+      "quality_diagnostic": {
+        "metric_scope": "predicted vertices within 5cm of GT; exact shared class names; not benchmark mIoU/AP",
+        "supported_class_points": 107827,
+        "labeled_supported_points": 20936,
+        "semantic_accuracy_labeled_only": 0.09524264424914024,
+        "semantic_accuracy_with_unknown_as_error": 0.018492585345043448,
+        "weighted_instance_purity_min20points": 0.9340423903894712
+      }
+    },
+    {
+      "dataset": "orbbec",
+      "scene": "scene_001",
+      "frames": 524,
+      "points": 47585,
+      "coverage": 0.3466848796889776,
+      "instances": 282,
+      "initial_coverage": 0.2798991278764317,
+      "initial_instances": 733,
+      "sga_pairs": 5,
+      "sga_associations": 97,
+      "same_part_merges": 1678,
+      "geometry_fields_identical": true,
+      "local_directory": "/Users/wu/Desktop/wu/SGF-SGA/comparisons/developnew_semantic_20260909_v1/final/orbbec/scene_001",
+      "ply_sha256": "d25194cb6307901ffb0837a30003a494d1964a1a8dc0a3072a629080e7d38bb3",
+      "quality_accepted": false
+    },
+    {
+      "dataset": "3rscan",
+      "scene": "09582214-e2c2-2de1-956a-64d8da4ba7cc",
+      "frames": 187,
+      "points": 56043,
+      "coverage": 0.3540674125225273,
+      "instances": 34,
+      "initial_coverage": 0.35305033634887495,
+      "initial_instances": 36,
+      "sga_pairs": 1,
+      "sga_associations": 3,
+      "same_part_merges": 3,
+      "geometry_fields_identical": true,
+      "local_directory": "/Users/wu/Desktop/wu/SGF-SGA/comparisons/developnew_semantic_20260909_v1/final/3rscan/09582214-e2c2-2de1-956a-64d8da4ba7cc",
+      "ply_sha256": "6a8055a3f3da0774e40e970da60c456d527420126bab0bce28a992ac1d85adab",
+      "quality_accepted": false,
+      "quality_diagnostic": {
+        "metric_scope": "predicted vertices within 5cm of GT; exact shared class names; not benchmark mIoU/AP",
+        "supported_class_points": 20618,
+        "labeled_supported_points": 7770,
+        "semantic_accuracy_labeled_only": 0.2411840411840412,
+        "semantic_accuracy_with_unknown_as_error": 0.09089145406925987,
+        "weighted_instance_purity_min20points": 0.9070486152383217
+      }
+    }
+  ],
+  "cross_scan_global_instances_validated": false,
+  "training_performed": false,
+  "pose_feedback_enabled": false,
+  "remote_root": "/home/aidenwu/Documents/sgf-sga-developnew-20260909"
+}

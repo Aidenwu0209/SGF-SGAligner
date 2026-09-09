@@ -1,5 +1,12 @@
 # SGF-SGAligner
 
+`developnew` experimental entry: [SGF / SGA semantic and instance mapping](docs/SEMANTIC_MAPPING.md).
+Run `run-rgbd` for the complete trajectory and RGB geometry, then `run-semantic`
+to replay SGF with those poses, associate objects with SGA, consolidate supported
+same-part fragments, and export integer semantic/instance labels on the original
+map. Current validation and remaining label-quality limitations are documented
+in the linked guide; this is an experimental integration.
+
 New develop profile: [depth-first RGB-D loop recovery and full-frame validation](docs/depth_first_pipeline_zh.md).
 Use `configs/pose/unified_backend_depth_first.yaml` with `run-unified`. Four public-entry runs adopted improved final outputs in three scenes and retained the original DPV result in one; scene0030_00's major double-table ghost is removed in the adopted full refusion. This remains development-only; the guide separates candidate gains, final results, and remaining accuracy limits.
 
