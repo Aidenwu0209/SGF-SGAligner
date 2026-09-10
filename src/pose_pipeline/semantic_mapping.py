@@ -143,15 +143,17 @@ def measured_association(a, b):
             "T_ref_src_measured_only": transform, "applied_to_trajectory": False}
 
 
-def associate(previous, current, relation_vocab, device):
+def associate(previous, current, relation_vocab, device, *, t_model_world=None):
     from adapters.sgf.object_adapter import adapt_objects
     from adapters.sgf.graph_adapter import adapt_graph, merge_pair_contracts
     from adapters.sgf.relation_mapper import RelationMapper
     from inference.sgf_official.inference import official_forward, official_matching
+    transform = np.eye(4) if t_model_world is None else validate_se3(t_model_world)
     contracts = []
     for scene in (previous, current):
         cloud = scene["cloud"]
-        segments = {oid: cloud["xyz"][cloud["labels"] == oid]
+        model_xyz = cloud["xyz"] @ transform[:3,:3].T + transform[:3,3]
+        segments = {oid: model_xyz[cloud["labels"] == oid]
                     for oid in scene["nodes"] if oid > 0}
         if sum(len(x) >= 50 for x in segments.values()) < 2:
             return [], {"status": "insufficient_objects", "inference_executed": False}
@@ -164,7 +166,7 @@ def associate(previous, current, relation_vocab, device):
         contracts.append(adapt_graph(objects, mode="sgf_predicted",
             directed_pairs=[(a,b) for a,b,_ in triples], relation_triples=triples,
             relation_mapper=RelationMapper(relation_vocab)))
-    center = previous["cloud"]["xyz"].mean(axis=0)
+    center = previous["cloud"]["xyz"].mean(axis=0) @ transform[:3,:3].T + transform[:3,3]
     data = merge_pair_contracts(*contracts, center)
     embedding, epoch = official_forward(data, "official_sgf_predicted", device=device)
     if not np.isfinite(embedding).all() or np.any(np.linalg.norm(embedding,axis=1) == 0):
@@ -191,7 +193,9 @@ def associate(previous, current, relation_vocab, device):
         records.append(row)
     return accepted, {"status": "completed", "inference_executed": True,
                       "checkpoint_epoch": epoch, "candidates": records,
-                      "accepted_count": len(accepted), "pose_feedback": False}
+                      "accepted_count": len(accepted), "pose_feedback": False,
+                      "T_model_world": transform,
+                      "measurement_coordinate_frame": "model world; measurement only"}
 
 
 def transfer_labels(points, normals, submaps, ids, class_ids, max_distance=.04):
@@ -244,13 +248,13 @@ def transfer_labels(points, normals, submaps, ids, class_ids, max_distance=.04):
     return semantic, instance, confidence, int(ambiguous.sum())
 
 
-def export_map(baseline, output, submaps, ids, classes):
+def export_map(baseline, output, submaps, ids, classes, *, label_transfer=None):
     from plyfile import PlyData, PlyElement
     ply = PlyData.read(baseline)
     vertex = ply['vertex'].data
     points = np.column_stack([vertex[x] for x in ('x','y','z')])
     normals = np.column_stack([vertex[x] for x in ('nx','ny','nz')])
-    semantic, instance, confidence, ambiguous = transfer_labels(
+    semantic, instance, confidence, ambiguous = (label_transfer or transfer_labels)(
         points, normals, submaps, ids, classes)
     fields = [('semantic_id','<i4'),('instance_id','<i4'),('semantic_confidence','<f4')]
     if any(name in vertex.dtype.names for name,_ in fields):
@@ -284,6 +288,9 @@ def export_map(baseline, output, submaps, ids, classes):
     write_json(output/'classes.json',{'0':'unknown', **{str(v):k for k,v in classes.items()}})
     return {"point_count":len(vertex),"labeled_points":int((instance>0).sum()),
         "label_coverage":float(np.mean(instance>0)),"ambiguous_points":ambiguous,
+        "semantic_labeled_points":int((semantic>0).sum()),
+        "semantic_label_coverage":float(np.mean(semantic>0)),
+        "instance_label_coverage":float(np.mean(instance>0)),
         "exported_instances":len(objects),"baseline_vertex_fields_identical":True}
 
 
