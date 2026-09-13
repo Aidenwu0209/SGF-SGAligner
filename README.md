@@ -1,5 +1,11 @@
 # SGF-SGAligner
 
+`developnew` current SAM3 mapping profile: [SAM3 every 5 frames, validation and run entry](docs/experiments/sam3-stride5-20260913/README.md).
+This adopts the coverage-first offline semantic replay from the ScanNet/Orbbec
+sampling experiments. It preserves frozen geometry and exports semantic/instance
+labels; the guide records accuracy tradeoffs and the incomplete 3RScan validation.
+The existing `run-rgbd` / `run-semantic` commands retain their original entry points.
+
 `developnew` experimental entry: [SGF / SGA semantic and instance mapping](docs/SEMANTIC_MAPPING.md).
 Run `run-rgbd` for the complete trajectory and RGB geometry, then `run-semantic`
 to replay SGF with those poses, associate objects with SGA, consolidate supported
