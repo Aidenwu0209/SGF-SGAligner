@@ -4,6 +4,61 @@
 
 [使用方法与算法边界](docs/experiments/semantic-runtime-20260915/README.md) · [模型注册表](configs/vlm_models.json) · [本次代码验证](docs/experiments/semantic-runtime-20260915/VALIDATION.md) · [原 SGF/SGA 入口](docs/SEMANTIC_MAPPING.md)
 
+## RTX 4060：分开运行与阶段并行的推荐
+
+2026-09-15 最新复测：**分开运行优先 Qwen3-VL-2B BF16；阶段并行优先 Qwen3-VL-2B NF4**。这是按验证完整性、命名质量和显存取舍的推荐，不是跨场景最优准确率结论。最新代码已修复 Mage 只编码文字、漏传图像的问题，并保留 DeepSeek 官方 API 和 Qwen 图像预算实验配置。
+
+| 模式 | 推荐参数 | 依据 |
+|---|---|---|
+| 完全分开 | `--schedule serial --vlm qwen3vl_2b_bf16 --stride 5` | 有同输入串行对照和完整冻结地图收益验证；8GB 显存可容纳分阶段工作 |
+| 阶段并行 | `--schedule parallel --vlm qwen3vl_2b_nf4 --stride 5` | 两场原始 120 帧均完成，VLM 阶段峰值约 2638 MiB；固定命名评分 14/18 |
+
+若更重视显存，两种模式均可显式选择 NF4；但本轮没有 NF4 串行配对和 NF4 的 T1/P2 最终地图验收，不能套用 BF16 的速度或地图指标。CLI 的兼容默认仍为 `parallel + BF16`，下方命令显式选择推荐配置。Gemma E2B Q4（280 图像 tokens）保留作备用，没有证明整体优于 Qwen。
+
+| 参数 | 分开 BF16 | 并行 NF4 |
+|---|---|---|
+| 几何输入 | manifest 全部 RGB-D 帧 | 相同 |
+| SAM3 | stride=5，另含最后一帧；threshold=0.5 | 相同 |
+| CPU | runtime 顶层 `threads=2`；模型内 `threads=4` | 相同 |
+| 超时 | runtime `stage_timeout=7200` 秒，长序列按需要增大 | 相同 |
+| Qwen 图像预算 | `min_pixels=3136, max_pixels=150528` | 相同 |
+| 生成 | `max_new_tokens=24, do_sample=False, use_cache=True` | 相同 |
+| 量化/计算 | BF16 | NF4、BF16 compute、double quant 开 |
+| 注意力/种子/batch | SDPA / 42 / 每次一张裁剪 | 相同 |
+| 2D→3D 深度门槛 | 0.05 m | 相同 |
+| 名称归属/投票 | ≥30 支持点、实例占比≥0.65、≥2 不同帧同名且严格胜出 | 相同 |
+
+模型量化、图像预算和生成参数来自注册表；runtime 只填主机路径及支持的运行选项，不要在其中添加不会生效的 IoU/min_pixels 字段。**所有固定融合参数、裁剪规则、Gemma 配置及环境路径要求**见 [4060 完整参数说明](docs/experiments/rtx4060-models-20260915/README.md#参数完整设置)。
+
+```bash
+# 先复制 configs/semantic_runtime.example.json，填好实际环境和权重路径。
+# 分开运行：
+PYTHONPATH=src python -m pose_pipeline.semantic_runtime run-sam3 \
+  --manifest /absolute/path/rgbd-manifest.json --runtime /absolute/path/runtime.json \
+  --output /absolute/path/new-serial-bf16 \
+  --schedule serial --vlm qwen3vl_2b_bf16 --stride 5
+
+# 阶段并行：
+PYTHONPATH=src python -m pose_pipeline.semantic_runtime run-sam3 \
+  --manifest /absolute/path/rgbd-manifest.json --runtime /absolute/path/runtime.json \
+  --output /absolute/path/new-parallel-nf4 \
+  --schedule parallel --vlm qwen3vl_2b_nf4 --stride 5
+```
+
+“阶段并行”是 GPU 模型加载与 CPU 融合重叠；SAM3 退出释放显存后才加载 Qwen，**不是两个 GPU 模型同时常驻**。本轮测得的主要重叠发生在加载阶段，不能承诺推理并发。
+
+| 最新同输入短窗实测 | ScanNet0030 秒 / FPS | Orbbec 秒 / FPS |
+|---|---:|---:|
+| BF16 serial | 107.85 / 1.113 | 102.20 / 1.174 |
+| BF16 parallel | 101.67 / 1.180 | 99.76 / 1.203 |
+| NF4 parallel | 103.48 / 1.160 | 101.19 / 1.186 |
+
+每组 120 原始帧、25 SAM3 帧，仅一次运行；计入加载、新轨迹、新几何、语义融合和导出。NF4 整条 pipeline 峰值约 6352 MiB，SAM3 仍占峰值；不是只有 2638 MiB。共 42 次执行、40 个有效结果（旧 Mage 两组漏图像，已保留并以修复后两组替换比较）。不含 T1/P2 上游证据生成，不能当作完整长序列实时 FPS。
+
+同一批 288 张裁剪、ScanNet0030 固定 18 个开发对象的 N2 命名正确数：**Qwen NF4 14、BF16 11、Mage 10、DeepSeek 9、Gemma 7、JoyAI 6**。这不是地图 mIoU；其他场景尚无本轮对应 GT 排名，Orbbec 命名更多也不等于更准确。下文完整地图的 23/82 仍属于 BF16，不能转给 NF4。
+
+[全部模型与分场景结果](docs/experiments/rtx4060-models-20260915/README.md#真实结果与结论边界) · [参数消融记录](docs/experiments/rtx4060-models-20260915/PARAMETER_RUNS.json) · [DeepSeek 使用方法](docs/experiments/rtx4060-models-20260915/README.md#保留的-api-接口) · [本次代码回归](docs/experiments/rtx4060-models-20260915/VALIDATION.md)
+
 ## 使用开关
 
 ```bash
@@ -24,7 +79,7 @@ PYTHONPATH=src python -m pose_pipeline.semantic_runtime enhance-semantic \
   --surface verified --vlm qwen3vl_2b_bf16
 ```
 
-`--vlm none` 可关闭小模型。`--schedule serial` 完全按阶段依次执行；默认 `parallel` 让 GPU 推理与 CPU 融合重叠，同一时刻不驻留两个本地 GPU 大模型。模型列表使用 `list-vlm-models` 查询。配置示例在 [semantic_runtime.example.json](configs/semantic_runtime.example.json)。路径示例必须换成实际文件，权重和运行环境不随仓库分发。
+`--vlm none` 可关闭小模型。`--schedule serial` 完全按阶段依次执行；默认 `parallel` 允许 GPU 工作阶段与 CPU 融合重叠（本轮主要来自模型加载），同一时刻不驻留两个本地 GPU 大模型。模型列表使用 `list-vlm-models` 查询。配置示例在 [semantic_runtime.example.json](configs/semantic_runtime.example.json)。路径示例必须换成实际文件，权重和运行环境不随仓库分发。
 
 **两条路径的输出不同：** `run-sam3` 新建轨迹与地图，VLM 名称写入 `instance_names.json`；`enhance-semantic` 使用已有预测证据，确认后给未知实例写入真正的 `semantic_id`。完整 T1/P2 的上游证据生成尚未串入第一条命令。[输出文件和 bundle 构建说明](docs/experiments/semantic-runtime-20260915/README.md)。
 
@@ -54,7 +109,7 @@ ScanNet0030，未参与命名投票的验证帧 125。青色为已经命名的�
 
 Orbbec，验证帧 4600。Qwen/Joy 命名为显卡，Mage 保留未知；只有少量地图点，表明命名成功尚未解决表面覆盖。配色本身不证明正确率。[图片来源与哈希](docs/experiments/semantic-runtime-20260915/VISUAL_SOURCES.json)。
 
-## Qwen、Mage、Joy 对照
+## 已验证完整地图的 Qwen、Mage、Joy 对照
 
 以下为同批 288 张裁剪的独立命名测评，固定 18 个可评价对象；N2 要求至少两个不同融合视角的同名预测。单张调用耗时不含首次加载，显存是整卡采样峰值（含桌面）。
 
@@ -107,7 +162,7 @@ MiniCPM 视觉试验使用 MiniCPM-V 4 和 V 4.6；用户提到的 MiniCPM5-2B �
 
 </details>
 
-## 速度及关闭小模型的影响
+## 历史速度及关闭小模型的影响
 
 ssh33（RTX 4060 Laptop，8 GiB），每场 **120 个原始 RGB-D 帧、25 个 SAM3 帧**，Qwen3-VL-2B BF16。下表来自整合前的 2026-09-15 受控原型，每项两次完成运行；计入进程启动、模型加载、新几何、SAM3、融合、导出，不含下载/安装及事后审计。文件缓存可能已热。
 

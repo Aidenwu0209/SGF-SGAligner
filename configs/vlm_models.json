@@ -323,5 +323,27 @@
     "endpoint": "https://paddleocr.aistudio-app.com/api/v2/ocr/jobs",
     "token_env": "PADDLEOCR_API_KEY",
     "poll_timeout": 600
+  },
+  "qwen3vl_2b_bf16_min65536": {
+    "model": "qwen3vl_2b",
+    "kind": "native",
+    "quant": "bf16",
+    "repo": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "role": "object_naming",
+    "max_new_tokens": 24,
+    "min_pixels": 65536,
+    "max_pixels": 602112
+  },
+  "deepseek_v41_flash_api": {
+    "kind": "api",
+    "role": "object_naming",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "token_env": "DEEPSEEK_API_KEY",
+    "max_new_tokens": 24,
+    "reasoning_effort": null,
+    "image_detail": "original",
+    "runtime_note": "2026-09-15 verified request contract; service alias is not an immutable model revision"
   }
 }

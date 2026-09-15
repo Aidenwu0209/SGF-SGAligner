@@ -112,7 +112,8 @@ def test_all_tested_families_have_interfaces():
     expected = ['qwen3vl_2b_bf16', 'qwen3vl_8b_nf4_44', 'qwen35_9b_nf4_44',
                 'gemma4_e2b_qat_q4', 'minicpmv46_bf16_4x', 'minicpmv4_nf4',
                 'internvl35_1b_bf16', 'smolvlm2_22b_bf16', 'mage_nf4', 'joy_nf4',
-                'glm53flash_api', 'paddleocr_vl16_api', 'none']
+                'glm53flash_api', 'deepseek_v41_flash_api', 'paddleocr_vl16_api',
+                'qwen3vl_2b_bf16_min65536', 'none']
     assert set(expected) <= set(ids)
     assert ids['paddleocr_vl16_api']['role'] == 'ocr_evidence_only'
     for mid, row in ids.items():
@@ -158,6 +159,102 @@ def test_api_sends_image_and_does_not_log_token(monkeypatch, tmp_path):
     assert answer['label'] == 'piano'
     assert seen[0]['json']['messages'][0]['content'][0]['image_url']['url'].startswith('data:image/png;base64,')
     assert 'test-only-secret' not in json.dumps(model.audit)
+    assert seen[0]['json']['reasoning_effort'] == 'low'  # Retain GLM contract.
+
+
+def test_deepseek_preserves_verified_non_thinking_image_payload(monkeypatch, tmp_path):
+    from pose_pipeline.semantic_runtime.common import model_spec, PROMPT
+    from pose_pipeline.semantic_runtime.vlm import create_namer
+    import base64
+    import requests
+    monkeypatch.setenv('DEEPSEEK_API_KEY', 'test-only-deepseek-secret')
+    seen = []
+    def post(url, **kw):
+        seen.append((url, kw))
+        return SimpleNamespace(status_code=200, json=lambda: {
+            'model': 'deepseek-flash', 'system_fingerprint': 'test-fingerprint',
+            'choices': [{'finish_reason': 'stop', 'message': {'content': 'shipping container'}}]})
+    monkeypatch.setattr(requests, 'post', post)
+    image = tmp_path / 'crop.png'
+    image.write_bytes(b'original-image-bytes')
+    result = create_namer('deepseek_v41_flash_api').infer(image)
+    assert seen[0][0] == model_spec('deepseek_v41_flash_api')['endpoint']
+    assert seen[0][1]['json'] == {
+        'model': 'deepseek-flash', 'temperature': 0, 'max_tokens': 24,
+        'thinking': {'type': 'disabled'}, 'stream': False,
+        'messages': [{'role': 'user', 'content': [
+            {'type': 'image_url', 'image_url': {'url': 'data:image/png;base64,' +
+                base64.b64encode(image.read_bytes()).decode(), 'detail': 'original'}},
+            {'type': 'text', 'text': PROMPT}]}]}
+    assert seen[0][1]['allow_redirects'] is False
+    assert result['label'] == 'shipping container'
+    assert result['system_fingerprint'] == 'test-fingerprint'
+    assert result['reasoning_content_present'] is False
+    assert 'test-only-deepseek-secret' not in json.dumps(result)
+
+
+@pytest.mark.parametrize('status', [401, 402, 500])
+def test_deepseek_failure_does_not_return_a_name(monkeypatch, tmp_path, status):
+    from pose_pipeline.semantic_runtime.vlm import create_namer
+    import requests
+    monkeypatch.setenv('DEEPSEEK_API_KEY', 'test-only-deepseek-secret')
+    monkeypatch.setattr(requests, 'post', lambda *a, **kw: SimpleNamespace(status_code=status))
+    path = tmp_path / 'crop.png'
+    path.write_bytes(b'image')
+    with pytest.raises(RuntimeError, match=f'API HTTP {status}'):
+        create_namer('deepseek_v41_flash_api').infer(path)
+
+
+@pytest.mark.parametrize('fault', [None, 'missing_pixels', 'wrong_grid'])
+def test_mage_encodes_pixels_and_rejects_text_only_inputs(tmp_path, fault):
+    """Exercise the actual adapter without loading GPU weights or installing Torch."""
+    from contextlib import nullcontext
+    from PIL import Image
+    from pose_pipeline.semantic_runtime.vlm import TransformersNamer
+    class Tensor(np.ndarray):
+        def numel(self): return self.size
+        def is_floating_point(self): return self.dtype.kind == 'f'
+        def to(self, *a): return self
+    def tensor(x): return np.asarray(x).view(Tensor)
+    class Batch(dict):
+        def to(self, device):
+            assert device == 'cuda'
+            return self
+    class Processor:
+        spatial_merge_size = 2
+        tokenizer = SimpleNamespace(convert_tokens_to_ids=lambda s: 99)
+        def apply_chat_template(self, messages, **kwargs):
+            assert kwargs['tokenize'] is False
+            return 'image placeholder and naming prompt'
+        def __call__(self, *, text, images, return_tensors):
+            assert len(images) == 1 and images[0].size == (32, 24)
+            assert images[0].getpixel((0, 0)) == (255, 0, 0)
+            batch = Batch(input_ids=tensor([[1, 99, 2]]), pixel_values=tensor([[1.]]),
+                          image_grid_thw=tensor([[1, 2, 2]]), patch_positions=tensor([[0, 0]]))
+            if fault == 'missing_pixels': del batch['pixel_values']
+            if fault == 'wrong_grid': batch['image_grid_thw'] = tensor([[1, 4, 4]])
+            return batch
+        def batch_decode(self, output, **kwargs): return ['chair']
+    generated = []
+    def generate(**kwargs):
+        generated.append(kwargs)
+        assert kwargs['pixel_values'].numel() > 0
+        return tensor([[1, 99, 2, 3]])
+    namer = object.__new__(TransformersNamer)
+    namer.spec = {'kind': 'mage_custom', 'model': 'mage', 'max_new_tokens': 24}
+    namer.processor, namer.model, namer.dtype = Processor(), SimpleNamespace(generate=generate), 'bf16'
+    namer.torch = SimpleNamespace(Tensor=Tensor, inference_mode=nullcontext,
+        cuda=SimpleNamespace(synchronize=lambda: None, max_memory_allocated=lambda: 0))
+    path = tmp_path / 'image.png'
+    Image.new('RGB', (32, 24), 'red').save(path)
+    if fault:
+        with pytest.raises(RuntimeError, match='Mage image'):
+            namer.infer(path)
+        assert not generated
+    else:
+        result = namer.infer(path)
+        assert result['label'] == 'chair' and result['image_inputs_verified']
+        assert result['image_tokens'] == 1 and len(generated) == 1
 
 
 def test_ocr_jobs_keep_text_separate_and_do_not_forward_auth(monkeypatch, tmp_path):

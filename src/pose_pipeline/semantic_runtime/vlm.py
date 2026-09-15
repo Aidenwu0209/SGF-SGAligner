@@ -172,9 +172,27 @@ class TransformersNamer(Namer):
         if spec["model"] == "minicpmv46":
             extra.update(downsample_mode=spec["downsample_mode"], max_slice_nums=1)
             gen["downsample_mode"] = spec["downsample_mode"]
-        inputs = self.processor.apply_chat_template(
-            messages, tokenize=True, add_generation_prompt=True, return_dict=True,
-            return_tensors="pt", **extra).to("cuda")
+        image_audit = {}
+        if spec["kind"] == "mage_custom":
+            # Mage's apply_chat_template delegates to its text tokenizer.
+            # Its image processor must be invoked separately to encode pixels.
+            text = self.processor.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True, **extra)
+            inputs = self.processor(text=[text], images=[image], return_tensors="pt").to("cuda")
+            required = ("pixel_values", "image_grid_thw", "patch_positions")
+            if any(key not in inputs or inputs[key].numel() == 0 for key in required):
+                raise RuntimeError("Mage image encoding is missing; refusing text-only naming")
+            image_token_id = self.processor.tokenizer.convert_tokens_to_ids("<|image_pad|>")
+            actual_tokens = int((inputs["input_ids"] == image_token_id).sum().item())
+            expected_tokens = int(inputs["image_grid_thw"].prod(-1).sum().item()) // self.processor.spatial_merge_size**2
+            if actual_tokens != expected_tokens or expected_tokens <= 0:
+                raise RuntimeError("Mage image token count does not match encoded image grid")
+            image_audit = {"image_inputs_verified": True, "image_tokens": actual_tokens,
+                           "image_tensor_shapes": {key: list(inputs[key].shape) for key in required}}
+        else:
+            inputs = self.processor.apply_chat_template(
+                messages, tokenize=True, add_generation_prompt=True, return_dict=True,
+                return_tensors="pt", **extra).to("cuda")
         for key, value in inputs.items():
             if isinstance(value, torch.Tensor) and value.is_floating_point():
                 inputs[key] = value.to(self.dtype)
@@ -184,6 +202,7 @@ class TransformersNamer(Namer):
         torch.cuda.synchronize()
         answer = self.processor.batch_decode(output[:, count:], skip_special_tokens=True)[0]
         return answer, {"executed": True, "output_tokens": int(output.shape[-1] - count),
+                        **image_audit,
                         "source_image_size": source_size, "adapter_image_size": list(image.size),
                         "peak_allocated_mib": torch.cuda.max_memory_allocated() / 1024**2}
 
@@ -215,16 +234,27 @@ class APINamer(Namer):
             {"type": "image_url", "image_url": {"url": _image_url(path)}},
             {"type": "text", "text": PROMPT}]}], "temperature": 0,
             "max_tokens": self.spec["max_new_tokens"], "thinking": {"type": "disabled"},
-            "reasoning_effort": "low", "stream": False}
+            "stream": False}
+        # DeepSeek's reasoning_effort would re-enable thinking. Keep the GLM
+        # request unchanged while matching the separately verified API payload.
+        effort = self.spec.get("reasoning_effort", "low")
+        if effort is not None:
+            payload["reasoning_effort"] = effort
+        if "image_detail" in self.spec:
+            payload["messages"][0]["content"][0]["image_url"]["detail"] = self.spec["image_detail"]
         response = requests.post(self.endpoint, headers={"Authorization": "Bearer " + self.token},
                                  json=payload, timeout=(15, 60), allow_redirects=False)
         if response.status_code != 200:
             raise RuntimeError(f"API HTTP {response.status_code}; no local-model fallback")
         body = response.json()
-        answer = body["choices"][0]["message"].get("content") or ""
+        choice = body["choices"][0]
+        answer = choice["message"].get("content") or ""
         # Do not persist response headers, signed URLs, tokens, or full request bodies.
         return answer.replace(self.token, "[redacted]"), {"executed": True, "usage": body.get("usage"),
-                                                           "response_model": body.get("model")}
+                                                           "response_model": body.get("model"),
+                                                           "system_fingerprint": body.get("system_fingerprint"),
+                                                           "finish_reason": choice.get("finish_reason"),
+                                                           "reasoning_content_present": bool(choice["message"].get("reasoning_content"))}
 
 
 class OCRNamer(APINamer):
