@@ -180,6 +180,8 @@ def _run_semantic(args):
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m pose_pipeline")
     commands = parser.add_subparsers(dest="command", required=True)
+    from .semantic_runtime.__main__ import add_commands
+    add_commands(commands)
     semantic = commands.add_parser('run-semantic', help='SGF/SGA labels on frozen RGB-D geometry')
     for flag in ('manifest','trajectory','baseline','model','relation-vocab','output','sga-python'):
         semantic.add_argument('--'+flag,type=Path,required=True)
