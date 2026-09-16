@@ -1,5 +1,7 @@
 # SGF-SGAligner
 
+[ssh33 图形界面启动与使用](docs/gui/README.md)：采集/预览 → developnew SAM3语义建图 → 可选未知点补全，支持模型、串行/阶段并行和语义/实例/原色切换。
+
 `developnew`：RGB-D 建图、SAM3 语义/实例融合、未知物体恢复与可切换 VLM 命名。2026-09-15 整合版本保留几何基线，采用经过开发场景验证的 **T1 实例关联 + P2 多视角补全 + Qwen3-VL-2B 确认命名**，并保留其他所有已测试模型的接口。
 
 [使用方法与算法边界](docs/experiments/semantic-runtime-20260915/README.md) · [模型注册表](configs/vlm_models.json) · [本次代码验证](docs/experiments/semantic-runtime-20260915/VALIDATION.md) · [原 SGF/SGA 入口](docs/SEMANTIC_MAPPING.md)
