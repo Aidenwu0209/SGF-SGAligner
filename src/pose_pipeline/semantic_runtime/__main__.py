@@ -71,6 +71,14 @@ def add_commands(commands):
         from .enhance import run
         print(json.dumps(run(args), indent=2))
     enhance.set_defaults(handler=enhance_run)
+    refine = commands.add_parser("refine-semantic", help="quality views, real NF4/SAM3 evidence and unknown-point refinement")
+    refine.add_argument("--workspace", type=Path, required=True)
+    refine.add_argument("--stage", choices=("all", "prepare", "name", "decide", "ground", "apply"), default="all")
+    refine.add_argument("--fragments", action="store_true", help="opt-in three-view unknown-fragment fill")
+    def refine_run(args):
+        from .refinement.__main__ import run
+        run(args.workspace, args.stage, args.fragments)
+    refine.set_defaults(handler=refine_run)
 
 
 def main():

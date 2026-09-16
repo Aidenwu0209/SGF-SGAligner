@@ -4,6 +4,20 @@
 
 [使用方法与算法边界](docs/experiments/semantic-runtime-20260915/README.md) · [模型注册表](configs/vlm_models.json) · [本次代码验证](docs/experiments/semantic-runtime-20260915/VALIDATION.md) · [原 SGF/SGA 入口](docs/SEMANTIC_MAPPING.md)
 
+## 2026-09-16：优质视角与未知点语义优化
+
+新增 `refine-semantic`：在已有地图/估计轨迹上选择物体视角，真实运行 Qwen NF4 与 SAM3，再用多帧深度证据填充未知点。ScanNet0050全GT正确标注率33.20%→33.40%，0011为40.70%→41.26%，0030不变；可选 `--fragments` 在Orbbec给收纳盒和塑料袋补244点（无完整GT）。几何、已有实例ID和已知标签保留；实例IoU50数量没有增加。
+
+这部分是固定几何的显式后处理入口，不自动改变原串行/并行流程。每五帧默认、所有模型/API接口均保留；未采用出现退步的运动取帧、表面扩张或已知类别重写。
+
+```bash
+PYTHONPATH=src python -m pose_pipeline.semantic_runtime refine-semantic \
+  --workspace /absolute/path/prepared-refinement --stage all
+# 经开发场景验证的可选三视角未知碎片策略：另加 --fragments
+```
+
+[准备输入、RGB-D注册、完整参数与真实结果](docs/experiments/semantic-refinement-20260916/README.md) · [代码集成验证](docs/experiments/semantic-refinement-20260916/VALIDATION.md)
+
 ## RTX 4060：分开运行与阶段并行的推荐
 
 2026-09-15 最新复测：**分开运行优先 Qwen3-VL-2B BF16；阶段并行优先 Qwen3-VL-2B NF4**。这是按验证完整性、命名质量和显存取舍的推荐，不是跨场景最优准确率结论。最新代码已修复 Mage 只编码文字、漏传图像的问题，并保留 DeepSeek 官方 API 和 Qwen 图像预算实验配置。
